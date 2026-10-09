@@ -175,7 +175,7 @@ def song_pointers():
                 if cmd == 0xB2:
                     return
                 addr = at + 4
-            elif cmd in (0xB1, 0xB4):
+            elif cmd == 0xB1:  # FINE; PEND only ends a pattern written inline
                 return
             else:
                 addr += {0xB9: 4, 0xCD: 3}.get(cmd, 1)
