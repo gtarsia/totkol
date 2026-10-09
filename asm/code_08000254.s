@@ -426,7 +426,7 @@ _08000610:
 	adds r3, r1, #0
 	lsls r2, r3, #0x10
 	lsrs r1, r2, #0x10
-	bl sub_08002504
+	bl InputUpdate
 	ldr r1, _08000688 @ =gUnk_030010D0
 	ldr r0, _08000688 @ =gUnk_030010D0
 	ldr r1, _08000688 @ =gUnk_030010D0
