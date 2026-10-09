@@ -5,7 +5,8 @@ Text, graphics and tilemaps are full of values that look like ROM addresses (0x0
 text control codes 8C 88 51 08), and the original disassembler created labels for some of
 them. Real pointers live in structures, so a data block (label to next label) only gets its
 pointer-looking values converted when they follow one:
-- small blocks (a struct or two) whose other words are pointers or small numbers;
+- small blocks (a struct or two) that the code loads, or whose other words are pointers or
+  small numbers;
 - tables and struct arrays: the values sit at a fixed stride, with the other slots at that
   stride holding pointers too (into ROM, RAM or I/O), NULL or small numbers (fields that are
   sometimes a pointer);
@@ -128,7 +129,8 @@ def block_pointers(start, end):
         # A struct: its other words are pointers or small numbers, unlike colors or tiles.
         words = [a for a in range(start + (-start) % 4, end - 3, 4) if a in data_words]
         fit = sum(1 for a in words if a in hits or filler(a))
-        if not words or fit / len(words) >= SMALL_FIT:
+        # A small block the code loads directly is a struct, not colors.
+        if not words or fit / len(words) >= SMALL_FIT or start in used_by_code:
             return hits
         return {a: p for a, p in hits.items() if p[2]}
     keep = {a for a, p in hits.items() if p[2]}
