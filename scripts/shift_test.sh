@@ -18,13 +18,7 @@ gcc -O2 -o $OUT/boot scripts/boot.c -lmgba -lpng
 tools/gbafix/gbafix $OUT/shifted.elf -t"TACTICSOGRE" -cATOE -mEB -r0 --silent
 arm-none-eabi-objcopy -O binary --gap-fill 0 --pad-to 0x8800000 $OUT/shifted.elf $OUT/shifted.gba
 
-# Skip the intro, start a new game, then tap A twice a second and Start every 10 s.
-python3 - > $OUT/inputs.txt <<EOF
-ev = {500: 8, 506: 0, 700: 8, 706: 0}
-for f in range(760, $FRAMES, 30): ev[f] = 1; ev[f + 5] = 0
-for f in range(8605, $FRAMES, 600): ev[f] = 8; ev[f + 3] = 0
-for f, k in sorted(ev.items()): print(f, k)
-EOF
+python3 scripts/inputs.py $FRAMES > $OUT/inputs.txt
 
 for rom in baserom shifted; do
 	src=baserom.gba; [ $rom = shifted ] && src=$OUT/shifted.gba

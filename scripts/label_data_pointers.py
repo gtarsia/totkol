@@ -10,11 +10,13 @@ pointer-looking values converted when they follow one:
 - tables and struct arrays: the values sit at a fixed stride, with the other slots at that
   stride holding pointers too (into ROM, RAM or I/O), NULL or small numbers (fields that are
   sometimes a pointer);
-- any value pointing exactly at a Thumb function (with the Thumb bit) or an ARM function;
+- any aligned value pointing exactly at a Thumb function (with the Thumb bit) or an ARM
+  function;
 - any value pointing at a label the code references;
-- in big blocks that are mostly NULL and small numbers, values pointing exactly at a label.
+- in big blocks that are NULL and small numbers but for a few words, values pointing exactly
+  at a label.
 A pointer-looking value is a data label or label + offset, at any alignment for exact labels.
-Values made of repeated bytes or halfwords, or shaped like tilemap entries, are never pointers
+Samples and LZ77 data hold no pointers. Values made of repeated bytes or halfwords, or shaped like tilemap entries, are never pointers
 (unless the code uses that label).
 Needs totkol.map from a matching build. Prints what it changed.
 """
@@ -31,6 +33,7 @@ ROM_BASE = 0x08000000
 SMALL_BLOCK = 0x40
 SMALL_FIT = 0.6
 SPARSE_FIT = 0.9
+SPARSE_OTHERS = 4  # a palette with a few colors set has more
 STRIDES = (4, 8, 12, 16, 20, 24, 28, 32, 36, 40, 44, 48, 52, 56, 60, 64)
 # Pointers to RAM, I/O, palette, VRAM and OAM: they fill table slots like ROM pointers do.
 OTHER_POINTERS = ((0x02000000, 0x02040000), (0x03000000, 0x03008000), (0x04000000, 0x04000400),
@@ -107,6 +110,9 @@ def pointer(addr):
     b = value.to_bytes(4, 'little')
     if value >> 16 == value & 0xFFFF or b[0] == b[1] == b[2]:
         return None
+    # Structs keep function pointers aligned; unaligned matches are bytes like 01 00 0C 08.
+    if addr % 4 and not data_start <= value < data_end:
+        return None
     if value & 1 and kinds.get(funcs.get(value - 1)) == 'thumb':
         return funcs[value - 1], 'thumb function', True
     if value != ROM_BASE and kinds.get(funcs.get(value)) == 'arm':
@@ -137,7 +143,8 @@ def block_pointers(start, end):
     keep = {a for a, p in hits.items() if p[2]}
     # A struct that is mostly NULL and small numbers, like a big record with few fields set.
     words = [a for a in range(start + (-start) % 4, end - 3, 4) if a in data_words]
-    if words and sum(1 for a in words if a in hits or filler(a)) / len(words) >= SPARSE_FIT:
+    others = sum(1 for a in words if a not in hits and not filler(a))
+    if words and others <= SPARSE_OTHERS and 1 - others / len(words) >= SPARSE_FIT:
         keep.update(a for a, p in hits.items() if a % 4 == 0 and ' + ' not in p[0])
     for stride in STRIDES:
         for phase in {a % stride for a in hits}:
@@ -226,9 +233,48 @@ def song_pointers():
     return out, samples
 
 
+def lz77_end(addr, limit):
+    """End of the LZ77 stream (BIOS format) at addr, if one is there and ends before limit."""
+    pos = addr - ROM_BASE
+    if ROM[pos] != 0x10:
+        return None
+    size, out, pos = int.from_bytes(ROM[pos + 1:pos + 4], 'little'), 0, pos + 4
+    if not 0 < size < 0x40000:
+        return None
+    while out < size:
+        if pos >= limit - ROM_BASE:
+            return None
+        flags, pos = ROM[pos], pos + 1
+        for bit in range(8):
+            if out >= size:
+                break
+            if flags & 0x80 >> bit:
+                b0, b1 = ROM[pos], ROM[pos + 1]
+                if ((b0 & 0xF) << 8 | b1) + 1 > out:
+                    return None
+                out, pos = out + (b0 >> 4) + 3, pos + 2
+            else:
+                out, pos = out + 1, pos + 1
+    return ROM_BASE + pos if out == size and ROM_BASE + pos <= limit else None
+
+
+def compressed():
+    """Ranges holding LZ77 data that fills a block, from its label or 4 bytes past it (after a
+    header)."""
+    out = []
+    for i, start in enumerate(label_addrs):
+        end = label_addrs[i + 1] if i + 1 < len(label_addrs) else data_end
+        for at in (start, start + 4):
+            stop = at < end and lz77_end(at, end)
+            if stop and end - stop < 4:
+                out.append((at, stop))
+                break
+    return out
+
+
 sound, samples = song_pointers()
 in_sample = set()
-for lo, hi in samples:
+for lo, hi in samples + compressed():
     in_sample.update(range(lo - 3, hi))
 found = dict(sound)
 for i, start in enumerate(label_addrs):
@@ -246,6 +292,18 @@ if os.environ.get('POINTERS_DUMP'):
 if os.environ.get('POINTERS_ONLY'):
     keep = set(json.load(open(os.environ['POINTERS_ONLY'])))
     found = {a: v for a, v in found.items() if a in keep}
+
+# A few unused labels fall inside a pointer (the disassembler took bytes of it for an address);
+# drop them so the pointer fits in one incbin.
+used = asm_names | {sym.split(' ')[0] for sym, _ in found.values()}
+for addr in found:
+    for inside in range(addr + 1, addr + 4):
+        if inside in labels and labels[inside] not in used:
+            text = re.sub(r'\t\.incbin "baserom\.gba", (0x\w+), (0x\w+)\n\n'
+                          rf'{labels[inside]}:: @ \w+\n\t\.incbin "baserom\.gba", 0x\w+, (0x\w+)\n',
+                          lambda m: f'\t.incbin "baserom.gba", {m.group(1)}, '
+                                    f'0x{int(m.group(2), 16) + int(m.group(3), 16):X}\n', text)
+            print(f'dropped {labels[inside]}, inside a pointer')
 
 stats = collections.Counter()
 

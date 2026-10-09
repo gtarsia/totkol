@@ -1,0 +1,23 @@
+#!/bin/bash
+# Finds what keeps code and data from moving: links a ROM with everything after crt0 moved by
+# 16 MB, fills the gap with the original ROM, and runs scripts/lockstep.c on both.
+# Usage: scripts/lockstep.sh [FRAMES]  (run from the repo root after `make`)
+set -e
+FRAMES=${1:-40000}
+PAD=0x1000000
+OUT=build/lockstep
+mkdir -p $OUT
+gcc -O2 -Wall -o $OUT/lockstep scripts/lockstep.c -lmgba
+(cd build/totkol && arm-none-eabi-ld --defsym shift_test_pad=$PAD -T ../../linker.ld \
+	-o ../lockstep/shifted.elf -L ../../tools/agbcc/lib -lc -lgcc)
+tools/gbafix/gbafix $OUT/shifted.elf -t"TACTICSOGRE" -cATOE -mEB -r0 --silent
+arm-none-eabi-objcopy -O binary --gap-fill 0 $OUT/shifted.elf $OUT/shifted.gba
+python3 - $OUT/shifted.gba <<'PY'
+import sys
+base = open('baserom.gba', 'rb').read()
+rom = bytearray(open(sys.argv[1], 'rb').read())
+rom[0x254:len(base)] = base[0x254:]
+open(sys.argv[1], 'wb').write(rom)
+PY
+python3 scripts/inputs.py $FRAMES > $OUT/inputs.txt
+$OUT/lockstep baserom.gba $OUT/shifted.gba $OUT/inputs.txt $FRAMES $PAD
