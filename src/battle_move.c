@@ -42,22 +42,15 @@ enum {
 #define SE_CONFIRM 0xAD
 #define SE_CANCEL  0xB0
 
-// Speeds and delays, in frames.
-#if QOL
-#define PATH_NODES_PER_FRAME    255 // path search speed
-#define AI_RANGE_DELAY          0   // AI: how long its move range shows
-#define AI_DEST_DELAY           0   // AI: how long the cursor stays on its destination
-#define WALK_SPEED              4   // position units per frame (32 per tile)
-#else
-#define PATH_NODES_PER_FRAME    4
-#define AI_RANGE_DELAY          16
-#define AI_DEST_DELAY           16
-#define WALK_SPEED              2
-#endif
-#define HELP_DELAY              4   // before the help window opens
+// Speeds and delays, in frames: (QOL ? mod : original).
+#define PATH_NODES_PER_FRAME    (QOL ? 255 : 4) // path search speed
+#define AI_RANGE_DELAY          (QOL ? 0 : 16)  // AI: how long its move range shows
+#define AI_DEST_DELAY           (QOL ? 0 : 16)  // AI: how long the cursor stays on its destination
+#define WALK_SPEED              (QOL ? 4 : 2)   // position units per frame (32 per tile)
+#define HELP_DELAY              4               // before the help window opens
 
 extern u8 gUnk_02000000[];
-extern void *gUnk_0202A5A8;
+extern u8 *gUnk_0202A5A8;           // message window; the type matters for matching
 extern u8 gUnk_0202A5AC;
 extern const u8 gUnk_0875C8DE[];
 extern const u8 gUnk_0875D99A[];
@@ -112,9 +105,18 @@ void *sub_080A3B9C(struct BattleUnit *, u32);
 void *sub_080A3BCC(struct BattleUnit *);
 u8 sub_08142F50(u32);
 
-// Doesn't match yet: agbcc picks different scratch registers. The default build uses this C;
-// NONMATCHING=0 builds the original code instead.
-#ifdef NONMATCHING
+// Opens a message window with text at (x, y). Inline in the original too: matching needs it.
+static inline void ShowMessage(const u8 *text, u32 x, u32 y)
+{
+    sub_08015D50(gUnk_0202A5A8, 0x22F, text, x, y, -1, 2, 1, 0, 0x100, 0x100, 0, 9);
+}
+
+// Same: a plain store loads the address before the value.
+static inline void SetCursorMode(u8 mode)
+{
+    gUnk_03000FA0.mode = mode;
+}
+
 u32 BattlePhaseMove(struct Battle *b)
 {
     s32 x, y;
@@ -156,15 +158,13 @@ u32 BattlePhaseMove(struct Battle *b)
         gUnk_03000FA0.mode = 0;
         break;
     case MOVE_FIND_PATHS:
-        if (b->flags & BATTLE_NO_PATHS) {
-            POP_STATE(b);
-            break;
+        if (!(b->flags & BATTLE_NO_PATHS)) {
+            if (sub_08052024(b->pathSearch, b->pathBudget) == TRUE)
+                break;
+            if (b->pathWork != NULL)
+                BattleFree(b->pathWork);
+            b->pathWork = NULL;
         }
-        if (sub_08052024(b->pathSearch, b->pathBudget) == TRUE)
-            break;
-        if (b->pathWork != NULL)
-            BattleFree(b->pathWork);
-        b->pathWork = NULL;
         POP_STATE(b);
         break;
     case MOVE_SHOW_RANGE:
@@ -300,7 +300,7 @@ u32 BattlePhaseMove(struct Battle *b)
         gUnk_0202A5AC = gUnk_03000FA0.mode;
         gUnk_03000FA0.mode = 0;
         gUnk_0202A5A8 = BattleAlloc(0x1C44);
-        sub_08015D50(gUnk_0202A5A8, 0x22F, gUnk_0875D99A, 0x22, 2, -1, 2, 1, 0, 0x100, 0x100, 0, 9);
+        ShowMessage(gUnk_0875D99A, 0x22, 2);
         b->state = MOVE_HELP_WAIT;
         break;
     case MOVE_HELP_WAIT:
@@ -311,7 +311,7 @@ u32 BattlePhaseMove(struct Battle *b)
             gUnk_0202A5A8 = NULL;
             sub_0807628C();
         }
-        gUnk_03000FA0.mode = 1;
+        SetCursorMode(1);
         b->state = MOVE_SELECT;
         break;
     case MOVE_SELECT:
@@ -361,8 +361,7 @@ u32 BattlePhaseMove(struct Battle *b)
                     gUnk_0202A5AC = gUnk_03000FA0.mode;
                     gUnk_03000FA0.mode = 0;
                     gUnk_0202A5A8 = BattleAlloc(0x1C44);
-                    sub_08015D50(gUnk_0202A5A8, 0x22F, gUnk_0875C8DE, 0x1D, 4, -1, 2, 1, 0, 0x100,
-                                 0x100, 0, 9);
+                    ShowMessage(gUnk_0875C8DE, 0x1D, 4);
                     b->state = MOVE_ERROR_WAIT;
                     PUSH_STATE(b, MOVE_SELECT_START);
                     break;
@@ -374,8 +373,7 @@ u32 BattlePhaseMove(struct Battle *b)
                     gUnk_0202A5AC = gUnk_03000FA0.mode;
                     gUnk_03000FA0.mode = 0;
                     gUnk_0202A5A8 = BattleAlloc(0x1C44);
-                    sub_08015D50(gUnk_0202A5A8, 0x22F, gUnk_0875C8DE, 0x1D, 4, -1, 2, 1, 0, 0x100,
-                                 0x100, 0, 9);
+                    ShowMessage(gUnk_0875C8DE, 0x1D, 4);
                     b->state = MOVE_ERROR_WAIT;
                     PUSH_STATE(b, MOVE_SELECT_START);
                     break;
@@ -383,6 +381,7 @@ u32 BattlePhaseMove(struct Battle *b)
             }
             PlaySE(SE_CONFIRM);
             sub_08024CA0();
+            gUnk_03000FA0.field37 = 1; // set twice in the original
             gUnk_03000FA0.mode = 0;
             b->destX = gUnk_03000FA0.x;
             b->destY = gUnk_03000FA0.y;
@@ -561,9 +560,3 @@ u32 BattlePhaseMove(struct Battle *b)
     }
     return 0;
 }
-#else
-NAKED u32 BattlePhaseMove(struct Battle *b)
-{
-    asm_unified(".include \"asm/non_matching/battle_move/BattlePhaseMove.inc\"");
-}
-#endif
