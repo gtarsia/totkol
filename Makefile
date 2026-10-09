@@ -1,4 +1,13 @@
+# Without devkitARM, use the system arm-none-eabi binutils.
+ifdef DEVKITARM
 include $(DEVKITARM)/base_tools
+LD := $(DEVKITARM)/bin/arm-none-eabi-ld
+else
+export AS := arm-none-eabi-as
+export CC := arm-none-eabi-gcc
+export OBJCOPY := arm-none-eabi-objcopy
+LD := arm-none-eabi-ld
+endif
 
 COMPARE ?= 0
 
@@ -7,7 +16,6 @@ COMPARE := 1
 endif
 
 CPP := $(CC) -E
-LD := $(DEVKITARM)/bin/arm-none-eabi-ld
 
 REVISION := 0
 GAME_LANGUAGE := ENGLISH
