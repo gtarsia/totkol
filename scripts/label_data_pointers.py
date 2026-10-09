@@ -11,7 +11,8 @@ pointer-looking values converted when they follow one:
   stride holding pointers too (into ROM, RAM or I/O), NULL or small numbers (fields that are
   sometimes a pointer);
 - any value pointing exactly at a Thumb function (with the Thumb bit) or an ARM function;
-- any value pointing at a label the code references.
+- any value pointing at a label the code references;
+- in big blocks that are mostly NULL and small numbers, values pointing exactly at a label.
 A pointer-looking value is a data label or label + offset, at any alignment for exact labels.
 Values made of repeated bytes or halfwords, or shaped like tilemap entries, are never pointers
 (unless the code uses that label).
@@ -29,6 +30,7 @@ DATA = 'data/data.s'
 ROM_BASE = 0x08000000
 SMALL_BLOCK = 0x40
 SMALL_FIT = 0.6
+SPARSE_FIT = 0.9
 STRIDES = (4, 8, 12, 16, 20, 24, 28, 32, 36, 40, 44, 48, 52, 56, 60, 64)
 # Pointers to RAM, I/O, palette, VRAM and OAM: they fill table slots like ROM pointers do.
 OTHER_POINTERS = ((0x02000000, 0x02040000), (0x03000000, 0x03008000), (0x04000000, 0x04000400),
@@ -134,6 +136,10 @@ def block_pointers(start, end):
             return hits
         return {a: p for a, p in hits.items() if p[2]}
     keep = {a for a, p in hits.items() if p[2]}
+    # A struct that is mostly NULL and small numbers, like a big record with few fields set.
+    words = [a for a in range(start + (-start) % 4, end - 3, 4) if a in data_words]
+    if words and sum(1 for a in words if a in hits or filler(a)) / len(words) >= SPARSE_FIT:
+        keep.update(a for a, p in hits.items() if a % 4 == 0 and ' + ' not in p[0])
     for stride in STRIDES:
         for phase in {a % stride for a in hits}:
             slots = range(start + (phase - start) % stride, end - 3, stride)

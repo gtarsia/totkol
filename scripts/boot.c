@@ -16,6 +16,13 @@ static void quiet(struct mLogger *l, int c, enum mLogLevel v, const char *f, va_
 }
 static struct mLogger logger = { .log = quiet };
 
+// What DUMP saves, in this order: EWRAM, IWRAM, palette, VRAM, OAM.
+#define REGIONS 5
+static const uint32_t regions[REGIONS][2] = {
+	{ 0x02000000, 0x02040000 }, { 0x03000000, 0x03008000 }, { 0x05000000, 0x05000400 },
+	{ 0x06000000, 0x06018000 }, { 0x07000000, 0x07000400 },
+};
+
 int main(int argc, char **argv) {
 	if (argc < 7) { fprintf(stderr, "usage: boot ROM SAV INPUTS N STEP OUTDIR\n"); return 1; }
 	mLogSetDefaultLogger(&logger);
@@ -54,11 +61,12 @@ int main(int argc, char **argv) {
 			PNGWritePixels(png, w, h, w, buf);
 			PNGWriteClose(png, info);
 			o->close(o);
-			if (getenv("DUMP") && f + 1 >= atoi(getenv("DUMP"))) {  // EWRAM then IWRAM, next to each screenshot
+			if (getenv("DUMP") && f + 1 >= atoi(getenv("DUMP"))) {  // memory, next to each screenshot
 				snprintf(path, sizeof path, "%s/f%05d.ram", argv[6], f + 1);
 				FILE *r = fopen(path, "wb");
-				for (uint32_t a = 0x02000000; a < 0x02040000; a++) fputc(core->busRead8(core, a), r);
-				for (uint32_t a = 0x03000000; a < 0x03008000; a++) fputc(core->busRead8(core, a), r);
+				for (int i = 0; i < REGIONS; i++)
+					for (uint32_t a = regions[i][0]; a < regions[i][1]; a++)
+						fputc(core->busRead8(core, a), r);
 				fclose(r);
 			}
 		}
