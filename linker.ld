@@ -526,6 +526,8 @@ SECTIONS {
         asm/code_080063F4.o(.text);
         asm/multi_sio_asm.o(.text);
         asm/code.o(.text);
+        src/battle_reach.o(.text);
+        asm/code_0804CD88.o(.text);
         src/battle_move.o(.text);
         asm/code_08066D90.o(.text);
         asm/libagbsyscall.o(.text);
