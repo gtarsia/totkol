@@ -43,10 +43,10 @@ enum {
 #define SE_CANCEL  0xB0
 
 // Speeds and delays, in frames.
-#define PATH_NODES_PER_FRAME    4   // path search speed
-#define AI_RANGE_DELAY          16  // AI: how long its move range shows
-#define AI_DEST_DELAY           16  // AI: how long the cursor stays on its destination
-#define WALK_SPEED              2   // position units per frame (32 per tile)
+#define PATH_NODES_PER_FRAME    255   // path search speed
+#define AI_RANGE_DELAY          0  // AI: how long its move range shows
+#define AI_DEST_DELAY           0  // AI: how long the cursor stays on its destination
+#define WALK_SPEED              4   // position units per frame (32 per tile)
 #define HELP_DELAY              4   // before the help window opens
 
 extern u8 gUnk_02000000[];
@@ -105,8 +105,8 @@ void *sub_080A3B9C(struct BattleUnit *, u32);
 void *sub_080A3BCC(struct BattleUnit *);
 u8 sub_08142F50(u32);
 
-// Doesn't match yet: agbcc picks different scratch registers. Build with NONMATCHING=1 to use the
-// C (needed to change the move phase); the default build uses the original code.
+// Doesn't match yet: agbcc picks different scratch registers. The default build uses this C;
+// NONMATCHING=0 builds the original code instead.
 #ifdef NONMATCHING
 u32 BattlePhaseMove(struct Battle *b)
 {

@@ -52,9 +52,15 @@ CC1 := tools/agbcc/bin/agbcc
 override CFLAGS += -mthumb-interwork -Wimplicit -Wparentheses -Werror -O2 -g -fhex-asm -fprologue-bugfix -ffix-debug-line
 
 CPPFLAGS := -I tools/agbcc -I tools/agbcc/include -iquote include -nostdinc -DREVISION=$(REVISION) -D$(GAME_LANGUAGE)
+# The C of functions that don't match yet; NONMATCHING=0 builds their original asm instead.
+NONMATCHING ?= 1
 ifeq ($(NONMATCHING),1)
 CPPFLAGS += -DNONMATCHING
 endif
+# Rebuilds the C files when NONMATCHING changes from the last build.
+NONMATCHING_STAMP := $(OBJ_DIR)/nonmatching
+$(shell mkdir -p $(OBJ_DIR); [ "$$(cat $(NONMATCHING_STAMP) 2>/dev/null)" = "$(NONMATCHING)" ] || \
+	echo "$(NONMATCHING)" > $(NONMATCHING_STAMP))
 
 LDFLAGS = -Map ../../$(MAP)
 
@@ -178,7 +184,7 @@ else
 $(C_BUILDDIR)/%.o: c_dep = $(shell $(SCANINC) -I include $(C_SUBDIR)/$*.c)
 endif
 
-$(C_BUILDDIR)/%.o : $(C_SUBDIR)/%.c $$(c_dep)
+$(C_BUILDDIR)/%.o : $(C_SUBDIR)/%.c $$(c_dep) $(NONMATCHING_STAMP)
 	@$(CPP) $(CPPFLAGS) $< -o $(C_BUILDDIR)/$*.i
 	@$(PREPROC) $(C_BUILDDIR)/$*.i charmap.txt | $(CC1) $(CFLAGS) -o $(C_BUILDDIR)/$*.s
 	@echo -e "\t.text\n\t.align\t2, 0 @ Don't pad with nop\n" >> $(C_BUILDDIR)/$*.s
