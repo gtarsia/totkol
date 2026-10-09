@@ -52,6 +52,9 @@ CC1 := tools/agbcc/bin/agbcc
 override CFLAGS += -mthumb-interwork -Wimplicit -Wparentheses -Werror -O2 -g -fhex-asm -fprologue-bugfix -ffix-debug-line
 
 CPPFLAGS := -I tools/agbcc -I tools/agbcc/include -iquote include -nostdinc -DREVISION=$(REVISION) -D$(GAME_LANGUAGE)
+ifeq ($(NONMATCHING),1)
+CPPFLAGS += -DNONMATCHING
+endif
 
 LDFLAGS = -Map ../../$(MAP)
 
