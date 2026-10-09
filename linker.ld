@@ -512,6 +512,8 @@ SECTIONS {
         data/data_087D69E8.o(.rodata);
     } >iwram
 
+    /* After each C file, the next object goes back to its original address: QOL changes to
+       C values can make agbcc emit more or less code. Growing fails the link. */
     rom : ALIGN(4) {
         asm/crt0.o(.text);
         /* scripts/shift_test.sh moves everything after crt0 by this many bytes. */
@@ -519,6 +521,7 @@ SECTIONS {
         asm/code_08000254.o(.text); /* -O0 */
         asm/code_080008EC.o(.text);
         src/input.o(.text);
+        . = 0x2694 + (DEFINED(shift_test_pad) ? shift_test_pad : 0);
         asm/code_08002694.o(.text);
         asm/code_08003FF8.o(.text); /* -O0 */
         asm/code_0800405C.o(.text);
@@ -527,8 +530,10 @@ SECTIONS {
         asm/multi_sio_asm.o(.text);
         asm/code.o(.text);
         src/battle_reach.o(.text);
+        . = 0x4CD88 + (DEFINED(shift_test_pad) ? shift_test_pad : 0);
         asm/code_0804CD88.o(.text);
         src/battle_move.o(.text);
+        . = 0x66D90 + (DEFINED(shift_test_pad) ? shift_test_pad : 0);
         asm/code_08066D90.o(.text);
         asm/libagbsyscall.o(.text);
         asm/agb_flash.o(.text);

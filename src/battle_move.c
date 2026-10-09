@@ -45,7 +45,7 @@ enum {
 // Speeds and delays, in frames: (QOL ? mod : original).
 #define PATH_NODES_PER_FRAME    (QOL ? 255 : 4) // path search speed
 #define AI_RANGE_DELAY          (QOL ? 0 : 16)  // AI: how long its move range shows
-#define AI_DEST_DELAY           (QOL ? 0 : 16)  // AI: how long the cursor stays on its destination
+#define AI_DEST_DELAY           (QOL ? 1 : 16)  // AI: how long the cursor stays on its destination
 #define WALK_SPEED              (QOL ? 4 : 2)   // position units per frame (32 per tile)
 #define HELP_DELAY              4               // before the help window opens
 
