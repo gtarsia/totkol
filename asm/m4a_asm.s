@@ -463,7 +463,8 @@ _0815BC1E:
 	str r1, [r0, #0x2c]
 _0815BC22:
 	bx lr
-_0815BC24:
+	thumb_func_start ply_fine
+ply_fine: @ 0x0815BC24
 	push {r4, r5, lr}
 	adds r5, r1, #0
 	ldr r4, [r5, #0x20]
@@ -572,7 +573,7 @@ ply_patt: @ 0x0815BCB4
 	strb r2, [r1, #2]
 	b ply_goto
 _0815BCCC:
-	b _0815BC24
+	b ply_fine
 	.align 2, 0
 
 	thumb_func_start ply_pend

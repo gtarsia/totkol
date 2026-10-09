@@ -3,6 +3,7 @@
 # bytes, plays both ROMs headless with the same keys (new game up to the first battle) and
 # compares screenshots. Any raw ROM address left in the data shows up as a difference.
 # Usage: scripts/shift_test.sh [PAD] [FRAMES] [STEP]  (run from the repo root after `make`)
+# With DUMP=FRAME, also dumps RAM from FRAME on; compare with scripts/ram_diff.py.
 set -e
 PAD=${1:-0x100}
 FRAMES=${2:-40000}

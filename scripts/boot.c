@@ -1,7 +1,7 @@
 #define USE_PNG
 // boot ROM SAV INPUTS N STEP OUTDIR: boot ROM from reset with SAV (a copy: it gets written),
 // feed keys from INPUTS ("frame keymask" lines, each held until the next) and save a PNG every
-// STEP frames. With DUMP set, also dumps RAM.
+// STEP frames. With DUMP=FRAME, also dumps RAM from that frame on.
 #include <mgba/core/core.h>
 #include <mgba/core/log.h>
 #include <mgba-util/vfs.h>
@@ -54,7 +54,7 @@ int main(int argc, char **argv) {
 			PNGWritePixels(png, w, h, w, buf);
 			PNGWriteClose(png, info);
 			o->close(o);
-			if (getenv("DUMP")) {  // EWRAM then IWRAM, next to each screenshot
+			if (getenv("DUMP") && f + 1 >= atoi(getenv("DUMP"))) {  // EWRAM then IWRAM, next to each screenshot
 				snprintf(path, sizeof path, "%s/f%05d.ram", argv[6], f + 1);
 				FILE *r = fopen(path, "wb");
 				for (uint32_t a = 0x02000000; a < 0x02040000; a++) fputc(core->busRead8(core, a), r);
