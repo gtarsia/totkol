@@ -36945,6 +36945,12 @@ _0805DDA8: .4byte 0xFFFFDFFF
 _0805DDAC: .4byte 0x0000F7FF
 _0805DDB0: .4byte 0x0000FFDF
 
+@ Sprite animation speeds (sub_0801305C): durations as written, doubled or halved.
+@ sub_0805DDB4 picks it from UnitInfo byte 3: > 0 fast, < 0 slow, else normal.
+	.set ANIM_NORMAL, 0
+	.set ANIM_SLOW, 1
+	.set ANIM_FAST, 2
+
 	thumb_func_start sub_0805DDB4
 sub_0805DDB4: @ 0x0805DDB4
 	push {r4, r5, r6, r7, lr}
@@ -37192,17 +37198,17 @@ _0805DF80:
 	cmp r0, #0
 	ble _0805DF92
 	ldr r0, [r5, #8]
-	movs r1, #2
+	movs r1, #ANIM_FAST
 	b _0805DFA0
 _0805DF92:
 	cmp r0, #0
 	bge _0805DF9C
 	ldr r0, [r5, #8]
-	movs r1, #1
+	movs r1, #ANIM_SLOW
 	b _0805DFA0
 _0805DF9C:
 	ldr r0, [r5, #8]
-	movs r1, #0
+	movs r1, #ANIM_NORMAL
 _0805DFA0:
 	bl sub_0801305C
 _0805DFA4:
@@ -43197,6 +43203,11 @@ _08060E48: .4byte 0x0000026E
 _08060E4C: .4byte 0x0000027F
 _08060E50: .4byte 0x0000027E
 
+@ Waits before an action, in frames: queued in Battle+0x294 and popped by phase 1.
+@ QOL idea, once this is in C: 4 and 2.
+	.set ACTION_WAIT_LONG, 0x10
+	.set ACTION_WAIT_SHORT, 8
+
 	thumb_func_start sub_08060E54
 sub_08060E54: @ 0x08060E54
 	push {r4, r5, r6, r7, lr}
@@ -43427,7 +43438,7 @@ _08061002:
 	adds r1, r1, r7
 	mov r8, r1
 	add r0, r8
-	movs r1, #8
+	movs r1, #ACTION_WAIT_SHORT
 	strh r1, [r0]
 	ldrb r0, [r3]
 	adds r1, r0, #1
@@ -43487,7 +43498,7 @@ _08061002:
 	lsls r0, r0, #0x10
 	lsrs r0, r0, #0xf
 	add r0, r8
-	movs r1, #0x10
+	movs r1, #ACTION_WAIT_LONG
 	mov ip, r1
 	mov r1, ip
 	strh r1, [r0]
@@ -43561,7 +43572,7 @@ _08061002:
 	lsls r0, r0, #0x10
 	lsrs r0, r0, #0xf
 	add r8, r0
-	movs r1, #8
+	movs r1, #ACTION_WAIT_SHORT
 	mov r0, r8
 	strh r1, [r0]
 	ldrb r0, [r3]

@@ -25232,11 +25232,11 @@ _08073994: @ jump table
 	.4byte _08073DAE @ case 127
 	.4byte _08073BA8 @ case 128
 _08073B98:
-	ldr r0, _08073BA0 @ =gUnk_0872F5DC
+	ldr r0, _08073BA0 @ =gDamageNumberAnim
 	ldr r3, _08073BA4 @ =gUnk_0872F610
 	b _08073D8C
 	.align 2, 0
-_08073BA0: .4byte gUnk_0872F5DC
+_08073BA0: .4byte gDamageNumberAnim
 _08073BA4: .4byte gUnk_0872F610
 _08073BA8:
 	ldr r0, _08073BB0 @ =gUnk_0872F704
@@ -25435,11 +25435,11 @@ _08073D58:
 _08073D60: .4byte gUnk_0872EFF8
 _08073D64: .4byte gUnk_0872F028
 _08073D68:
-	ldr r0, _08073D70 @ =gUnk_0872E850
+	ldr r0, _08073D70 @ =gGuardPopupAnim
 	ldr r3, _08073D74 @ =gUnk_0872E894
 	b _08073D8C
 	.align 2, 0
-_08073D70: .4byte gUnk_0872E850
+_08073D70: .4byte gGuardPopupAnim
 _08073D74: .4byte gUnk_0872E894
 _08073D78:
 	ldr r0, _08073D80 @ =gUnk_0872E7EC

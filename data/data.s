@@ -37284,8 +37284,16 @@ gUnk_0872E6C4:: @ 0872E6C4
 gUnk_0872E7EC:: @ 0872E7EC
 	.incbin "baserom.gba", 0x72E7EC, 0x64
 
-gUnk_0872E850:: @ 0872E850
-	.incbin "baserom.gba", 0x72E850, 0x44
+@ Battle popups (number of damage, GUARD) are scripts for the player at 0x0806E400: u16 4, 0,
+@ count, then count (cel, frames) pairs, then 0. The last cel stays on screen POPUP_HOLD frames.
+@ QOL idea, once the player is in C: 24.
+	.set POPUP_HOLD, 64
+
+gGuardPopupAnim:: @ 0872E850
+	.2byte 4, 0, 15
+	.2byte 1, 1,  0, 1,  2, 1,  0, 1,  3, 1,  0, 1,  2, 1,  0, 1
+	.2byte 1, 1,  4, 1,  5, 1,  4, 1,  2, 1,  4, 1,  1, POPUP_HOLD
+	.2byte 0
 
 gUnk_0872E894:: @ 0872E894
 	.incbin "baserom.gba", 0x72E894, 0xA8
@@ -37347,8 +37355,11 @@ gUnk_0872F450:: @ 0872F450
 gUnk_0872F4B4:: @ 0872F4B4
 	.incbin "baserom.gba", 0x72F4B4, 0x128
 
-gUnk_0872F5DC:: @ 0872F5DC
-	.incbin "baserom.gba", 0x72F5DC, 0x34
+gDamageNumberAnim:: @ 0872F5DC
+	.2byte 4, 0, 11
+	.2byte 1, 2,  2, 2,  3, 2,  4, 2,  5, 2,  6, 3,  7, 3,  8, 3
+	.2byte 9, 3,  10, 3,  11, POPUP_HOLD
+	.2byte 0
 
 gUnk_0872F610:: @ 0872F610
 	.incbin "baserom.gba", 0x72F610, 0xF4
