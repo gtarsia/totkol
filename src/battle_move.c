@@ -6,23 +6,23 @@
 // (aiDestX/aiDestY) and only shows the choice.
 
 enum {
-    MOVE_INIT_UI,
+    MOVE_INIT_UI,           // guess
     MOVE_INIT,              // start the path search from the unit
     MOVE_FIND_PATHS,        // path search, pathBudget nodes per frame
     MOVE_SHOW_RANGE,
-    MOVE_CLEAR_TILES,
+    MOVE_CLEAR_TILES,       // guess
     MOVE_SHOW_DEST,
     MOVE_FOCUS_DEST,
-    MOVE_STATUS_WINDOW,
-    MOVE_HELP_DELAY,
+    MOVE_STATUS_WINDOW,     // guess: the window SELECT opens
+    MOVE_HELP_DELAY,        // "Choose where you want to move this character."
     MOVE_HELP_WAIT,
     MOVE_SELECT_START,
     MOVE_SELECT,            // the player moves the cursor; the AI jumps to its choice
-    MOVE_VIEW_START,
+    MOVE_VIEW_START,        // guess: see BATTLE_VIEW_RANGE
     MOVE_VIEW,
-    MOVE_PANEL_OPEN,
-    MOVE_PANEL_OPEN_WAIT,
-    MOVE_PANEL_CLOSE_WAIT,
+    MOVE_UI_OPEN,           // guess: opens something for the unit; not the game's "panel"
+    MOVE_UI_OPEN_WAIT,
+    MOVE_UI_CLOSE_WAIT,
     MOVE_CANCEL,
     MOVE_EXIT,
     MOVE_CONFIRM,
@@ -31,9 +31,9 @@ enum {
     MOVE_WALK_END,
     MOVE_DONE,              // on to PHASE_ACT
     MOVE_UNDO,              // back to where the unit was
-    MOVE_ERROR_WAIT,
+    MOVE_ERROR_WAIT,        // "Can't move to that spot. Select a panel within range."
     MOVE_CAMERA_WAIT,
-    MOVE_WARP_START,        // BATTLE_NO_PATHS units warp instead of walking
+    MOVE_WARP_START,        // guess: BATTLE_NO_PATHS units warp instead of walking
     MOVE_WARP_OUT,
     MOVE_WARP_IN_START,
     MOVE_WARP_IN,
@@ -139,7 +139,7 @@ u32 BattlePhaseMove(struct Battle *b)
         if (b->flags & BATTLE_VIEW_RANGE) {
             PUSH_STATE(b, MOVE_VIEW_START);
         } else if (!(b->flags & BATTLE_AI)) {
-            PUSH_STATE(b, MOVE_PANEL_OPEN);
+            PUSH_STATE(b, MOVE_UI_OPEN);
         } else {
             PUSH_STATE(b, MOVE_SELECT_START);
             gUnk_03000FA0.mode = 0;
@@ -219,24 +219,24 @@ u32 BattlePhaseMove(struct Battle *b)
         POP_STATE(b);
         PlaySE(SE_CONFIRM);
         break;
-    case MOVE_PANEL_OPEN:
+    case MOVE_UI_OPEN:
         sub_0806F5B4(b->unit->field0, b->unit->info);
         if (sub_08075E84() == TRUE) {
-            b->state = MOVE_PANEL_OPEN_WAIT;
+            b->state = MOVE_UI_OPEN_WAIT;
             break;
         }
         sub_08075DEC(0x10);
         sub_08075DEC(0x120);
         sub_08075E24();
         sub_0806FDE4();
-        b->state = MOVE_PANEL_OPEN_WAIT;
+        b->state = MOVE_UI_OPEN_WAIT;
         break;
-    case MOVE_PANEL_OPEN_WAIT:
+    case MOVE_UI_OPEN_WAIT:
         if (!sub_08075E84())
             break;
         b->state = MOVE_SELECT_START;
         break;
-    case MOVE_PANEL_CLOSE_WAIT:
+    case MOVE_UI_CLOSE_WAIT:
         if (!sub_08075E84())
             break;
         POP_STATE(b);
@@ -244,7 +244,7 @@ u32 BattlePhaseMove(struct Battle *b)
     case MOVE_CANCEL:
         sub_0806F3DC();
         PUSH_STATE(b, MOVE_EXIT);
-        b->state = MOVE_PANEL_CLOSE_WAIT;
+        b->state = MOVE_UI_CLOSE_WAIT;
         break;
     case MOVE_EXIT:
         sub_080657B4(b, 1);

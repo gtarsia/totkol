@@ -3,6 +3,8 @@
 
 #include "global.h"
 
+// "guess:" marks names and comments the code doesn't confirm.
+
 // Character data of a unit.
 struct UnitInfo {
     u8 filler0[0x14];
@@ -16,15 +18,15 @@ struct BattleUnit {
     void *field0;
     struct UnitInfo *info;
     u8 filler8[4];
-    u8 *path;           // directions to walk
+    u8 *path;           // guess: directions to walk
     u16 posX;           // map position: 32 per tile
-    u16 posZ;
+    u16 posZ;           // guess: unused here, named for sitting between X and Y
     u16 posY;
     u8 filler16[0x20 - 0x16];
-    u16 pathStep;
+    u16 pathStep;       // guess
     u16 pathLength;
     u8 filler24[0x46 - 0x24];
-    u16 walkSpeed;      // position units per frame
+    u16 walkSpeed;      // guess: position units per frame
     u8 facing;
     u8 field49;
     u8 filler4A[0x78 - 0x4A];
@@ -32,14 +34,14 @@ struct BattleUnit {
 };
 
 // Battle phases (Battle.phase), each a state machine over Battle.state.
-#define PHASE_WAIT  1
+#define PHASE_WAIT  1   // guess
 #define PHASE_MOVE  6
-#define PHASE_ACT   7
+#define PHASE_ACT   7   // guess: comes after moving
 
 // Battle.flags
 #define BATTLE_AI           0x01 // the active unit is controlled by the game
-#define BATTLE_VIEW_RANGE   0x08 // only show the move range
-#define BATTLE_NO_PATHS     0x20 // no path search: the unit moves without walking
+#define BATTLE_VIEW_RANGE   0x08 // guess: only show the move range
+#define BATTLE_NO_PATHS     0x20 // no path search; guess: the unit moves without walking
 
 // The battle state (*gUnk_0202A88C).
 struct Battle {
@@ -54,18 +56,18 @@ struct Battle {
     u8 pathBudget;              // path search nodes per frame
     u8 filler185[3];
     void *pathWork;
-    void *reach;
+    void *reach;                // guess; NULL means no path search
     void *pathSearch;
-    void *warp;                 // warp animation
+    void *warp;                 // guess: warp animation
     u8 savedX;
     u8 savedY;
     u8 filler19A[2];
     u8 *path;
     u8 filler1A0[0x1AC - 0x1A0];
-    u8 aiDestX;                 // tile chosen by the AI
+    u8 aiDestX;                 // tile the AI moves to; guess: the AI writes it
     u8 aiDestY;
     u8 filler1AE[0x1CC - 0x1AE];
-    void *window;
+    void *window;               // guess: status window, opened with SELECT
     u8 filler1D0[0x267 - 0x1D0];
     u8 savedFacing;
     u8 filler268[0x26C - 0x268];
@@ -75,7 +77,7 @@ struct Battle {
     u8 state;
     u8 stateSp;
     u8 stateStack[16];
-    u16 timer;                  // frames left in PHASE_WAIT's wait state
+    u16 timer;                  // guess: frames left in PHASE_WAIT's wait state
     u8 filler292[0x2B8 - 0x292];
     u16 flags;
 };
@@ -89,7 +91,7 @@ struct Battle {
 // Map cursor and camera.
 struct MapCursor {
     u8 filler0[0x2E];
-    u16 newKeys;
+    u16 newKeys;        // guess: pressed this frame, not held
     u8 filler30[0x35 - 0x30];
     u8 mode;
     u8 filler36;
@@ -101,7 +103,7 @@ struct MapCursor {
     u8 filler42[0x51 - 0x42];
     u8 field51;
     u8 filler52[0x95 - 0x52];
-    bool8 cameraMoving;
+    bool8 cameraMoving; // guess
 };
 
 extern struct MapCursor gUnk_03000FA0;
