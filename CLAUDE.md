@@ -35,6 +35,8 @@ uncommitted first.
 
 - Disassemble the built ELF by address:
   `arm-none-eabi-objdump -d -M force-thumb --start-address=A --stop-address=B totkol.elf`
+- `scripts/funcs.py FROM TO` (or `NAMES...`): each asm function with its address, size, file,
+  callers (<-) and callees (->). Use it to scope a group of functions before reading asm.
 - Read a function's asm: `awk '/thumb_func_start NAME/,/thumb_func_start /' asm/FILE.s`
 - In the QOL build, labels must match their address (see above). If they don't, every
   address-based tool lies.
@@ -68,4 +70,6 @@ All take ROM SAV INPUTS. SAV is a copy that gets written; a fresh one is
   struct has script (+4), offset (+0xC), speed (+0x10: 0 normal, 1 slow, 2 fast) and timer
   (+0x12). The interpreter is `sub_080077E4`, and script commands start with a (cmd, frames)
   byte pair. `sub_08011CD0` starts a sprite animation and resets the speed to 0.
+- Messages: `src/message.c`, `include/message.h`. The printer's context is
+  `*gUnk_0200283C`; the control-code interpreter is `sub_08015188`.
 - Battle popups (damage, GUARD) are data scripts; see `gDamageNumberAnim` in `data/data.s`.
