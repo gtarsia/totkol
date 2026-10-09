@@ -7,7 +7,7 @@ NAME=$1
 ORIG=$2
 OUT=build/fdiff
 mkdir -p $OUT
-make -s build/totkol/src/$NAME.o
+make -s QOL=${QOL:-0} build/totkol/src/$NAME.o
 arm-none-eabi-as -mcpu=arm7tdmi -o $OUT/orig.o $ORIG
 
 dump() {

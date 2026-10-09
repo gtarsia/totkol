@@ -11,14 +11,12 @@ endif
 
 COMPARE ?= 0
 
-# QOL=1 builds the mod; `make compare` builds the original game and checks it.
+# QOL=1 builds the mod; QOL=0 builds the original game (`make compare` also checks its SHA1).
 QOL ?= 1
-NONMATCHING ?= 1
 
 ifeq (compare,$(MAKECMDGOALS))
 COMPARE := 1
 QOL := 0
-NONMATCHING := 0
 endif
 
 CPP := $(CC) -E
@@ -58,16 +56,10 @@ CC1 := tools/agbcc/bin/agbcc
 override CFLAGS += -mthumb-interwork -Wimplicit -Wparentheses -Werror -O2 -g -fhex-asm -fprologue-bugfix -ffix-debug-line
 
 CPPFLAGS := -I tools/agbcc -I tools/agbcc/include -iquote include -nostdinc -DREVISION=$(REVISION) -D$(GAME_LANGUAGE)
-# The C of functions that don't match yet; NONMATCHING=0 builds their original asm instead.
-ifeq ($(NONMATCHING),1)
-CPPFLAGS += -DNONMATCHING
-endif
 CPPFLAGS += -DQOL=$(QOL)
 ASFLAGS += --defsym QOL=$(QOL)
-# Rebuilds everything when QOL or NONMATCHING changes from the last build.
+# Rebuilds everything when QOL changes from the last build.
 FLAGS_STAMP := $(OBJ_DIR)/flags
-$(shell mkdir -p $(OBJ_DIR); [ "$$(cat $(FLAGS_STAMP) 2>/dev/null)" = "$(QOL) $(NONMATCHING)" ] || \
-	echo "$(QOL) $(NONMATCHING)" > $(FLAGS_STAMP))
 
 LDFLAGS = -Map ../../$(MAP)
 
@@ -100,6 +92,12 @@ ifeq (,$(filter-out all compare,$(MAKECMDGOALS)))
 $(call infoshell, $(MAKE) tools)
 else
 NODEP := 1
+endif
+
+# Not in the `make tools` above: it would stamp its own flags over `make compare`'s.
+ifneq ($(MAKECMDGOALS),tools)
+$(shell mkdir -p $(OBJ_DIR); [ "$$(cat $(FLAGS_STAMP) 2>/dev/null)" = "$(QOL)" ] || \
+	echo "$(QOL)" > $(FLAGS_STAMP))
 endif
 
 C_SRCS := $(wildcard $(C_SUBDIR)/*.c)
