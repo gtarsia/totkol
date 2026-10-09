@@ -47,6 +47,7 @@ labels = {}
 for name, addr in re.findall(r'^(\w+):: @ ([0-9A-F]{8})', text, re.M):
     labels[int(addr, 16)] = name
 label_addrs = sorted(labels)
+label_index = {a: i for i, a in enumerate(label_addrs)}
 asm_names = set(re.findall(r'\w+', asm))
 used_by_code = {a for a, name in labels.items() if name in asm_names}
 chunks = [(int(o, 16), int(n, 16)) for o, n in chunk_re.findall(text)]
@@ -78,6 +79,26 @@ def filler(addr):
     return value < 0x10000 or any(lo <= value < hi for lo, hi in OTHER_POINTERS)
 
 
+def tile_like(value):
+    """Tilemap entries come in pairs like 0x085C0008 (tile 0x008, then tile 0x85C); halfword
+    tables end in 0xFFFF."""
+    lo = value & 0xFFFF
+    return lo >> 8 == 0x08 or lo < 0x100 or lo == 0xFFFF
+
+
+def label_run(addr):
+    """True if addr and a neighboring word point at consecutive labels, as in a table of
+    pointers to back-to-back blocks."""
+    def index(a):
+        if a - ROM_BASE + 4 > len(ROM) or a not in data_words:
+            return None
+        return label_index.get(word(a))
+    here = index(addr)
+    if here is None:
+        return False
+    return any(index(addr + d) in (here - 1, here + 1) for d in (-4, 4))
+
+
 def pointer(addr):
     """(symbol, kind, sure) if the word at addr looks like a pointer, else None."""
     value = word(addr)
@@ -90,11 +111,8 @@ def pointer(addr):
         return funcs[value], 'arm function', True
     if not data_start <= value < data_end:
         return None
-    # Tilemap entries come in pairs like 0x085C0008 (tile 0x008, then tile 0x85C); halfword
-    # tables end in 0xFFFF.
-    if (value & 0xFFFF) >> 8 == 0x08 or value & 0xFFFF < 0x100 or value & 0xFFFF == 0xFFFF:
-        if value not in used_by_code:
-            return None
+    if tile_like(value) and value not in used_by_code and not label_run(addr):
+        return None
     if value in labels:
         return labels[value], 'data label', value in used_by_code
     base = containing_label(value)
