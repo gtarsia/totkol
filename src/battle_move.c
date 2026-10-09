@@ -43,10 +43,17 @@ enum {
 #define SE_CANCEL  0xB0
 
 // Speeds and delays, in frames.
-#define PATH_NODES_PER_FRAME    255   // path search speed
-#define AI_RANGE_DELAY          0  // AI: how long its move range shows
-#define AI_DEST_DELAY           0  // AI: how long the cursor stays on its destination
+#if QOL
+#define PATH_NODES_PER_FRAME    255 // path search speed
+#define AI_RANGE_DELAY          0   // AI: how long its move range shows
+#define AI_DEST_DELAY           0   // AI: how long the cursor stays on its destination
 #define WALK_SPEED              4   // position units per frame (32 per tile)
+#else
+#define PATH_NODES_PER_FRAME    4
+#define AI_RANGE_DELAY          16
+#define AI_DEST_DELAY           16
+#define WALK_SPEED              2
+#endif
 #define HELP_DELAY              4   // before the help window opens
 
 extern u8 gUnk_02000000[];

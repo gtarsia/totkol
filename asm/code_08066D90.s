@@ -435888,7 +435888,7 @@ sub_081402BC: @ 0x081402BC
 	strb r2, [r0]
 	ldr r3, _08140364 @ =0x0000132C
 	adds r4, r4, r3
-	ldr r1, _08140368 @ =gUnk_0861D57C
+	ldr r1, _08140368 @ =gDefaultOptions
 	adds r0, r4, #0
 	movs r2, #8
 	bl memcpy2
@@ -435907,7 +435907,7 @@ _08140358: .4byte 0x00001192
 _0814035C: .4byte 0x00001194
 _08140360: .4byte 0x00001196
 _08140364: .4byte 0x0000132C
-_08140368: .4byte gUnk_0861D57C
+_08140368: .4byte gDefaultOptions
 
 	thumb_func_start sub_0814036C
 sub_0814036C: @ 0x0814036C

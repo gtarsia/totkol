@@ -29747,8 +29747,16 @@ gUnk_0861CA5C:: @ 0861CA5C
 gUnk_0861D578:: @ 0861D578
 	.incbin "baserom.gba", 0x61D578, 0x4
 
-gUnk_0861D57C:: @ 0861D57C
-	.incbin "baserom.gba", 0x61D57C, 0x8
+@ Options for a new game, copied to gUnk_02000000 + 0x132C.
+gDefaultOptions:: @ 0861D57C
+	.byte 0x00, 0x01
+.if QOL
+	.byte 0x01 @ show messages all at once
+.else
+	.byte 0x00 @ letter by letter
+.endif
+	.byte 0xFF
+	.incbin "baserom.gba", 0x61D580, 0x4
 
 gUnk_0861D584:: @ 0861D584
 	.incbin "baserom.gba", 0x61D584, 0x2F4

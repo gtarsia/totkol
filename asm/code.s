@@ -48769,7 +48769,7 @@ _0801D0A8:
 	bne _0801D0C2
 	ldr r2, _0801D0D0 @ =0x00001194
 	adds r0, r1, r2
-	ldr r1, _0801D0D4 @ =gUnk_0861D57C
+	ldr r1, _0801D0D4 @ =gDefaultOptions
 	movs r2, #8
 	bl memcpy2
 _0801D0C2:
@@ -48781,7 +48781,7 @@ _0801D0C4:
 _0801D0C8: .4byte gUnk_02028950
 _0801D0CC: .4byte 0x0000118D
 _0801D0D0: .4byte 0x00001194
-_0801D0D4: .4byte gUnk_0861D57C
+_0801D0D4: .4byte gDefaultOptions
 
 	thumb_func_start sub_0801D0D8
 sub_0801D0D8: @ 0x0801D0D8

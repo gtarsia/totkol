@@ -11,8 +11,14 @@ endif
 
 COMPARE ?= 0
 
+# QOL=1 builds the mod; `make compare` builds the original game and checks it.
+QOL ?= 1
+NONMATCHING ?= 1
+
 ifeq (compare,$(MAKECMDGOALS))
 COMPARE := 1
+QOL := 0
+NONMATCHING := 0
 endif
 
 CPP := $(CC) -E
@@ -53,14 +59,15 @@ override CFLAGS += -mthumb-interwork -Wimplicit -Wparentheses -Werror -O2 -g -fh
 
 CPPFLAGS := -I tools/agbcc -I tools/agbcc/include -iquote include -nostdinc -DREVISION=$(REVISION) -D$(GAME_LANGUAGE)
 # The C of functions that don't match yet; NONMATCHING=0 builds their original asm instead.
-NONMATCHING ?= 1
 ifeq ($(NONMATCHING),1)
 CPPFLAGS += -DNONMATCHING
 endif
-# Rebuilds the C files when NONMATCHING changes from the last build.
-NONMATCHING_STAMP := $(OBJ_DIR)/nonmatching
-$(shell mkdir -p $(OBJ_DIR); [ "$$(cat $(NONMATCHING_STAMP) 2>/dev/null)" = "$(NONMATCHING)" ] || \
-	echo "$(NONMATCHING)" > $(NONMATCHING_STAMP))
+CPPFLAGS += -DQOL=$(QOL)
+ASFLAGS += --defsym QOL=$(QOL)
+# Rebuilds everything when QOL or NONMATCHING changes from the last build.
+FLAGS_STAMP := $(OBJ_DIR)/flags
+$(shell mkdir -p $(OBJ_DIR); [ "$$(cat $(FLAGS_STAMP) 2>/dev/null)" = "$(QOL) $(NONMATCHING)" ] || \
+	echo "$(QOL) $(NONMATCHING)" > $(FLAGS_STAMP))
 
 LDFLAGS = -Map ../../$(MAP)
 
@@ -184,7 +191,7 @@ else
 $(C_BUILDDIR)/%.o: c_dep = $(shell $(SCANINC) -I include $(C_SUBDIR)/$*.c)
 endif
 
-$(C_BUILDDIR)/%.o : $(C_SUBDIR)/%.c $$(c_dep) $(NONMATCHING_STAMP)
+$(C_BUILDDIR)/%.o : $(C_SUBDIR)/%.c $$(c_dep) $(FLAGS_STAMP)
 	@$(CPP) $(CPPFLAGS) $< -o $(C_BUILDDIR)/$*.i
 	@$(PREPROC) $(C_BUILDDIR)/$*.i charmap.txt | $(CC1) $(CFLAGS) -o $(C_BUILDDIR)/$*.s
 	@echo -e "\t.text\n\t.align\t2, 0 @ Don't pad with nop\n" >> $(C_BUILDDIR)/$*.s
@@ -196,7 +203,7 @@ else
 $(ASM_BUILDDIR)/%.o: asm_dep = $(shell $(SCANINC) -I . $(ASM_SUBDIR)/$*.s)
 endif
 
-$(ASM_BUILDDIR)/%.o: $(ASM_SUBDIR)/%.s $$(asm_dep)
+$(ASM_BUILDDIR)/%.o: $(ASM_SUBDIR)/%.s $$(asm_dep) $(FLAGS_STAMP)
 	$(AS) $(ASFLAGS) -o $@ $<
 
 ifeq ($(NODEP),1)
@@ -205,7 +212,7 @@ else
 $(DATA_ASM_BUILDDIR)/%.o: data_dep = $(shell $(SCANINC) -I . $(DATA_ASM_SUBDIR)/$*.s)
 endif
 
-$(DATA_ASM_BUILDDIR)/%.o: $(DATA_ASM_SUBDIR)/%.s $$(data_dep)
+$(DATA_ASM_BUILDDIR)/%.o: $(DATA_ASM_SUBDIR)/%.s $$(data_dep) $(FLAGS_STAMP)
 	$(PREPROC) $< charmap.txt | $(CPP) -I include -nostdinc -undef -Wno-unicode - | $(AS) $(ASFLAGS) -o $@
 
 $(SONG_BUILDDIR)/%.o: $(SONG_SUBDIR)/%.s
