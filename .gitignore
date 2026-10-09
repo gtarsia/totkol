@@ -55,3 +55,8 @@ _Deparsed_XSubs.pm
 useful
 *.cheats
 *.ss*
+!scripts/*.py
+
+# Local Claude Code config
+.claude/
+.mcp.json
