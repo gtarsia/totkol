@@ -50,7 +50,6 @@ labels = {}
 for name, addr in re.findall(r'^(\w+):: @ ([0-9A-F]{8})', text, re.M):
     labels[int(addr, 16)] = name
 label_addrs = sorted(labels)
-label_index = {a: i for i, a in enumerate(label_addrs)}
 asm_names = set(re.findall(r'\w+', asm))
 used_by_code = {a for a, name in labels.items() if name in asm_names}
 chunks = [(int(o, 16), int(n, 16)) for o, n in chunk_re.findall(text)]
@@ -90,16 +89,16 @@ def tile_like(value):
 
 
 def label_run(addr):
-    """True if addr and a neighboring word point at consecutive labels, as in a table of
-    pointers to back-to-back blocks."""
-    def index(a):
+    """True if a neighboring word points at a label close to this one, as in a table of
+    pointers to nearby blocks. Tilemap neighbors differ by about 0x20000 (the next tile pair)."""
+    here = word(addr)
+    for a in (addr - 4, addr + 4):
         if a - ROM_BASE + 4 > len(ROM) or a not in data_words:
-            return None
-        return label_index.get(word(a))
-    here = index(addr)
-    if here is None:
-        return False
-    return any(index(addr + d) in (here - 1, here + 1) for d in (-4, 4))
+            continue
+        there = word(a)
+        if there in labels and abs(there - here) < 0x10000:
+            return True
+    return False
 
 
 def pointer(addr):
