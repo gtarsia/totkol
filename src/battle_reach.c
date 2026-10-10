@@ -79,7 +79,7 @@ s32 ReachTileHeight(s8 x, s8 y, u8 mode, u8 kind)
 }
 
 // Cost to enter the tile; 0xFF: can't.
-u8 ReachTileCost(u8 x, u8 y, u8 mode, u8 kind)
+s32 ReachTileCost(u8 x, u8 y, u8 mode, u8 kind)
 {
     const struct Terrain *terrain;
     volatile struct MapTile *tile = sub_08028728(x, y);
@@ -106,50 +106,74 @@ u8 ReachTileCost(u8 x, u8 y, u8 mode, u8 kind)
 // timing from the original, so it isn't built: the ROM uses the original code below. Kept as the
 // readable version.
 #ifdef NONMATCHING
-inline static bool32 TileBlocked(struct MapTile *t)
-{
-    return (t->field0 & 0x80) || (t->height & 0x80) || !(t->flags & 0x80) || !(t->flags & 0x20);
-}
 
-// Edge bits from (x, y) towards (dx, dy): 1 can't step, 2 can't pass (see EDGE_*).
-inline static u32 Edge(s32 x, s32 y, s32 dx, s32 dy, u8 mode, u8 kind)
+
+static inline u32 Edge(u8 x, u8 y, s8 dx0, s8 dy0, u8 mode, u8 kind)
 {
+    s8 dx, dy;
     s32 maxUp, maxDown;
     s32 h0, h1, h2;
+    s32 x1, y1, x2, y2;
+    s32 dh1, dh2;
     s32 cost1, cost2;
     u32 edge;
 
     switch (mode) {
-    case MOVE_FLY: maxUp = 127; break;
-    case 3:        maxUp = 3;   break;
-    case 4:        maxUp = 2;   break;
-    default:       maxUp = 1;   break;
+    default:
+        maxUp = 1;
+        if (mode == 4)
+            maxUp = 2;
+        break;
+    case 3:
+        maxUp = 3;
+        break;
+    case MOVE_FLY:
+        maxUp = 127;
+        break;
     }
     switch (mode) {
-    case MOVE_FLY: maxDown = -128; break;
-    case 3:        maxDown = -4;   break;
-    case 4:        maxDown = -3;   break;
-    default:       maxDown = -2;   break;
+    default:
+        maxDown = -2;
+        if (mode == 4)
+            maxDown = -3;
+        break;
+    case 3:
+        maxDown = -4;
+        break;
+    case MOVE_FLY:
+        maxDown = -128;
+        break;
     }
-
     h0 = ReachTileHeight(x, y, mode, kind);
+    cost1 = 0;
+    cost2 = 0;
     if (h0 < 0)
         return 0;
-    h1 = ReachTileHeight(x + dx, y + dy, mode, kind);
+    dx = dx0;
+    dy = dy0;
+    x1 = x + dx;
+    y1 = y + dy;
+    edge = 0;
+    h1 = ReachTileHeight(x1, y1, mode, kind);
     if (h1 < 0)
         return 3;
-    cost1 = ReachTileCost(x + dx, y + dy, mode, kind);
-    cost2 = 0;
-    edge = 0;
-    h2 = ReachTileHeight(x + 2 * dx, y + 2 * dy, mode, kind);
+    if (h0 == 0)
+        cost1 = 0;
+    dh1 = h1 - h0;
+    if (dh1 == 0) cost1 = 0;
+    cost1 = ReachTileCost(x1, y1, mode, kind);
+    x2 = x1 + dx;
+    y2 = y1 + dy;
+    h2 = ReachTileHeight(x2, y2, mode, kind);
     if (h2 < 0) {
         edge = 2;
     } else {
-        cost1 += ReachTileCost(x + 2 * dx, y + 2 * dy, mode, kind);
-        cost2 = ReachTileCost(x + 2 * dx, y + 2 * dy, mode, kind) + 1;
+        cost1 += ReachTileCost(x2, y2, mode, kind);
+        cost2 = ReachTileCost(x2, y2, mode, kind) + 1;
+        dh2 = h2 - h0;
         if (h2 > h0)
             edge = 2;
-        if (h2 - h0 <= 0 && h2 - h0 < maxDown)
+        if (dh2 <= 0 && dh2 < maxDown)
             edge |= 2;
     }
     if (h1 > h0)
@@ -161,89 +185,94 @@ inline static u32 Edge(s32 x, s32 y, s32 dx, s32 dy, u8 mode, u8 kind)
     return edge;
 }
 
-// Fills map (32x32, zeroed) for a unit's movement type: mode and kind from its type, guess: canX
-// lets it cross terrain with flag 8.
-void BuildReachMap(u8 mode, u8 kind, u8 canX, struct ReachTile *map)
+void BuildReachMap(u8 mode, u8 kind, u8 canX, struct ReachTile *map0)
 {
-    unsigned int x;
-
-    struct ReachTile *t;
-    struct MapTile *tile;
+    s32 x, y;
+    volatile struct MapTile *tile;
     const struct Terrain *terrain;
     u32 edge;
-    struct ReachTile *new_var;
+    struct ReachTile *map;
 
-    for (kind = 0, t = map; kind < MAP_SIZE; kind++) {
-        for (x = 0; x < MAP_SIZE; x++, t++) {
-            tile = sub_08028728(x, kind);
-            if (TileBlocked(tile)) {
-                t->edges = 0xFF;
+    map = map0;
+    for (y = 0; y < MAP_SIZE; y++) {
+        for (x = 0; x < MAP_SIZE; x++, map++) {
+            u8 ux = x;
+            u8 uy = y;
+            tile = sub_08028728(ux, uy);
+            if ((tile->field0 & 0x80) || (tile->height & 0x80) || !(tile->flags & 0x80)) {
+                map->edges = 0xFF;
                 goto next;
             }
-            edge = Edge(x, kind, -1, 0, mode, kind);
+            if (!(tile->flags & 0x20)) {
+                map->edges = 0xFF;
+                goto next;
+            }
+            if (ux == 10 && uy == 10)
+                edge = 0;
+            edge = Edge(ux, uy, -1, 0, mode, kind);
             if (edge & 1)
-                t->edges |= EDGE_STEP_LEFT;
+                map->edges |= EDGE_STEP_LEFT;
             if (edge & 2)
-                t->edges |= EDGE_PASS_LEFT;
-            edge = Edge(x, kind, 1, 0, mode, kind);
+                map->edges |= EDGE_PASS_LEFT;
+            edge = Edge(ux, uy, 1, 0, mode, kind);
             if (edge & 1)
-                t->edges |= EDGE_STEP_RIGHT;
+                map->edges |= EDGE_STEP_RIGHT;
             if (edge & 2)
-                t->edges |= EDGE_PASS_RIGHT;
-            edge = Edge(x, kind, 0, -1, mode, kind);
+                map->edges |= EDGE_PASS_RIGHT;
+            edge = Edge(ux, uy, 0, -1, mode, kind);
             if (edge & 1)
-                t->edges |= EDGE_STEP_UP;
+                map->edges |= EDGE_STEP_UP;
             if (edge & 2)
-                t->edges |= EDGE_PASS_UP;
-            edge = Edge(x, kind, 0, 1, mode, kind);
+                map->edges |= EDGE_PASS_UP;
+            edge = Edge(ux, uy, 0, 1, mode, kind);
             if (edge & 1)
-                t->edges |= EDGE_STEP_DOWN;
+                map->edges |= EDGE_STEP_DOWN;
             if (edge & 2)
-                t->edges |= EDGE_PASS_DOWN;
+                map->edges |= EDGE_PASS_DOWN;
 
-            terrain = &gUnk_0861CA5C[sub_08028774(x, kind)];
-            tile = sub_08028728(x, kind);
-            t->height = tile->height & 0x7F;
+            terrain = &gUnk_0861CA5C[sub_08028774(ux, uy)];
+            tile = sub_08028728(ux, uy);
+            map->height = tile->height & 0x7F;
             if (mode == 1 || mode == MOVE_FLY) {
-                t->cost = 1;
+                map->cost = 1;
                 goto next;
             }
-            t->cost = terrain->cost;
+            map->cost = terrain->cost;
             if ((terrain->flags & 8) && canX)
-                t->cost = 1;
+                map->cost = 1;
             if (terrain->flags & 1) {
-                t->cost = 0xFF;
-                t->flags |= 2;
+                map->cost = 0xFF;
+                map->flags |= 2;
             }
             switch (kind) {
             case 1:
-                t->cost = 1;
+                map->cost = 1;
                 goto next;
+            case 3:
+                if (terrain->flags & 2)
+                    map->cost = 1;
+                break;
             case 2:
                 if (terrain->flags & 2)
-                    t->cost = 1;
+                    map->cost = 1;
                 // fallthrough
             case 4:
             case 5:
-                new_var = t;
                 if (terrain->flags & 2) {
-                    new_var->height--;
-                    new_var->flags |= 4;
+                    map->height--;
+                    map->flags |= 4;
                 }
-                break;
-            case 3:
-                if (terrain->flags & 2)
-                    t->cost = 1;
                 break;
             default:
                 goto next;
             }
             if (terrain->flags & 0x10)
-                t->cost = 0xFF;
+                map->cost = 0xFF;
         next:
-            t->fieldC = 0xFF;
-            t->fieldA = 0xFFFF;
-            t->field8 = 0xFFFF;
+            map->fieldC = 0xFF;
+            map->fieldA = 0xFFFF;
+            map->field8 = 0xFFFF;
+            map->fieldE = 0xFFFF;
         }
     }
 }
