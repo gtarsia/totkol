@@ -29,7 +29,12 @@ uncommitted first.
   Check it with `scripts/fdiff.sh NAME ORIG.s`
   (ORIG.s holds the cut asm with the usual header); `scripts/score.sh` prints only the count
   of lines that differ. If it doesn't match yet, keep the asm as a NAKED fallback, like
-  `src/battle_reach.c`.
+  `src/battle_reach.c`; put the C under `#ifdef NONMATCHING` and compare it with
+  `scripts/ndiff.sh NAME FUNC [FROM [TO]]` (FROM/TO: regexes, e.g. a callee, to compare a part).
+  `scripts/nsrc.sh NAME FUNC` shows that build with its C lines over their instructions.
+  `scripts/perm.sh NAME FUNC` runs decomp-permuter on it and offers each better result for
+  patching into src (`... pick` does it for the best one so far).
+  These scripts print their usage with `-h`; `scripts/completion.zsh` adds zsh tab completion.
 - Matching tips (agbcc): to find which pass makes a difference, compile with the pass off
   (e.g. `-fno-cse-follow-jumps`) and see if the diff shrinks. A field the original reads twice
   needs a `volatile` pointer. Loops can need gotos. Examples: `src/message.c`

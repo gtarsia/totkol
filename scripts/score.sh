@@ -1,5 +1,7 @@
 #!/bin/bash
 # Prints how many instruction lines differ between src/NAME.c and ORIG.s (0 = match).
+# Usage: scripts/score.sh NAME ORIG.s  (ORIG.s as in fdiff.sh)
+[[ $1 = -h || $1 = --help || $# -lt 2 ]] && { sed -n '2,/^[^#]/s/^# \{0,1\}//p' "$0"; exit 0; }
 make -s QOL=${QOL:-0} build/totkol/src/$1.o >/dev/null || exit 1
 arm-none-eabi-as -mcpu=arm7tdmi -o build/fdiff/orig.o $2
 d() { arm-none-eabi-objdump -d -r --no-show-raw-insn $1 | grep -P '^\s+[0-9a-f]+:' |

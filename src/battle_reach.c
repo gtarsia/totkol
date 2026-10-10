@@ -105,7 +105,7 @@ u8 ReachTileCost(u8 x, u8 y, u8 mode, u8 kind)
 // BuildReachMap (the original inlines Edge in it) doesn't match yet, and this version differs in
 // timing from the original, so it isn't built: the ROM uses the original code below. Kept as the
 // readable version.
-#if 0
+#ifdef NONMATCHING
 static bool32 TileBlocked(struct MapTile *t)
 {
     return (t->field0 & 0x80) || (t->height & 0x80) || !(t->flags & 0x80) || !(t->flags & 0x20);
