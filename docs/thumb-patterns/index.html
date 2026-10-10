@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>agbcc Thumb Patterns</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,600;1,400&display=swap">
+<style>
+:root {
+  --bg: #eef2f0;
+  --surface: #ffffff;
+  --ink: #17211e;
+  --muted: #586863;
+  --rule: #d3dcd8;
+  --code-bg: #f5f8f7;
+  --accent: #23664f;
+  --accent-soft: #dcebe5;
+  --key-ink: #8a5300;
+  --key-bg: #ffecc2;
+  --c-kw: #7a3fa0;
+  --c-type: #23664f;
+  --c-num: #a14b12;
+  --c-com: #7c8a86;
+  --a-mn: #1d4f9e;
+  --a-reg: #17211e;
+  --a-imm: #a14b12;
+  --a-dim: #8a9893;
+  --sans: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --cond: "IBM Plex Sans Condensed", "Arial Narrow", system-ui, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg: #0e1412; --surface: #141c19; --ink: #e2ebe7; --muted: #93a39e; --rule: #25312d;
+    --code-bg: #101715; --accent: #73c9ad; --accent-soft: #1d2f29; --key-ink: #f6c45a;
+    --key-bg: #3a2c0e; --c-kw: #c99bf0; --c-type: #73c9ad; --c-num: #f0a46a; --c-com: #6f807a;
+    --a-mn: #8fb7ff; --a-reg: #e2ebe7; --a-imm: #f0a46a; --a-dim: #6f807a;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #0e1412; --surface: #141c19; --ink: #e2ebe7; --muted: #93a39e; --rule: #25312d;
+  --code-bg: #101715; --accent: #73c9ad; --accent-soft: #1d2f29; --key-ink: #f6c45a;
+  --key-bg: #3a2c0e; --c-kw: #c99bf0; --c-type: #73c9ad; --c-num: #f0a46a; --c-com: #6f807a;
+  --a-mn: #8fb7ff; --a-reg: #e2ebe7; --a-imm: #f0a46a; --a-dim: #6f807a;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--ink); font: 15px/1.55 var(--sans);
+  padding-inline: 16px; padding-block: 0 64px;
+}
+.wrap { max-width: 1120px; margin: 0 auto; }
+header { padding-block: 40px 20px; display: grid; gap: 10px; }
+.eyebrow { font: 600 12px/1 var(--cond); letter-spacing: .14em; text-transform: uppercase; color: var(--accent); }
+h1 { font: 700 clamp(30px, 5vw, 46px)/1.05 var(--cond); margin: 0; text-wrap: balance; letter-spacing: -.01em; }
+.lede { max-width: 68ch; color: var(--muted); margin: 0; }
+.lede code, .note code, .tips code { font-family: var(--mono); font-size: .9em; background: var(--accent-soft); padding: 0 4px; border-radius: 3px; color: var(--ink); }
+
+.bar {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg);
+  border-bottom: 1px solid var(--rule); padding-block: 12px; display: grid; gap: 10px;
+}
+.search { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.search input {
+  flex: 1 1 260px; min-width: 0; font: 15px var(--sans); color: var(--ink); background: var(--surface);
+  border: 1px solid var(--rule); border-radius: 6px; padding: 9px 12px;
+}
+.search input:focus-visible, .chip:focus-visible, .clear:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.count { font: 500 13px var(--cond); color: var(--muted); font-variant-numeric: tabular-nums; }
+.clear { font: 600 13px var(--cond); background: none; border: 1px solid var(--rule); color: var(--muted); border-radius: 6px; padding: 7px 10px; cursor: pointer; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; max-height: 92px; overflow-y: auto; }
+.chips .label { font: 600 12px/26px var(--cond); color: var(--muted); letter-spacing: .06em; text-transform: uppercase; margin-right: 4px; }
+.chip {
+  font: 13px/1 var(--mono); padding: 6px 8px; border-radius: 4px; border: 1px solid var(--rule);
+  background: var(--surface); color: var(--ink); cursor: pointer;
+}
+.chip small { color: var(--muted); font-size: 11px; margin-left: 3px; }
+.chip[aria-pressed="true"] { background: var(--key-bg); border-color: var(--key-ink); color: var(--key-ink); }
+
+.tips {
+  margin-block: 24px 8px; display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+.tip { border-left: 3px solid var(--accent); padding: 2px 0 2px 12px; }
+.tip b { display: block; font: 600 14px var(--cond); letter-spacing: .02em; margin-bottom: 2px; }
+.tip p { margin: 0; color: var(--muted); font-size: 14px; }
+
+section { margin-top: 36px; }
+h2 { font: 700 22px/1.2 var(--cond); margin: 0 0 12px; display: flex; align-items: baseline; gap: 10px; }
+h2 span { font: 500 13px var(--cond); color: var(--muted); }
+.entry { background: var(--surface); border: 1px solid var(--rule); border-radius: 8px; padding: 16px; margin-bottom: 14px; }
+.entry h3 { font: 600 17px/1.3 var(--cond); margin: 0; }
+.note { margin: 6px 0 12px; color: var(--muted); max-width: 80ch; font-size: 14px; }
+.pair { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 12px; }
+@media (max-width: 760px) { .pair { grid-template-columns: minmax(0, 1fr); } }
+.code {
+  background: var(--code-bg); border: 1px solid var(--rule); border-radius: 6px; overflow-x: auto;
+  font: 13px/1.6 var(--mono); padding: 10px 0; margin: 0;
+}
+.code .cap { display: block; font: 600 11px var(--cond); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); padding: 0 12px 6px; }
+.code .ln { display: flex; white-space: pre; padding-inline: 12px; }
+.code .n { color: var(--a-dim); width: 2.4em; flex: none; text-align: right; margin-right: 1em; user-select: none; font-variant-numeric: tabular-nums; }
+.code .ln.key { background: var(--key-bg); }
+.kw { color: var(--c-kw); } .ty { color: var(--c-type); } .num { color: var(--c-num); } .com { color: var(--c-com); font-style: italic; }
+.mn { color: var(--a-mn); font-weight: 600; } .ln.key .mn { color: var(--key-ink); }
+.imm { color: var(--a-imm); } .dim { color: var(--a-dim); } .sym { color: var(--c-type); }
+.empty { color: var(--muted); padding: 40px 0; text-align: center; }
+footer { margin-top: 48px; color: var(--muted); font-size: 13px; border-top: 1px solid var(--rule); padding-top: 16px; }
+footer code { font-family: var(--mono); font-size: 12px; }
+@media (prefers-reduced-motion: no-preference) { .chip { transition: background .12s, border-color .12s; } }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">GBA decomp · agbcc · Thumb</div>
+    <h1>What C turns into</h1>
+    <p class="lede">Small pieces of C, each compiled with agbcc exactly as lodis-qol builds it, next to the asm it produces. Pick an instruction below to see every example that uses it, for example <code>negs</code>: "what produces this?"</p>
+  </header>
+
+  <div class="bar">
+    <div class="search">
+      <input id="q" type="search" placeholder="Filter by text: switch, u8, global, spill…" aria-label="Filter examples">
+      <button class="clear" id="clear" type="button">Clear</button>
+      <span class="count" id="count"></span>
+    </div>
+    <div class="chips" id="chips" role="group" aria-label="Filter by instruction"><span class="label">Instruction</span></div>
+  </div>
+
+  <div class="tips">
+    <div class="tip"><b>Conditions come out inverted</b><p>An <code>if</code> becomes "if NOT the condition, jump over the body".</p></div>
+    <div class="tip"><b><code>lsrs</code> vs <code>asrs</code></b><p>After <code>lsls #24</code>/<code>#16</code>: <code>lsrs</code> is a u8/u16, <code>asrs</code> an s8/s16.</p></div>
+    <div class="tip"><b>The jump tells the type</b><p><code>bgt</code>/<code>blt</code>… signed; <code>bhi</code>/<code>bcc</code>… unsigned.</p></div>
+    <div class="tip"><b>Registers</b><p><code>r0</code>–<code>r3</code> arguments and result; <code>r4</code>–<code>r7</code>, <code>r8</code>–<code>sl</code> survive calls.</p></div>
+  </div>
+
+  <main id="list"></main>
+
+  <footer>
+    Every listing is real output: <code>agbcc -mthumb-interwork -O2 -fhex-asm -fprologue-bugfix</code>, assembled and disassembled with <code>arm-none-eabi-objdump</code> (the same view <code>scripts/ndiff.sh</code> shows). Jump targets show as <code>→ N</code>, the line they land on. Highlighted lines are the ones the example is about.
+  </footer>
+</div>
+
+<script>
+const DATA = [{"section": "Constants", "name": "k_small", "title": "A small constant (0\u2013255)", "c": "s32 k_small(void)\n{\n    return 200;\n}", "note": "One <code>movs</code>: Thumb can load 0\u2013255 directly. <code>r0</code> carries the return value.", "key": ["movs"], "asm": ["movs r0, #200", "bx lr"]}, {"section": "Constants", "name": "k_neg", "title": "A negative constant", "c": "s32 k_neg(void)\n{\n    return -5;\n}", "note": "No instruction loads a negative number, so it loads 5 and negates it. <code>movs</code> + <code>negs</code> together mean \"the constant \u2212N\".", "key": ["negs"], "asm": ["movs r0, #5", "negs r0, r0", "bx lr"]}, {"section": "Constants", "name": "k_shift", "title": "A large constant that is a shifted small one", "c": "s32 k_shift(void)\n{\n    return 0x4000;\n}", "note": "0x4000 is 128 &lt;&lt; 7, so it builds it with <code>movs</code> + <code>lsls</code> instead of reading it from memory.", "key": ["lsls"], "asm": ["movs r0, #128", "lsls r0, r0, #7", "bx lr"]}, {"section": "Constants", "name": "k_big", "title": "Any other large constant", "c": "s32 k_big(void)\n{\n    return 0x12345;\n}", "note": "Read from a <em>literal pool</em>: a <code>.word</code> placed after the function, loaded with <code>ldr rX, [pc, #N]</code>.", "key": ["ldr", ".word"], "asm": ["ldr r0, [pc, #0]", "bx lr", ".word 0x00012345"]}, {"section": "Constants", "name": "k_ffff", "title": "0xFFFF and friends", "c": "u32 k_ffff(void)\n{\n    return 0xFFFF;\n}", "note": "Also from the literal pool: it doesn't fit in 8 bits and isn't a shifted small number.", "key": [".word"], "asm": ["ldr r0, [pc, #0]", "bx lr", ".word 0x0000ffff"]}, {"section": "Arithmetic", "name": "a_addk", "title": "Adding a constant", "c": "s32 a_addk(s32 x)\n{\n    return x + 3;\n}", "note": "<code>adds rX, #N</code> (or with three operands when the result goes to another register).", "key": ["adds"], "asm": ["adds r0, #3", "bx lr"]}, {"section": "Arithmetic", "name": "a_sub", "title": "Subtracting two values", "c": "s32 a_sub(s32 a, s32 b)\n{\n    return a - b;\n}", "note": "", "key": ["subs"], "asm": ["subs r0, r0, r1", "bx lr"]}, {"section": "Arithmetic", "name": "a_neg", "title": "Unary minus", "c": "s32 a_neg(s32 x)\n{\n    return -x;\n}", "note": "<code>negs</code> is <code>0 - x</code>. The other common source of <code>negs</code> besides negative constants.", "key": ["negs"], "asm": ["negs r0, r0", "bx lr"]}, {"section": "Arithmetic", "name": "a_mulk", "title": "Multiplying by a constant", "c": "s32 a_mulk(s32 x)\n{\n    return x * 10;\n}", "note": "agbcc turns multiplication by small constants into shifts and adds (x\u00b710 = (x\u00b74 + x)\u00b72) instead of <code>muls</code>.", "key": ["lsls", "adds"], "asm": ["adds r1, r0, #0", "lsls r0, r1, #2", "adds r0, r0, r1", "lsls r0, r0, #1", "bx lr"]}, {"section": "Arithmetic", "name": "a_mul", "title": "Multiplying two values", "c": "s32 a_mul(s32 a, s32 b)\n{\n    return a * b;\n}", "note": "", "key": ["muls"], "asm": ["muls r0, r1", "bx lr"]}, {"section": "Arithmetic", "name": "a_div4", "title": "Signed division by a power of 2", "c": "s32 a_div4(s32 x)\n{\n    return x / 4;\n}", "note": "A plain <code>asrs</code> would round negatives the wrong way, so when x is negative it adds 3 first. The <code>cmp #0</code> + <code>bge</code> skips that fix-up for positive x.", "key": ["asrs"], "asm": ["cmp r0, #0", "bge.n \u2192 4", "adds r0, #3", "asrs r0, r0, #2", "bx lr"]}, {"section": "Arithmetic", "name": "a_udiv4", "title": "Unsigned division by a power of 2", "c": "u32 a_udiv4(u32 x)\n{\n    return x / 4;\n}", "note": "Unsigned: a single <code>lsrs</code>, no fix-up.", "key": ["lsrs"], "asm": ["lsrs r0, r0, #2", "bx lr"]}, {"section": "Arithmetic", "name": "a_div", "title": "Division by a variable", "c": "s32 a_div(s32 a, s32 b)\n{\n    return a / b;\n}", "note": "The GBA has no divide instruction: it calls a library routine (<code>__divsi3</code>; <code>__udivsi3</code> unsigned, <code>__modsi3</code> for <code>%</code>).", "key": ["bl"], "asm": ["push {lr}", "bl __divsi3", "pop {r1}", "bx r1"]}, {"section": "Arithmetic", "name": "a_mod8", "title": "Unsigned remainder by a power of 2", "c": "u32 a_mod8(u32 x)\n{\n    return x % 8;\n}", "note": "<code>x % 8</code> is <code>x &amp; 7</code>.", "key": ["ands"], "asm": ["adds r1, r0, #0", "movs r0, #7", "ands r0, r1", "bx lr"]}, {"section": "Bits", "name": "b_and", "title": "AND with a constant", "c": "u32 b_and(u32 x)\n{\n    return x & 0x20;\n}", "note": "Thumb's <code>ands</code> only takes registers, so the constant is loaded first with <code>movs</code>.", "key": ["ands"], "asm": ["adds r1, r0, #0", "movs r0, #32", "ands r0, r1", "bx lr"]}, {"section": "Bits", "name": "b_or", "title": "Setting bits", "c": "void b_or(u8 *p)\n{\n    *p |= 4;\n}", "note": "Load, <code>orrs</code>, store back.", "key": ["orrs"], "asm": ["ldrb r1, [r0, #0]", "movs r2, #4", "orrs r1, r2", "strb r1, [r0, #0]", "bx lr"]}, {"section": "Bits", "name": "b_bic", "title": "Clearing bits", "c": "u32 b_bic(u32 x, u32 m)\n{\n    return x & ~m;\n}", "note": "<code>bics</code> is AND with the inverse.", "key": ["bics"], "asm": ["bics r0, r1", "bx lr"]}, {"section": "Bits", "name": "b_not", "title": "Bitwise NOT", "c": "u32 b_not(u32 x)\n{\n    return ~x;\n}", "note": "", "key": ["mvns"], "asm": ["mvns r0, r0", "bx lr"]}, {"section": "Bits", "name": "b_xor", "title": "XOR", "c": "u32 b_xor(u32 a, u32 b)\n{\n    return a ^ b;\n}", "note": "", "key": ["eors"], "asm": ["eors r0, r1", "bx lr"]}, {"section": "Bits", "name": "b_shr", "title": "Shifting right: signed vs unsigned", "c": "s32 b_shr(s32 a, u32 b)\n{\n    return (a >> 3) + (b >> 3);\n}", "note": "Signed values shift with <code>asrs</code> (keeps the sign); unsigned ones with <code>lsrs</code>.", "key": ["asrs", "lsrs"], "asm": ["asrs r0, r0, #3", "lsrs r1, r1, #3", "adds r0, r0, r1", "bx lr"]}, {"section": "Bits", "name": "b_test", "title": "Testing a bit in an if", "c": "extern void f(void);\nvoid b_test(u32 flags)\n{\n    if (flags & 0x20)\n        f();\n}", "note": "AND, compare with 0, jump over the call when the bit is clear. The jump goes <em>around</em> the body, so its condition is the opposite of the C one.", "key": ["ands", "cmp", "beq"], "asm": ["push {lr}", "movs r1, #32", "ands r1, r0", "cmp r1, #0", "beq.n \u2192 7", "bl f", "pop {r0}", "bx r0"]}, {"section": "Types and conversions", "name": "t_u8", "title": "Converting to u8", "c": "u32 t_u8(u32 x)\n{\n    return (u8)x;\n}", "note": "Shift left 24, then right 24 with <code>lsrs</code>: only the low byte survives. With 16 instead of 24, it's <code>(u16)</code>.", "key": ["lsls", "lsrs"], "asm": ["lsls r0, r0, #24", "lsrs r0, r0, #24", "bx lr"]}, {"section": "Types and conversions", "name": "t_s8", "title": "Converting to s8", "c": "s32 t_s8(s32 x)\n{\n    return (s8)x;\n}", "note": "Same shape, but the right shift is <code>asrs</code>, which copies the sign bit. <code>lsrs</code> = unsigned, <code>asrs</code> = signed.", "key": ["lsls", "asrs"], "asm": ["lsls r0, r0, #24", "asrs r0, r0, #24", "bx lr"]}, {"section": "Types and conversions", "name": "t_param", "title": "u8 parameters", "c": "s32 t_param(u8 a, u8 b)\n{\n    return a + b;\n}", "note": "agbcc trims every u8/s8/u16/s16 parameter on entry, because the caller may leave junk in the upper bits.", "key": ["lsls", "lsrs"], "asm": ["lsls r0, r0, #24", "lsrs r0, r0, #24", "lsls r1, r1, #24", "lsrs r1, r1, #24", "adds r0, r0, r1", "bx lr"]}, {"section": "Types and conversions", "name": "t_ret", "title": "Returning a u8", "c": "u8 t_ret(u32 x)\n{\n    return x + 1;\n}", "note": "The result is trimmed to 8 bits before returning.", "key": ["lsls", "lsrs"], "asm": ["adds r0, #1", "lsls r0, r0, #24", "lsrs r0, r0, #24", "bx lr"]}, {"section": "Types and conversions", "name": "t_bool", "title": "A comparison as a value (bool)", "c": "s32 t_bool(s32 x)\n{\n    return x != 0;\n}", "note": "Here agbcc branches: if x is 0 it returns x as it is (0), otherwise it loads 1. Other comparisons can come out as <code>negs</code>/<code>adcs</code>/<code>lsrs #31</code> tricks.", "key": ["cmp", "beq"], "asm": ["cmp r0, #0", "beq.n \u2192 4", "movs r0, #1", "bx lr"]}, {"section": "Memory", "name": "m_fields", "title": "Struct fields of different sizes", "c": "struct S { u8 a; s8 b; u16 c; u32 d; };\ns32 m_fields(struct S *s)\n{\n    return s->a + s->b + s->c + s->d;\n}", "note": "<code>ldrb</code> for u8, <code>ldrh</code> for u16, <code>ldr</code> for 32 bits; the <code>#N</code> is the field's offset. Signed loads (<code>ldrsb</code>, <code>ldrsh</code>) only take the offset in a register, hence the <code>movs r0, #1</code> before the <code>ldrsb</code> of the s8 field.", "key": ["ldrb", "ldrh", "ldr", "ldrsb"], "asm": ["adds r1, r0, #0", "movs r0, #1", "ldrsb r0, [r1, r0]", "ldrb r2, [r1, #0]", "adds r0, r0, r2", "ldrh r2, [r1, #2]", "adds r0, r0, r2", "ldr r1, [r1, #4]", "adds r0, r0, r1", "bx lr"]}, {"section": "Memory", "name": "m_store", "title": "Writing a field", "c": "struct T { u8 cost; u8 height; u8 edges; };\nvoid m_store(struct T *t)\n{\n    t->edges = 0xFF;\n}", "note": "<code>strb</code> (<code>strh</code>, <code>str</code> for wider fields).", "key": ["strb"], "asm": ["movs r1, #255", "strb r1, [r0, #2]", "bx lr"]}, {"section": "Memory", "name": "m_arr8", "title": "Array of bytes", "c": "u8 m_arr8(u8 *a, s32 i)\n{\n    return a[i];\n}", "note": "Base + index added first, then <code>ldrb [rX, #0]</code>.", "key": ["ldrb"], "asm": ["adds r0, r0, r1", "ldrb r0, [r0, #0]", "bx lr"]}, {"section": "Memory", "name": "m_arr16", "title": "Array of u16", "c": "u16 m_arr16(u16 *a, s32 i)\n{\n    return a[i];\n}", "note": "Index \u00d7 2 first: <code>lsls rI, rI, #1</code>.", "key": ["lsls", "ldrh"], "asm": ["lsls r1, r1, #1", "adds r1, r1, r0", "ldrh r0, [r1, #0]", "bx lr"]}, {"section": "Memory", "name": "m_structarr", "title": "Array of 16-byte structs", "c": "struct R { u8 cost; u8 height; u8 edges; u8 flags; u32 pad[3]; };\nu8 m_structarr(struct R *r, s32 i)\n{\n    return r[i].edges;\n}", "note": "Index \u00d7 16 is <code>lsls #4</code>; the field offset (2) goes in the load.", "key": ["lsls", "ldrb"], "asm": ["lsls r1, r1, #4", "adds r1, r1, r0", "ldrb r0, [r1, #2]", "bx lr"]}, {"section": "Memory", "name": "m_global", "title": "A global variable", "c": "extern s32 gCount;\nvoid m_global(void)\n{\n    gCount++;\n}", "note": "The global's <em>address</em> comes from the literal pool (<code>ldr rX, [pc, #N]</code> + a <code>.word</code> that the linker fills in), then a normal load and store. The <code>.short 0x0000</code> is padding so the <code>.word</code> is aligned.", "key": ["ldr", ".word"], "asm": ["ldr r1, [pc, #8]", "ldr r0, [r1, #0]", "adds r0, #1", "str r0, [r1, #0]", "bx lr", ".short 0x0000", ".word 0x00000000   ; = &gCount"]}, {"section": "Memory", "name": "m_volatile", "title": "volatile: read every time", "c": "s32 m_volatile(volatile u8 *p)\n{\n    return *p + *p;\n}", "note": "Without <code>volatile</code> it would read once; with it, two <code>ldrb</code>s. Decomps use this to force a field to be read twice.", "key": ["ldrb"], "asm": ["ldrb r1, [r0, #0]", "ldrb r0, [r0, #0]", "adds r0, r0, r1", "bx lr"]}, {"section": "Memory", "name": "m_local_array", "title": "A local array", "c": "extern void use(u8 *);\nvoid m_local_array(void)\n{\n    u8 buf[8];\n    use(buf);\n}", "note": "Lives on the stack: <code>sub sp</code> to make room and <code>mov r0, sp</code> to pass its address.", "key": ["sub", "mov"], "asm": ["push {lr}", "sub sp, #8", "mov r0, sp", "bl use", "add sp, #8", "pop {r0}", "bx r0"]}, {"section": "Control flow", "name": "c_ifelse", "title": "if / else", "c": "s32 c_ifelse(s32 x)\n{\n    if (x > 10)\n        return 1;\n    else\n        return 2;\n}", "note": "A compare and a conditional jump. Here agbcc lays out the else first: <code>bgt</code> jumps to the then-part, and the else ends with a <code>b</code> over it.", "key": ["cmp", "bgt", "b"], "asm": ["cmp r0, #10", "bgt.n \u2192 5", "movs r0, #2", "b.n \u2192 6", "movs r0, #1", "bx lr"]}, {"section": "Control flow", "name": "c_signed", "title": "Signed vs unsigned comparison", "c": "extern void f(void);\nvoid c_signed(s32 a, u32 b)\n{\n    if (a < 5)\n        f();\n    if (b < 5)\n        f();\n}", "note": "<code>x &lt; 5</code> becomes \"if x &gt; 4, skip the call\". Signed values jump with <code>bgt</code>/<code>bge</code>/<code>blt</code>/<code>ble</code>; unsigned ones with <code>bhi</code>/<code>bcs</code>/<code>bcc</code>/<code>bls</code>. The kind of jump tells you the variable's type.", "key": ["bgt", "bhi"], "asm": ["push {r4, lr}", "adds r4, r1, #0", "cmp r0, #4", "bgt.n \u2192 6", "bl f", "cmp r4, #4", "bhi.n \u2192 9", "bl f", "pop {r4}", "pop {r0}", "bx r0"]}, {"section": "Control flow", "name": "c_and", "title": "&& and ||", "c": "extern void f(void);\nvoid c_and(s32 a, s32 b)\n{\n    if (a == 1 && b == 2)\n        f();\n}", "note": "Each condition is its own compare-and-jump; the first one that decides skips the rest.", "key": ["cmp", "bne"], "asm": ["push {lr}", "cmp r0, #1", "bne.n \u2192 7", "cmp r1, #2", "bne.n \u2192 7", "bl f", "pop {r0}", "bx r0"]}, {"section": "Control flow", "name": "c_for", "title": "A for loop", "c": "extern void f(s32);\nvoid c_for(void)\n{\n    s32 i;\n    for (i = 0; i < 10; i++)\n        f(i);\n}", "note": "The counter lives in a register that survives calls (<code>r4</code>+). The test is at the bottom, with a jump back up: a backwards jump is a loop.", "key": ["adds", "cmp", "ble"], "asm": ["push {r4, lr}", "movs r4, #0", "adds r0, r4, #0", "bl f", "adds r4, #1", "cmp r4, #9", "ble.n \u2192 3", "pop {r4}", "pop {r0}", "bx r0"]}, {"section": "Control flow", "name": "c_while", "title": "A while loop", "c": "extern s32 g(void);\nvoid c_while(void)\n{\n    while (g() != 0)\n        ;\n}", "note": "", "key": ["bl", "cmp", "bne"], "asm": ["push {lr}", "bl g", "cmp r0, #0", "bne.n \u2192 2", "pop {r0}", "bx r0"]}, {"section": "Control flow", "name": "c_switch_small", "title": "A small switch", "c": "s32 c_switch_small(s32 x)\n{\n    switch (x) {\n    case 1: return 10;\n    case 5: return 20;\n    case 9: return 30;\n    }\n    return 0;\n}", "note": "Few, scattered cases become compares and jumps; agbcc may split them around the middle value (here 5) to need fewer compares.", "key": ["cmp", "beq", "bgt"], "asm": ["cmp r0, #5", "beq.n \u2192 13", "cmp r0, #5", "bgt.n \u2192 8", "cmp r0, #1", "beq.n \u2192 11", "b.n \u2192 17", "cmp r0, #9", "beq.n \u2192 15", "b.n \u2192 17", "movs r0, #10", "b.n \u2192 18", "movs r0, #20", "b.n \u2192 18", "movs r0, #30", "b.n \u2192 18", "movs r0, #0", "bx lr"]}, {"section": "Control flow", "name": "c_switch_table", "title": "A dense switch", "c": "extern void f(s32);\nvoid c_switch_table(s32 x)\n{\n    switch (x) {\n    case 0: f(10); break;\n    case 1: f(20); break;\n    case 2: f(30); break;\n    case 3: f(40); break;\n    case 4: f(50); break;\n    }\n}", "note": "Many consecutive cases become a <em>jump table</em>: a bounds check, index \u00d7 4 (<code>lsls #2</code>), a <code>.word</code> table of addresses and <code>mov pc, rX</code> to jump.", "key": ["lsls", "mov", ".word"], "asm": ["push {lr}", "cmp r0, #4", "bhi.n \u2192 29", "lsls r0, r0, #2", "ldr r1, [pc, #4]", "adds r0, r0, r1", "ldr r0, [r0, #0]", "mov pc, r0", ".word 0x00000014   ; = &.text", ".word 0x00000028   ; = &.text", ".word 0x00000030   ; = &.text", ".word 0x00000038   ; = &.text", ".word 0x00000040   ; = &.text", ".word 0x00000048   ; = &.text", "movs r0, #10", "bl f", "b.n \u2192 29", "movs r0, #20", "bl f", "b.n \u2192 29", "movs r0, #30", "bl f", "b.n \u2192 29", "movs r0, #40", "bl f", "b.n \u2192 29", "movs r0, #50", "bl f", "pop {r0}", "bx r0"]}, {"section": "Control flow", "name": "c_ternary", "title": "The ?: operator", "c": "s32 c_ternary(s32 a, s32 b)\n{\n    return a > b ? a : b;\n}", "note": "Same as an if/else: Thumb has no conditional move.", "key": ["cmp", "bge"], "asm": ["adds r2, r0, #0", "adds r0, r1, #0", "cmp r0, r2", "bge.n \u2192 6", "adds r0, r2, #0", "bx lr"]}, {"section": "Calls and registers", "name": "r_call", "title": "Calling a function", "c": "extern s32 g4(s32, s32, s32, s32);\ns32 r_call(s32 x)\n{\n    return g4(x, 1, 2, 3);\n}", "note": "Arguments go in <code>r0</code>\u2013<code>r3</code>, the call is <code>bl</code>, the result comes back in <code>r0</code>. <code>push {lr}</code>/<code>pop</code> save the return address because the function calls another.", "key": ["bl", "push", "pop"], "asm": ["push {lr}", "movs r1, #1", "movs r2, #2", "movs r3, #3", "bl g4", "pop {r1}", "bx r1"]}, {"section": "Calls and registers", "name": "r_five", "title": "A fifth argument", "c": "extern s32 g5(s32, s32, s32, s32, s32);\ns32 r_five(void)\n{\n    return g5(1, 2, 3, 4, 5);\n}", "note": "From the fifth argument on, they go on the stack: <code>str rX, [sp]</code> before the <code>bl</code>.", "key": ["str", "sub"], "asm": ["push {lr}", "sub sp, #4", "movs r0, #5", "str r0, [sp, #0]", "movs r0, #1", "movs r1, #2", "movs r2, #3", "movs r3, #4", "bl g5", "add sp, #4", "pop {r1}", "bx r1"]}, {"section": "Calls and registers", "name": "r_keep", "title": "A value that must survive a call", "c": "extern s32 g(void);\ns32 r_keep(s32 x)\n{\n    return g() + x;\n}", "note": "A call may overwrite <code>r0</code>\u2013<code>r3</code>, so <code>x</code> moves to <code>r4</code> (saved with <code>push</code> at the start). Copies between registers are <code>adds rX, rY, #0</code>.", "key": ["push", "adds"], "asm": ["push {r4, lr}", "adds r4, r0, #0", "bl g", "adds r0, r0, r4", "pop {r4}", "pop {r1}", "bx r1"]}, {"section": "Calls and registers", "name": "r_ptr", "title": "Calling through a function pointer", "c": "s32 r_ptr(s32 (*fn)(s32))\n{\n    return fn(7);\n}", "note": "agbcc calls a small helper, <code>_call_via_rX</code>, which does the actual <code>bx</code>.", "key": ["bl"], "asm": ["push {lr}", "adds r1, r0, #0", "movs r0, #7", "bl _call_via_r1", "pop {r1}", "bx r1"]}, {"section": "Calls and registers", "name": "r_spill", "title": "Too many values for the registers (spills)", "c": "extern s32 g(s32);\ns32 r_spill(s32 a, s32 b, s32 c, s32 d, s32 e, s32 f, s32 h, s32 i)\n{\n    s32 x = g(a), y = g(b), z = g(c), w = g(d);\n    s32 u = g(e), v = g(f), q = g(h), r = g(i);\n    return x + y + z + w + u + v + q + r + a + b + c + d;\n}", "note": "Values that must survive calls only have <code>r4</code>\u2013<code>r7</code> and <code>r8</code>\u2013<code>r10</code>. The rest live on the stack: <code>str rX, [sp, #N]</code> to save (spill) and <code>ldr rX, [sp, #N]</code> to bring back (reload). <code>sub sp</code> makes the room; <code>mov rX, r8</code> etc. move values to and from the high registers.", "key": ["str", "ldr", "sub", "mov"], "asm": ["push {r4, r5, r6, r7, lr}", "mov r7, sl", "mov r6, r9", "mov r5, r8", "push {r5, r6, r7}", "sub sp, #16", "str r0, [sp, #0]", "str r1, [sp, #4]", "str r2, [sp, #8]", "str r3, [sp, #12]", "ldr r5, [sp, #48]", "ldr r6, [sp, #52]", "bl g", "adds r4, r0, #0", "ldr r0, [sp, #4]", "bl g", "adds r7, r0, #0", "ldr r0, [sp, #8]", "bl g", "mov sl, r0", "ldr r0, [sp, #12]", "bl g", "mov r9, r0", "adds r0, r5, #0", "bl g", "mov r8, r0", "adds r0, r6, #0", "bl g", "adds r6, r0, #0", "ldr r0, [sp, #56]", "bl g", "adds r5, r0, #0", "ldr r0, [sp, #60]", "bl g", "adds r4, r4, r7", "add r4, sl", "add r4, r9", "add r4, r8", "adds r4, r4, r6", "adds r4, r4, r5", "adds r4, r4, r0", "ldr r0, [sp, #0]", "adds r4, r4, r0", "ldr r0, [sp, #4]", "adds r4, r4, r0", "ldr r0, [sp, #8]", "adds r4, r4, r0", "ldr r0, [sp, #12]", "adds r4, r4, r0", "adds r0, r4, #0", "add sp, #16", "pop {r3, r4, r5}", "mov r8, r3", "mov r9, r4", "mov sl, r5", "pop {r4, r5, r6, r7}", "pop {r1}", "bx r1"]}];
+
+const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+const mnOf = l => l.split(/\s/)[0].replace(/\.n$/, '');
+
+function hlC(src) {
+  return src.split('\n').map(line => {
+    let out = '', rest = line;
+    const ci = rest.indexOf('//');
+    let com = '';
+    if (ci >= 0) { com = rest.slice(ci); rest = rest.slice(0, ci); }
+    out = esc(rest)
+      .replace(/\b(return|if|else|for|while|switch|case|break|extern|struct|void|volatile|do|goto)\b/g, '<span class="kw">$1</span>')
+      .replace(/\b(u8|s8|u16|s16|u32|s32)\b/g, '<span class="ty">$1</span>')
+      .replace(/\b(0x[0-9a-fA-F]+|\d+)\b/g, '<span class="num">$1</span>');
+    return out + (com ? '<span class="com">' + esc(com) + '</span>' : '');
+  });
+}
+
+function hlA(line) {
+  const m = line.match(/^(\S+)(.*)$/);
+  if (!m) return esc(line);
+  let [, mn, rest] = m;
+  let tail = '';
+  const t = rest.match(/^(.*?)(\s+→\s+\d+|\s+;\s.*)$/);
+  if (t) { rest = t[1]; tail = '<span class="dim">' + esc(t[2]) + '</span>'; }
+  rest = esc(rest)
+    .replace(/(#-?(?:0x[0-9a-f]+|\d+))/g, '<span class="imm">$1</span>')
+    .replace(/\b(bl)\b/, '$1')
+    .replace(/\b([A-Za-z_][A-Za-z0-9_]*)$/, (s) => /^(r\d+|sl|sp|lr|pc|ip|fp)$/.test(s) ? s : '<span class="sym">' + s + '</span>');
+  return '<span class="mn">' + esc(mn) + '</span>' + rest + tail;
+}
+
+function block(cap, lines, keyset) {
+  const rows = lines.map((html, i) => {
+    const key = keyset && keyset(i) ? ' key' : '';
+    return '<span class="ln' + key + '"><span class="n">' + (i + 1) + '</span>' + html + '</span>';
+  }).join('');
+  return '<pre class="code"><span class="cap">' + cap + '</span>' + rows + '</pre>';
+}
+
+// Instruction index.
+const counts = {};
+DATA.forEach(d => {
+  d.mns = new Set(d.asm.map(mnOf));
+  d.mns.forEach(m => counts[m] = (counts[m] || 0) + 1);
+});
+const chipBox = document.getElementById('chips');
+let active = null;
+Object.keys(counts).sort().forEach(m => {
+  const b = document.createElement('button');
+  b.type = 'button'; b.className = 'chip'; b.dataset.mn = m;
+  b.setAttribute('aria-pressed', 'false');
+  b.innerHTML = esc(m) + '<small>' + counts[m] + '</small>';
+  b.addEventListener('click', () => { active = active === m ? null : m; save(); render(); });
+  chipBox.appendChild(b);
+});
+
+const q = document.getElementById('q');
+q.addEventListener('input', () => { save(); render(); });
+document.getElementById('clear').addEventListener('click', () => { q.value = ''; active = null; save(); render(); });
+
+function save() { try { localStorage.setItem('atlas', JSON.stringify({ q: q.value, active })); } catch (e) {} }
+try { const s = JSON.parse(localStorage.getItem('atlas') || '{}'); q.value = s.q || ''; active = s.active || null; } catch (e) {}
+if (/^#[a-z.]+$/.test(location.hash) && counts[location.hash.slice(1)]) active = location.hash.slice(1);
+
+function render() {
+  const term = q.value.trim().toLowerCase();
+  chipBox.querySelectorAll('.chip').forEach(c => c.setAttribute('aria-pressed', String(c.dataset.mn === active)));
+  const shown = DATA.filter(d => (!active || d.mns.has(active)) &&
+    (!term || (d.title + ' ' + d.c + ' ' + d.note + ' ' + d.asm.join(' ') + ' ' + d.section).toLowerCase().includes(term)));
+  document.getElementById('count').textContent = shown.length + ' of ' + DATA.length + ' examples';
+  const list = document.getElementById('list');
+  if (!shown.length) { list.innerHTML = '<p class="empty">No example matches. Clear the filter to see them all.</p>'; return; }
+  const bySec = {};
+  shown.forEach(d => (bySec[d.section] = bySec[d.section] || []).push(d));
+  list.innerHTML = Object.entries(bySec).map(([sec, ds]) =>
+    '<section><h2>' + esc(sec) + '<span>' + ds.length + '</span></h2>' + ds.map(d => {
+      const keys = new Set(active ? [active] : d.key.map(k => k.replace(/\.n$/, '')));
+      return '<article class="entry" id="' + d.name + '"><h3>' + esc(d.title) + '</h3>' +
+        (d.note ? '<p class="note">' + d.note + '</p>' : '') +
+        '<div class="pair">' +
+        block('C', hlC(d.c), null) +
+        block('asm', d.asm.map(hlA), i => keys.has(mnOf(d.asm[i]))) +
+        '</div></article>';
+    }).join('') + '</section>').join('');
+}
+render();
+</script>
+</body>
+</html>

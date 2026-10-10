@@ -1,0 +1,229 @@
+<title>agbcc Thumb Patterns</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,600;1,400&display=swap">
+<style>
+:root {
+  --bg: #eef2f0;
+  --surface: #ffffff;
+  --ink: #17211e;
+  --muted: #586863;
+  --rule: #d3dcd8;
+  --code-bg: #f5f8f7;
+  --accent: #23664f;
+  --accent-soft: #dcebe5;
+  --key-ink: #8a5300;
+  --key-bg: #ffecc2;
+  --c-kw: #7a3fa0;
+  --c-type: #23664f;
+  --c-num: #a14b12;
+  --c-com: #7c8a86;
+  --a-mn: #1d4f9e;
+  --a-reg: #17211e;
+  --a-imm: #a14b12;
+  --a-dim: #8a9893;
+  --sans: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --cond: "IBM Plex Sans Condensed", "Arial Narrow", system-ui, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg: #0e1412; --surface: #141c19; --ink: #e2ebe7; --muted: #93a39e; --rule: #25312d;
+    --code-bg: #101715; --accent: #73c9ad; --accent-soft: #1d2f29; --key-ink: #f6c45a;
+    --key-bg: #3a2c0e; --c-kw: #c99bf0; --c-type: #73c9ad; --c-num: #f0a46a; --c-com: #6f807a;
+    --a-mn: #8fb7ff; --a-reg: #e2ebe7; --a-imm: #f0a46a; --a-dim: #6f807a;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #0e1412; --surface: #141c19; --ink: #e2ebe7; --muted: #93a39e; --rule: #25312d;
+  --code-bg: #101715; --accent: #73c9ad; --accent-soft: #1d2f29; --key-ink: #f6c45a;
+  --key-bg: #3a2c0e; --c-kw: #c99bf0; --c-type: #73c9ad; --c-num: #f0a46a; --c-com: #6f807a;
+  --a-mn: #8fb7ff; --a-reg: #e2ebe7; --a-imm: #f0a46a; --a-dim: #6f807a;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--ink); font: 15px/1.55 var(--sans);
+  padding-inline: 16px; padding-block: 0 64px;
+}
+.wrap { max-width: 1120px; margin: 0 auto; }
+header { padding-block: 40px 20px; display: grid; gap: 10px; }
+.eyebrow { font: 600 12px/1 var(--cond); letter-spacing: .14em; text-transform: uppercase; color: var(--accent); }
+h1 { font: 700 clamp(30px, 5vw, 46px)/1.05 var(--cond); margin: 0; text-wrap: balance; letter-spacing: -.01em; }
+.lede { max-width: 68ch; color: var(--muted); margin: 0; }
+.lede code, .note code, .tips code { font-family: var(--mono); font-size: .9em; background: var(--accent-soft); padding: 0 4px; border-radius: 3px; color: var(--ink); }
+
+.bar {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg);
+  border-bottom: 1px solid var(--rule); padding-block: 12px; display: grid; gap: 10px;
+}
+.search { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.search input {
+  flex: 1 1 260px; min-width: 0; font: 15px var(--sans); color: var(--ink); background: var(--surface);
+  border: 1px solid var(--rule); border-radius: 6px; padding: 9px 12px;
+}
+.search input:focus-visible, .chip:focus-visible, .clear:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.count { font: 500 13px var(--cond); color: var(--muted); font-variant-numeric: tabular-nums; }
+.clear { font: 600 13px var(--cond); background: none; border: 1px solid var(--rule); color: var(--muted); border-radius: 6px; padding: 7px 10px; cursor: pointer; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; max-height: 92px; overflow-y: auto; }
+.chips .label { font: 600 12px/26px var(--cond); color: var(--muted); letter-spacing: .06em; text-transform: uppercase; margin-right: 4px; }
+.chip {
+  font: 13px/1 var(--mono); padding: 6px 8px; border-radius: 4px; border: 1px solid var(--rule);
+  background: var(--surface); color: var(--ink); cursor: pointer;
+}
+.chip small { color: var(--muted); font-size: 11px; margin-left: 3px; }
+.chip[aria-pressed="true"] { background: var(--key-bg); border-color: var(--key-ink); color: var(--key-ink); }
+
+.tips {
+  margin-block: 24px 8px; display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+.tip { border-left: 3px solid var(--accent); padding: 2px 0 2px 12px; }
+.tip b { display: block; font: 600 14px var(--cond); letter-spacing: .02em; margin-bottom: 2px; }
+.tip p { margin: 0; color: var(--muted); font-size: 14px; }
+
+section { margin-top: 36px; }
+h2 { font: 700 22px/1.2 var(--cond); margin: 0 0 12px; display: flex; align-items: baseline; gap: 10px; }
+h2 span { font: 500 13px var(--cond); color: var(--muted); }
+.entry { background: var(--surface); border: 1px solid var(--rule); border-radius: 8px; padding: 16px; margin-bottom: 14px; }
+.entry h3 { font: 600 17px/1.3 var(--cond); margin: 0; }
+.note { margin: 6px 0 12px; color: var(--muted); max-width: 80ch; font-size: 14px; }
+.pair { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 12px; }
+@media (max-width: 760px) { .pair { grid-template-columns: minmax(0, 1fr); } }
+.code {
+  background: var(--code-bg); border: 1px solid var(--rule); border-radius: 6px; overflow-x: auto;
+  font: 13px/1.6 var(--mono); padding: 10px 0; margin: 0;
+}
+.code .cap { display: block; font: 600 11px var(--cond); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); padding: 0 12px 6px; }
+.code .ln { display: flex; white-space: pre; padding-inline: 12px; }
+.code .n { color: var(--a-dim); width: 2.4em; flex: none; text-align: right; margin-right: 1em; user-select: none; font-variant-numeric: tabular-nums; }
+.code .ln.key { background: var(--key-bg); }
+.kw { color: var(--c-kw); } .ty { color: var(--c-type); } .num { color: var(--c-num); } .com { color: var(--c-com); font-style: italic; }
+.mn { color: var(--a-mn); font-weight: 600; } .ln.key .mn { color: var(--key-ink); }
+.imm { color: var(--a-imm); } .dim { color: var(--a-dim); } .sym { color: var(--c-type); }
+.empty { color: var(--muted); padding: 40px 0; text-align: center; }
+footer { margin-top: 48px; color: var(--muted); font-size: 13px; border-top: 1px solid var(--rule); padding-top: 16px; }
+footer code { font-family: var(--mono); font-size: 12px; }
+@media (prefers-reduced-motion: no-preference) { .chip { transition: background .12s, border-color .12s; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">GBA decomp · agbcc · Thumb</div>
+    <h1>What C turns into</h1>
+    <p class="lede">Small pieces of C, each compiled with agbcc exactly as lodis-qol builds it, next to the asm it produces. Pick an instruction below to see every example that uses it, for example <code>negs</code>: "what produces this?"</p>
+  </header>
+
+  <div class="bar">
+    <div class="search">
+      <input id="q" type="search" placeholder="Filter by text: switch, u8, global, spill…" aria-label="Filter examples">
+      <button class="clear" id="clear" type="button">Clear</button>
+      <span class="count" id="count"></span>
+    </div>
+    <div class="chips" id="chips" role="group" aria-label="Filter by instruction"><span class="label">Instruction</span></div>
+  </div>
+
+  <div class="tips">
+    <div class="tip"><b>Conditions come out inverted</b><p>An <code>if</code> becomes "if NOT the condition, jump over the body".</p></div>
+    <div class="tip"><b><code>lsrs</code> vs <code>asrs</code></b><p>After <code>lsls #24</code>/<code>#16</code>: <code>lsrs</code> is a u8/u16, <code>asrs</code> an s8/s16.</p></div>
+    <div class="tip"><b>The jump tells the type</b><p><code>bgt</code>/<code>blt</code>… signed; <code>bhi</code>/<code>bcc</code>… unsigned.</p></div>
+    <div class="tip"><b>Registers</b><p><code>r0</code>–<code>r3</code> arguments and result; <code>r4</code>–<code>r7</code>, <code>r8</code>–<code>sl</code> survive calls.</p></div>
+  </div>
+
+  <main id="list"></main>
+
+  <footer>
+    Every listing is real output: <code>agbcc -mthumb-interwork -O2 -fhex-asm -fprologue-bugfix</code>, assembled and disassembled with <code>arm-none-eabi-objdump</code> (the same view <code>scripts/ndiff.sh</code> shows). Jump targets show as <code>→ N</code>, the line they land on. Highlighted lines are the ones the example is about.
+  </footer>
+</div>
+
+<script>
+const DATA = __DATA__;
+
+const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+const mnOf = l => l.split(/\s/)[0].replace(/\.n$/, '');
+
+function hlC(src) {
+  return src.split('\n').map(line => {
+    let out = '', rest = line;
+    const ci = rest.indexOf('//');
+    let com = '';
+    if (ci >= 0) { com = rest.slice(ci); rest = rest.slice(0, ci); }
+    out = esc(rest)
+      .replace(/\b(return|if|else|for|while|switch|case|break|extern|struct|void|volatile|do|goto)\b/g, '<span class="kw">$1</span>')
+      .replace(/\b(u8|s8|u16|s16|u32|s32)\b/g, '<span class="ty">$1</span>')
+      .replace(/\b(0x[0-9a-fA-F]+|\d+)\b/g, '<span class="num">$1</span>');
+    return out + (com ? '<span class="com">' + esc(com) + '</span>' : '');
+  });
+}
+
+function hlA(line) {
+  const m = line.match(/^(\S+)(.*)$/);
+  if (!m) return esc(line);
+  let [, mn, rest] = m;
+  let tail = '';
+  const t = rest.match(/^(.*?)(\s+→\s+\d+|\s+;\s.*)$/);
+  if (t) { rest = t[1]; tail = '<span class="dim">' + esc(t[2]) + '</span>'; }
+  rest = esc(rest)
+    .replace(/(#-?(?:0x[0-9a-f]+|\d+))/g, '<span class="imm">$1</span>')
+    .replace(/\b(bl)\b/, '$1')
+    .replace(/\b([A-Za-z_][A-Za-z0-9_]*)$/, (s) => /^(r\d+|sl|sp|lr|pc|ip|fp)$/.test(s) ? s : '<span class="sym">' + s + '</span>');
+  return '<span class="mn">' + esc(mn) + '</span>' + rest + tail;
+}
+
+function block(cap, lines, keyset) {
+  const rows = lines.map((html, i) => {
+    const key = keyset && keyset(i) ? ' key' : '';
+    return '<span class="ln' + key + '"><span class="n">' + (i + 1) + '</span>' + html + '</span>';
+  }).join('');
+  return '<pre class="code"><span class="cap">' + cap + '</span>' + rows + '</pre>';
+}
+
+// Instruction index.
+const counts = {};
+DATA.forEach(d => {
+  d.mns = new Set(d.asm.map(mnOf));
+  d.mns.forEach(m => counts[m] = (counts[m] || 0) + 1);
+});
+const chipBox = document.getElementById('chips');
+let active = null;
+Object.keys(counts).sort().forEach(m => {
+  const b = document.createElement('button');
+  b.type = 'button'; b.className = 'chip'; b.dataset.mn = m;
+  b.setAttribute('aria-pressed', 'false');
+  b.innerHTML = esc(m) + '<small>' + counts[m] + '</small>';
+  b.addEventListener('click', () => { active = active === m ? null : m; save(); render(); });
+  chipBox.appendChild(b);
+});
+
+const q = document.getElementById('q');
+q.addEventListener('input', () => { save(); render(); });
+document.getElementById('clear').addEventListener('click', () => { q.value = ''; active = null; save(); render(); });
+
+function save() { try { localStorage.setItem('atlas', JSON.stringify({ q: q.value, active })); } catch (e) {} }
+try { const s = JSON.parse(localStorage.getItem('atlas') || '{}'); q.value = s.q || ''; active = s.active || null; } catch (e) {}
+if (/^#[a-z.]+$/.test(location.hash) && counts[location.hash.slice(1)]) active = location.hash.slice(1);
+
+function render() {
+  const term = q.value.trim().toLowerCase();
+  chipBox.querySelectorAll('.chip').forEach(c => c.setAttribute('aria-pressed', String(c.dataset.mn === active)));
+  const shown = DATA.filter(d => (!active || d.mns.has(active)) &&
+    (!term || (d.title + ' ' + d.c + ' ' + d.note + ' ' + d.asm.join(' ') + ' ' + d.section).toLowerCase().includes(term)));
+  document.getElementById('count').textContent = shown.length + ' of ' + DATA.length + ' examples';
+  const list = document.getElementById('list');
+  if (!shown.length) { list.innerHTML = '<p class="empty">No example matches. Clear the filter to see them all.</p>'; return; }
+  const bySec = {};
+  shown.forEach(d => (bySec[d.section] = bySec[d.section] || []).push(d));
+  list.innerHTML = Object.entries(bySec).map(([sec, ds]) =>
+    '<section><h2>' + esc(sec) + '<span>' + ds.length + '</span></h2>' + ds.map(d => {
+      const keys = new Set(active ? [active] : d.key.map(k => k.replace(/\.n$/, '')));
+      return '<article class="entry" id="' + d.name + '"><h3>' + esc(d.title) + '</h3>' +
+        (d.note ? '<p class="note">' + d.note + '</p>' : '') +
+        '<div class="pair">' +
+        block('C', hlC(d.c), null) +
+        block('asm', d.asm.map(hlA), i => keys.has(mnOf(d.asm[i]))) +
+        '</div></article>';
+    }).join('') + '</section>').join('');
+}
+render();
+</script>
