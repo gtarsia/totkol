@@ -1,7 +1,7 @@
 #!/bin/bash
 # Runs decomp-permuter on FUNC's NONMATCHING C in src/NAME.c: it changes the C at random, keeps
 # the versions that get closer to the original and writes them to build/perm/FUNC/output-SCORE-N.
-# Lower score is better; 0 is a match.
+# Lower score is better; 0 is a match. Each better score sends a desktop notification (notify-send).
 # Usage: scripts/perm.sh NAME FUNC            search; each time it finds something better, it
 #                                             pauses and shows it as in pick. If you accept
 #                                             changes, it starts over from your new C; if not,
@@ -23,6 +23,19 @@ style='{BasedOnStyle: LLVM, IndentWidth: 4, ColumnLimit: 100, RemoveBracesLLVM: 
 	BreakBeforeBraces: Linux, IndentCaseLabels: false}'
 
 best_output() { ls -d $D/output-* 2>/dev/null | sort -t- -k2 -n | head -1; }
+
+# Desktop notification with the best output's score; urgent when it's a match.
+notify() {
+	local best=$(best_output) score
+	[ -n "$best" ] || return 0
+	score=${best##*/output-}
+	score=${score%-*}
+	if [ "$score" = 0 ]; then
+		notify-send -u critical "perm: $FUNC matches" "$best" || true
+	else
+		notify-send "perm: $FUNC score $score" "$best" || true
+	fi
+}
 
 # Goes through the changes in output $1 and patches the accepted ones into src.
 pick() {
@@ -68,7 +81,7 @@ setup() {
 	rm -rf \$T
 	EOS
 	chmod +x $D/compile.sh
-	printf 'func_name = "%s"\ncompiler_type = "gcc"\n%s\n' $FUNC \
+	printf 'func_name = "%s"\ncompiler_type = "agbcc"\n%s\n' $FUNC \
 		'objdump_command = "arm-none-eabi-objdump -drz -M force-thumb"' > $D/settings.toml
 	# run_fork.py: permuter.py with the "fork" start method, which it needs on newer Pythons.
 	[ -f $PERMUTER/run_fork.py ] || printf '%s\n' 'import multiprocessing, runpy, sys' \
@@ -102,7 +115,8 @@ best)
 	;;
 search | continue)
 	setup
-	permute
+	permute || true
+	notify
 	exit
 	;;
 esac
@@ -151,6 +165,7 @@ while :; do
 	[ -n "$best" ] && { [ -z "$offered" ] || [ "$score" -lt "$offered" ]; } || continue
 	kill -STOP -- -$pid 2> /dev/null || continue
 	offered=$score
+	notify
 	printf '\n\n'
 	cp src/$NAME.c $D/src.before
 	pick $best || true
