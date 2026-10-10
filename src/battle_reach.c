@@ -203,10 +203,9 @@ void BuildReachMap(u8 mode, u8 kind, u8 canX, struct ReachTile *map0)
                 map->edges = 0xFF;
                 goto next;
             }
-            if (!(tile->flags & 0x20)) {
                 map->edges = 0xFF;
+            if (!(tile->flags & 0x20))
                 goto next;
-            }
             if (ux == 10 && uy == 10)
                 edge = 0;
             edge = Edge(ux, uy, -1, 0, mode, kind);
