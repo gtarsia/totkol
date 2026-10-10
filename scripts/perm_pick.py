@@ -4,7 +4,7 @@
 # preprocessed C (no comments, macros expanded), so changes are matched to SRC ignoring spaces,
 # parentheses, braces and comments, with macros expanded. If any can't be matched cleanly, or
 # would drop a comment, nothing is patched and they're listed to apply by hand. An output whose
-# changes don't change the diff is skipped (PICK_ALL=1 shows it).
+# changes don't change the diff is skipped (perm.sh's --all shows it).
 import difflib, os, re, subprocess, sys, tempfile, time
 from pycparser import c_parser, c_generator
 
@@ -232,8 +232,8 @@ def with_changes(ops):
 current = score(prefix, A)
 s = score(prefix, with_changes(hunks))
 if not hunks or (s == current and not SHOW_ALL):
-    print(f"\033[90mskipped: its changes don't change the diff ({current} lines; PICK_ALL=1 shows "
-          'them)\033[0m')
+    print(f"\033[90mskipped: its changes don't change the diff ({current} lines; perm.sh's --all "
+          'shows them)\033[0m')
     sys.exit()
 if s is None:
     effect = "doesn't compile"
@@ -256,11 +256,13 @@ if None in places:
     title += "\n\033[33msome of it can't be patched into src automatically; if accepted, nothing " \
              'is patched and all of it is listed to apply by hand'
 show(A, with_changes(hunks), title)
-print(f'{title}\n\033[0maccept? [y/n] ', end='', flush=True)
+print(f'{title}\n\033[0maccept? [y/n, q to stop] ', end='', flush=True)
 ans = ''
 while ans not in ('y', 'n', 'q'):
     ans = key()
 print(ans + '\n')
+if ans == 'q':
+    sys.exit(3)  # perm.sh stops searching
 if ans != 'y':
     sys.exit()
 patched = list(block)

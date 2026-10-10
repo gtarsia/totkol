@@ -5,17 +5,41 @@
 # Usage: scripts/perm.sh NAME FUNC            search; each time it finds something better, it
 #                                             pauses and shows it as in pick. If you accept
 #                                             changes, it starts over from your new C; if not,
-#                                             it carries on. Ctrl+C stops it.
+#                                             it carries on. q at its question, or Ctrl+C,
+#                                             stops it.
 #        scripts/perm.sh NAME FUNC search     just search (Ctrl+C stops it)
 #        scripts/perm.sh NAME FUNC continue   search starting from the best output so far
 #        scripts/perm.sh NAME FUNC best       show how the best output differs from your C
-#        scripts/perm.sh NAME FUNC pick       go through its changes in groups, with their effect
-#                                             on the diff, and patch the ones you accept into src
-# THREADS=N (default 8). PERMUTER=path to decomp-permuter (default ~/git/decomp-permuter).
-[[ $1 = -h || $1 = --help || $# -lt 2 ]] && { sed -n '2,/^[^#]/s/^# \{0,1\}//p' "$0"; exit 0; }
+#        scripts/perm.sh NAME FUNC pick       show the best output's changes, all together, with
+#                                             their effect on the diff; if you accept, patch them
+#                                             into src
+# Options, anywhere on the line:
+#   --no-vars       never add variables (no temporaries, padding variables or helper functions)
+#   --keep-types    never change the type of a variable, parameter or function
+#   --all           pick: also show an output whose changes don't change the diff
+#   --context N     best: lines around each change (default 3)
+#   -j N            permuter threads (default 8)
+#   --permuter DIR  decomp-permuter checkout (default ~/git/decomp-permuter)
+usage() { sed -n '2,/^[^#]/s/^# \{0,1\}//p' "$0"; exit ${1:-0}; }
+args=() NOVARS= KEEPTYPES= PICK_ALL= CONTEXT=3 THREADS=8 PERMUTER=~/git/decomp-permuter
+while [ $# -gt 0 ]; do
+	case $1 in
+	--no-vars) NOVARS=1 ;;
+	--keep-types) KEEPTYPES=1 ;;
+	--all) PICK_ALL=1 ;;
+	--context) CONTEXT=$2; shift ;;
+	-j) THREADS=$2; shift ;;
+	--permuter) PERMUTER=$2; shift ;;
+	-h | --help) usage ;;
+	-*) echo "unknown option: $1" >&2; usage 2 ;;
+	*) args+=("$1") ;;
+	esac
+	shift
+done
+set -- "${args[@]}"
+[ $# -lt 2 ] && usage
 set -e
 NAME=$1 FUNC=$2 MODE=$3
-PERMUTER=${PERMUTER:-~/git/decomp-permuter}
 D=build/perm/$FUNC
 PY=$PERMUTER/.venv/bin/python
 
@@ -41,7 +65,7 @@ notify() {
 pick() {
 	cc -E -dM -I tools/agbcc -I tools/agbcc/include -iquote include -nostdinc -DREVISION=0 \
 		-DENGLISH -DQOL=0 -DNONMATCHING src/$NAME.c > $D/macros.h
-	$PY scripts/perm_pick.py src/$NAME.c $FUNC $D $1 "$style"
+	PICK_ALL=$PICK_ALL $PY scripts/perm_pick.py src/$NAME.c $FUNC $D $1 "$style"
 }
 
 # Prepares $D for the permuter. Base: the C as ndiff.sh compiles it, without line markers (with
@@ -82,7 +106,21 @@ setup() {
 	EOS
 	chmod +x $D/compile.sh
 	printf 'func_name = "%s"\ncompiler_type = "agbcc"\n%s\n' $FUNC \
-		'objdump_command = "arm-none-eabi-objdump -drz -M force-thumb"' > $D/settings.toml
+		'objdump_command = "arm-none-eabi-objdump -drz -M force-thumb"' > $D/settings.new
+	# --no-vars / --keep-types: turn off the passes that add variables (temporaries, unused padding
+	# variables, helper inline functions, aliases) or change types.
+	off=()
+	[ "$NOVARS" = 1 ] && off+=(perm_temp_for_expr perm_pad_var_decl perm_inline perm_alias_array)
+	[ "$KEEPTYPES" = 1 ] && off+=(perm_randomize_internal_type perm_randomize_external_type
+		perm_randomize_function_type)
+	if [ ${#off[@]} -gt 0 ]; then
+		{ echo '[weight_overrides]'; printf '%s = 0\n' "${off[@]}"; } >> $D/settings.new
+	fi
+	# Other options than last time: earlier outputs could have what they now rule out.
+	if ! cmp -s $D/settings.new $D/settings.toml; then
+		rm -rf $D/output-*
+	fi
+	mv $D/settings.new $D/settings.toml
 	# run_fork.py: permuter.py with the "fork" start method, which it needs on newer Pythons.
 	[ -f $PERMUTER/run_fork.py ] || printf '%s\n' 'import multiprocessing, runpy, sys' \
 		'multiprocessing.set_start_method("fork")' 'sys.argv = ["permuter.py"] + sys.argv[1:]' \
@@ -90,7 +128,7 @@ setup() {
 }
 
 permute() {
-	(cd $PERMUTER && exec $PY run_fork.py $OLDPWD/$D -j${THREADS:-8} --best-only --stop-on-zero "$@")
+	(cd $PERMUTER && exec $PY run_fork.py $OLDPWD/$D -j$THREADS --best-only --stop-on-zero "$@")
 }
 
 case "$MODE" in
@@ -110,7 +148,7 @@ best)
 	$PY scripts/perm_diff.py $best/source.c $D/permuter.c $FUNC
 	# Same style as src/ for both, so only real changes show (no braces on one-line ifs, etc.).
 	clang-format -i --style="$style" $D/yours.c $D/permuter.c
-	CONTEXT=${CONTEXT:-3} SBS_WS=ignore sbs $D/yours.c $D/permuter.c
+	CONTEXT=$CONTEXT SBS_WS=ignore sbs $D/yours.c $D/permuter.c
 	exit
 	;;
 search | continue)
@@ -139,7 +177,7 @@ start() {
 	setup
 	# Its own process group, so it can be paused and stopped as a whole (it runs several workers).
 	PYTHONUNBUFFERED=1 setsid bash -c "cd $PERMUTER && exec $PY run_fork.py $PWD/$D \
-		-j${THREADS:-8} --best-only --stop-on-zero" > $D/log 2>&1 &
+		-j$THREADS --best-only --stop-on-zero" > $D/log 2>&1 &
 	pid=$!
 	offered=
 	started=$SECONDS
@@ -168,8 +206,12 @@ while :; do
 	notify
 	printf '\n\n'
 	cp src/$NAME.c $D/src.before
-	pick $best || true
-	if cmp -s src/$NAME.c $D/src.before; then
+	rc=0
+	pick $best || rc=$?
+	if [ $rc = 3 ]; then
+		echo "stopped"
+		exit 0
+	elif cmp -s src/$NAME.c $D/src.before; then
 		echo "carrying on"
 		kill -CONT -- -$pid 2> /dev/null || true
 	else

@@ -32,9 +32,12 @@ uncommitted first.
   `src/battle_reach.c`; put the C under `#ifdef NONMATCHING` and compare it with
   `scripts/ndiff.sh NAME FUNC [FROM [TO]]` (FROM/TO: regexes, e.g. a callee, to compare a part).
   `scripts/nsrc.sh NAME FUNC` shows that build with its C lines over their instructions.
+  ndiff.sh's count also gives the logic-only differences (registers and stack offsets ignored);
+  `--logic` marks only those. Match the logic first (that count at 0), then registers and stack:
+  the total alone misleads, since C that does something different can line up registers better.
   `scripts/perm.sh NAME FUNC` runs decomp-permuter on it and offers each better result for
   patching into src (`... pick` does it for the best one so far).
-  `scripts/why.sh NAME FUNC LINE [orig]` explains why a line of that diff uses its registers,
+  `scripts/why.sh NAME FUNC LINE [--orig]` explains why a line of that diff uses its registers,
   from agbcc's own notes (its values, their priority, reload's round-robin).
   These scripts print their usage with `-h`; `scripts/completion.zsh` adds zsh tab completion.
 - Matching tips (agbcc): to find which pass makes a difference, compile with the pass off

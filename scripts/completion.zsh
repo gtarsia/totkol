@@ -2,6 +2,15 @@
 # In ~/.zshrc, after compinit: source ~/git/lodis-qol/scripts/completion.zsh
 _lodis_scripts() {
 	local cmd=${words[1]:t}
+	if [[ $PREFIX = -* ]]; then
+		case $cmd in
+		ndiff.sh) compadd -- --logic --context --nvim --qol -h ;;
+		why.sh) compadd -- --orig -v -h ;;
+		perm.sh) compadd -- --no-vars --keep-types --all --context -j --permuter -h ;;
+		*) compadd -- -h ;;
+		esac
+		return
+	fi
 	if (( CURRENT == 2 )); then
 		local -a names=(src/*.c(N:t:r))
 		_describe 'file in src/' names
