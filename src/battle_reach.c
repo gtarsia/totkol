@@ -134,8 +134,11 @@ static inline u32 Edge(u8 x, u8 y, s8 dx0, s8 dy0, u8 mode, u8 kind)
     switch (mode) {
     default:
         maxDown = -2;
-        if (mode == 4)
+        if (mode == 4) {
+            if (dy0 != 0)
+                maxDown = 0;
             maxDown = -3;
+        }
         break;
     case 3:
         maxDown = -4;
@@ -178,7 +181,8 @@ static inline u32 Edge(u8 x, u8 y, s8 dx0, s8 dy0, u8 mode, u8 kind)
     }
     if (h1 > h0)
         edge |= 2;
-    if (h1 - h0 > maxUp || h1 - h0 < maxDown)
+    x2 = h1 - h0;
+    if ((x2 > maxUp) || (x2 < maxDown))
         edge |= 1;
     if (cost1 == cost2 && (h0 != h2 || h1 >= h0))
         edge |= 2;
@@ -248,7 +252,8 @@ void BuildReachMap(u8 mode, u8 kind, u8 canX, struct ReachTile *map0)
                 map->cost = 1;
                 goto next;
             case 3:
-                if (terrain->flags & 2)
+                uy = terrain->flags;
+                if (uy & 2)
                     map->cost = 1;
                 break;
             case 2:
