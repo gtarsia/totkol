@@ -106,13 +106,13 @@ u8 ReachTileCost(u8 x, u8 y, u8 mode, u8 kind)
 // timing from the original, so it isn't built: the ROM uses the original code below. Kept as the
 // readable version.
 #ifdef NONMATCHING
-static bool32 TileBlocked(struct MapTile *t)
+inline static bool32 TileBlocked(struct MapTile *t)
 {
     return (t->field0 & 0x80) || (t->height & 0x80) || !(t->flags & 0x80) || !(t->flags & 0x20);
 }
 
 // Edge bits from (x, y) towards (dx, dy): 1 can't step, 2 can't pass (see EDGE_*).
-static u32 Edge(s32 x, s32 y, s32 dx, s32 dy, u8 mode, u8 kind)
+inline static u32 Edge(s32 x, s32 y, s32 dx, s32 dy, u8 mode, u8 kind)
 {
     s32 maxUp, maxDown;
     s32 h0, h1, h2;
@@ -120,22 +120,16 @@ static u32 Edge(s32 x, s32 y, s32 dx, s32 dy, u8 mode, u8 kind)
     u32 edge;
 
     switch (mode) {
-    case MOVE_FLY:
-        maxUp = 127;
-        maxDown = -128;
-        break;
-    case 3:
-        maxUp = 3;
-        maxDown = -4;
-        break;
-    case 4:
-        maxUp = 2;
-        maxDown = -3;
-        break;
-    default:
-        maxUp = 1;
-        maxDown = -2;
-        break;
+    case MOVE_FLY: maxUp = 127; break;
+    case 3:        maxUp = 3;   break;
+    case 4:        maxUp = 2;   break;
+    default:       maxUp = 1;   break;
+    }
+    switch (mode) {
+    case MOVE_FLY: maxDown = -128; break;
+    case 3:        maxDown = -4;   break;
+    case 4:        maxDown = -3;   break;
+    default:       maxDown = -2;   break;
     }
 
     h0 = ReachTileHeight(x, y, mode, kind);
@@ -171,42 +165,44 @@ static u32 Edge(s32 x, s32 y, s32 dx, s32 dy, u8 mode, u8 kind)
 // lets it cross terrain with flag 8.
 void BuildReachMap(u8 mode, u8 kind, u8 canX, struct ReachTile *map)
 {
-    s32 x, y;
+    unsigned int x;
+
     struct ReachTile *t;
     struct MapTile *tile;
     const struct Terrain *terrain;
     u32 edge;
+    struct ReachTile *new_var;
 
-    for (y = 0, t = map; y < MAP_SIZE; y++) {
+    for (kind = 0, t = map; kind < MAP_SIZE; kind++) {
         for (x = 0; x < MAP_SIZE; x++, t++) {
-            tile = sub_08028728(x, y);
+            tile = sub_08028728(x, kind);
             if (TileBlocked(tile)) {
                 t->edges = 0xFF;
                 goto next;
             }
-            edge = Edge(x, y, -1, 0, mode, kind);
+            edge = Edge(x, kind, -1, 0, mode, kind);
             if (edge & 1)
                 t->edges |= EDGE_STEP_LEFT;
             if (edge & 2)
                 t->edges |= EDGE_PASS_LEFT;
-            edge = Edge(x, y, 1, 0, mode, kind);
+            edge = Edge(x, kind, 1, 0, mode, kind);
             if (edge & 1)
                 t->edges |= EDGE_STEP_RIGHT;
             if (edge & 2)
                 t->edges |= EDGE_PASS_RIGHT;
-            edge = Edge(x, y, 0, -1, mode, kind);
+            edge = Edge(x, kind, 0, -1, mode, kind);
             if (edge & 1)
                 t->edges |= EDGE_STEP_UP;
             if (edge & 2)
                 t->edges |= EDGE_PASS_UP;
-            edge = Edge(x, y, 0, 1, mode, kind);
+            edge = Edge(x, kind, 0, 1, mode, kind);
             if (edge & 1)
                 t->edges |= EDGE_STEP_DOWN;
             if (edge & 2)
                 t->edges |= EDGE_PASS_DOWN;
 
-            terrain = &gUnk_0861CA5C[sub_08028774(x, y)];
-            tile = sub_08028728(x, y);
+            terrain = &gUnk_0861CA5C[sub_08028774(x, kind)];
+            tile = sub_08028728(x, kind);
             t->height = tile->height & 0x7F;
             if (mode == 1 || mode == MOVE_FLY) {
                 t->cost = 1;
@@ -229,9 +225,10 @@ void BuildReachMap(u8 mode, u8 kind, u8 canX, struct ReachTile *map)
                 // fallthrough
             case 4:
             case 5:
+                new_var = t;
                 if (terrain->flags & 2) {
-                    t->height--;
-                    t->flags |= 4;
+                    new_var->height--;
+                    new_var->flags |= 4;
                 }
                 break;
             case 3:
@@ -247,7 +244,6 @@ void BuildReachMap(u8 mode, u8 kind, u8 canX, struct ReachTile *map)
             t->fieldC = 0xFF;
             t->fieldA = 0xFFFF;
             t->field8 = 0xFFFF;
-            t->fieldE = 0xFFFF;
         }
     }
 }
