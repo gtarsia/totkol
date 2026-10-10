@@ -34,6 +34,8 @@ uncommitted first.
   `scripts/nsrc.sh NAME FUNC` shows that build with its C lines over their instructions.
   `scripts/perm.sh NAME FUNC` runs decomp-permuter on it and offers each better result for
   patching into src (`... pick` does it for the best one so far).
+  `scripts/why.sh NAME FUNC LINE [orig]` explains why a line of that diff uses its registers,
+  from agbcc's own notes (its values, their priority, reload's round-robin).
   These scripts print their usage with `-h`; `scripts/completion.zsh` adds zsh tab completion.
 - Matching tips (agbcc): to find which pass makes a difference, compile with the pass off
   (e.g. `-fno-cse-follow-jumps`) and see if the diff shrinks. A field the original reads twice

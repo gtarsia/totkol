@@ -1,4 +1,4 @@
-# Tab completion for scripts/{fdiff,score,ndiff,nsrc,perm}.sh, run from the repo root.
+# Tab completion for scripts/{fdiff,score,ndiff,nsrc,perm,why}.sh, run from the repo root.
 # In ~/.zshrc, after compinit: source ~/git/lodis-qol/scripts/completion.zsh
 _lodis_scripts() {
 	local cmd=${words[1]:t}
@@ -11,6 +11,8 @@ _lodis_scripts() {
 		# Functions defined in src/NAME.c.
 		local -a funcs=(${(f)"$(grep -oP '^[A-Za-z_][\w \*]*?\b\K\w+(?=\()' src/${words[2]}.c 2>/dev/null | sort -u)"})
 		_describe 'function' funcs
+	elif [[ $cmd = why.sh ]]; then
+		(( CURRENT == 5 )) && compadd orig
 	elif [[ $cmd = perm.sh ]]; then
 		(( CURRENT == 4 )) && compadd search continue best pick
 	elif [[ $cmd = ndiff.sh ]] && (( CURRENT <= 5 )); then
@@ -19,4 +21,4 @@ _lodis_scripts() {
 		_describe 'callee (FROM/TO)' calls
 	fi
 }
-compdef _lodis_scripts {,scripts/,./scripts/}{fdiff,score,ndiff,nsrc,perm}.sh
+compdef _lodis_scripts {,scripts/,./scripts/}{fdiff,score,ndiff,nsrc,perm,why}.sh
