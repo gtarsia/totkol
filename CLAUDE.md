@@ -30,6 +30,10 @@ uncommitted first.
   (ORIG.s holds the cut asm with the usual header); `scripts/score.sh` prints only the count
   of lines that differ. If it doesn't match yet, keep the asm as a NAKED fallback, like
   `src/battle_reach.c`.
+- Matching tips (agbcc): to find which pass makes a difference, compile with the pass off
+  (e.g. `-fno-cse-follow-jumps`) and see if the diff shrinks. A field the original reads twice
+  needs a `volatile` pointer. Loops can need gotos. Examples: `src/message.c`
+  (sub_0801995C), `src/battle_reach.c` (ReachTileCost).
 
 ## Finding things
 

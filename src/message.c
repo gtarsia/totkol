@@ -92,21 +92,20 @@ s32 sub_0801993C(u8 *str)
 
 // Copies src into dst, expanding control codes 0x80 and 0x87, until it copies stop or n
 // characters. Returns how many bytes it wrote.
-#ifdef NONMATCHING
-// Only the registers of n and count differ.
 u8 sub_0801995C(u8 *dst, u8 *src, s32 n, u8 stop)
 {
     u8 count = 0;
     u8 c;
-    u8 *sub;
-    u8 **p;
     u8 len;
 
+// gotos, not a loop: agbcc lays out a loop differently.
 loop:
     c = *src++;
     if (c == 0x80) {
-        sub = gUnk_02002800[*src];
-        src++;
+        len = sub_0801995C(dst, gUnk_02002800[*src++], n, 0xFF);
+        len--;  // drops the 0xFF it copied
+        dst += len;
+        count += len;
     } else if (c != 0x87) {
         *dst++ = c;
         count++;
@@ -114,23 +113,14 @@ loop:
             goto next;
         goto end;
     } else {
-        p = &gUnk_086254D8[*src];
-        src++;
-        sub = *p;
+        len = sub_0801995C(dst, gUnk_086254D8[*src++], n, 0xFF);
+        len--;
+        dst += len;
+        count += len;
     }
-    len = sub_0801995C(dst, sub, n, 0xFF);
-    len--;
-    dst += len;
-    count += len;
 next:
     if (--n > 0)
         goto loop;
 end:
     return count;
 }
-#else
-NAKED u8 sub_0801995C(u8 *dst, u8 *src, s32 n, u8 stop)
-{
-    asm_unified(".include \"asm/non_matching/message/sub_0801995C.inc\"");
-}
-#endif

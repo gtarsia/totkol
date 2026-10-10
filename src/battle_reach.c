@@ -52,42 +52,43 @@ extern const struct Terrain gUnk_0861CA5C[];
 struct MapTile *sub_08028728(u16 x, u16 y);
 u16 sub_08028774(u16 x, u16 y);
 
-// Doesn't match yet, and differs in timing from the original, so it isn't built: the ROM uses
-// the original code below. Kept as the readable version.
-#if 0
-static bool32 TileBlocked(struct MapTile *t)
-{
-    return (t->field0 & 0x80) || (t->height & 0x80) || !(t->flags & 0x80) || !(t->flags & 0x20);
-}
-
 // Height of the tile for the unit: -1 off the map or where it can't stand, -2 on impassable terrain.
 s32 ReachTileHeight(s8 x, s8 y, u8 mode, u8 kind)
 {
-    struct MapTile *tile;
+    // volatile: the original reads tile->flags twice.
+    volatile struct MapTile *tile;
     const struct Terrain *terrain;
     s32 height;
+    u16 tx, ty;
 
     if (x < 0 || y < 0 || x >= MAP_SIZE || y >= MAP_SIZE)
         return -1;
-    tile = sub_08028728(x, y);
-    if (TileBlocked(tile))
+    tx = x;
+    ty = y;
+    tile = sub_08028728(tx, ty);
+    if ((tile->field0 & 0x80) || (tile->height & 0x80) || !(tile->flags & 0x80)
+        || !(tile->flags & 0x20))
         return -1;
-    terrain = &gUnk_0861CA5C[sub_08028774(x, y)];
+    terrain = &gUnk_0861CA5C[sub_08028774(tx, ty)];
     height = tile->height;
     if ((terrain->flags & 2) && (kind == 2 || kind == 4 || kind == 5))
         height--;
-    if (mode != MOVE_FLY && (terrain->flags & 1))
-        return -2;
-    return height;
+    if (mode == MOVE_FLY || !(terrain->flags & 1))
+        return height;
+    return -2;
 }
 
 // Cost to enter the tile; 0xFF: can't.
 u8 ReachTileCost(u8 x, u8 y, u8 mode, u8 kind)
 {
-    struct MapTile *tile = sub_08028728(x, y);
     const struct Terrain *terrain;
+    volatile struct MapTile *tile = sub_08028728(x, y);
+    u8 blocked;
 
-    if (TileBlocked(tile))
+    // A ?: then an if, not one if: that's what keeps mode and kind in one register each.
+    blocked = ((tile->field0 & 0x80) || (tile->height & 0x80) || !(tile->flags & 0x80)
+               || !(tile->flags & 0x20)) ? 0xFF : 0;
+    if (blocked)
         return 0xFF;
     if (mode == MOVE_FLY)
         return 1;
@@ -99,6 +100,15 @@ u8 ReachTileCost(u8 x, u8 y, u8 mode, u8 kind)
     if ((terrain->flags & 2) && (u8)(kind - 2) <= 1)
         return 1;
     return terrain->cost;
+}
+
+// BuildReachMap (the original inlines Edge in it) doesn't match yet, and this version differs in
+// timing from the original, so it isn't built: the ROM uses the original code below. Kept as the
+// readable version.
+#if 0
+static bool32 TileBlocked(struct MapTile *t)
+{
+    return (t->field0 & 0x80) || (t->height & 0x80) || !(t->flags & 0x80) || !(t->flags & 0x20);
 }
 
 // Edge bits from (x, y) towards (dx, dy): 1 can't step, 2 can't pass (see EDGE_*).
@@ -242,16 +252,6 @@ void BuildReachMap(u8 mode, u8 kind, u8 canX, struct ReachTile *map)
     }
 }
 #else
-NAKED s32 ReachTileHeight(s8 x, s8 y, u8 mode, u8 kind)
-{
-    asm_unified(".include \"asm/non_matching/battle_reach/ReachTileHeight.inc\"");
-}
-
-NAKED u8 ReachTileCost(u8 x, u8 y, u8 mode, u8 kind)
-{
-    asm_unified(".include \"asm/non_matching/battle_reach/ReachTileCost.inc\"");
-}
-
 NAKED void BuildReachMap(u8 mode, u8 kind, u8 canX, struct ReachTile *map)
 {
     asm_unified(".include \"asm/non_matching/battle_reach/BuildReachMap.inc\"");
