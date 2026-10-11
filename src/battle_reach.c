@@ -203,7 +203,13 @@ void BuildReachMap(u8 mode, u8 kind, u8 canX, struct ReachTile *map0)
             u8 ux = x;
             u8 uy = y;
             tile = sub_08028728(ux, uy);
-            if ((tile->field0 & 0x80) || (tile->height & 0x80) || !(tile->flags & 0x80)) {
+            // Own block: cross-jumping merges it into the !0x20 one after reload, which shifts
+            // the reload regs that follow.
+            if (tile->field0 & 0x80) {
+                map->edges = 0xFF;
+                goto next;
+            }
+            if ((tile->height & 0x80) || !(tile->flags & 0x80)) {
                 map->edges = 0xFF;
                 goto next;
             }
