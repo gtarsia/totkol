@@ -102,11 +102,8 @@ s32 ReachTileCost(u8 x, u8 y, u8 mode, u8 kind)
     return terrain->cost;
 }
 
-// BuildReachMap (the original inlines Edge in it) doesn't match yet, and this version differs in
-// timing from the original, so it isn't built: the ROM uses the original code below. Kept as the
-// readable version.
-#ifdef NONMATCHING
-
+// BuildReachMap inlines Edge. Some odd shapes below (the dead dy0 check gone, the 0xFF checks'
+// grouping, case 3's own tail) are there only to match the original.
 
 static inline u32 Edge(u8 x, u8 y, s8 dx0, s8 dy0, u8 mode, u8 kind)
 {
@@ -135,8 +132,6 @@ static inline u32 Edge(u8 x, u8 y, s8 dx0, s8 dy0, u8 mode, u8 kind)
     default:
         maxDown = -2;
         if (mode == 4) {
-            if (dy0 != 0)
-                maxDown = 0;
             maxDown = -3;
         }
         break;
@@ -205,11 +200,11 @@ void BuildReachMap(u8 mode, u8 kind, u8 canX, struct ReachTile *map0)
             tile = sub_08028728(ux, uy);
             // Own block: cross-jumping merges it into the !0x20 one after reload, which shifts
             // the reload regs that follow.
-            if (tile->field0 & 0x80) {
+            if ((tile->field0 & 0x80) || (tile->height & 0x80)) {
                 map->edges = 0xFF;
                 goto next;
             }
-            if ((tile->height & 0x80) || !(tile->flags & 0x80)) {
+            if (!(tile->flags & 0x80)) {
                 map->edges = 0xFF;
                 goto next;
             }
@@ -259,10 +254,11 @@ void BuildReachMap(u8 mode, u8 kind, u8 canX, struct ReachTile *map0)
                 map->cost = 1;
                 goto next;
             case 3:
-                uy = terrain->flags;
-                if (uy & 2)
+                if (terrain->flags & 2)
                     map->cost = 1;
-                break;
+                if (terrain->flags & 0x10)
+                    map->cost = 0xFF;
+                goto next;
             case 2:
                 if (terrain->flags & 2)
                     map->cost = 1;
@@ -287,9 +283,3 @@ void BuildReachMap(u8 mode, u8 kind, u8 canX, struct ReachTile *map0)
         }
     }
 }
-#else
-NAKED void BuildReachMap(u8 mode, u8 kind, u8 canX, struct ReachTile *map)
-{
-    asm_unified(".include \"asm/non_matching/battle_reach/BuildReachMap.inc\"");
-}
-#endif
