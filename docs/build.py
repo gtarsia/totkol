@@ -68,23 +68,49 @@ def asm_of(stem, fname, src, extra=[]):
 for s in S:
     s['asm'] = asm_of(s['name'], s['name'], s['c'])
 # Passes: each example is the same function built two ways (other C or a pass turned off).
+# Side by side like scripts/ndiff.sh: rows lined up on the logic (registers, stack offsets, jump
+# targets and copies ignored). Marks: ' ' same, '~' only registers or offsets differ, '!' the code
+# differs, '-' only on the left, '+' only on the right. A row is (mark, nA, nB, textA, textB).
+def asm_logic(l):
+    l = re.sub(r' → \d+', '', l)
+    l = re.sub(r'\b(r\d+|sb|sl|fp|ip)\b', 'R', l)
+    l = re.sub(r'\[sp, #\d+\]', '[sp, #N]', l)
+    return 'copy' if re.fullmatch(r'mov R, R|adds R, R, #0', l) else l
+
+def rows(A, B, logic, raw):
+    out = []
+    sm = difflib.SequenceMatcher(None, [logic(l) for l in A], [logic(l) for l in B], autojunk=False)
+    for op, i1, i2, j1, j2 in sm.get_opcodes():
+        if op == 'equal':
+            out += [(' ' if raw(A[i]) == raw(B[j]) else '~', i + 1, j + 1, A[i], B[j])
+                    for i, j in zip(range(i1, i2), range(j1, j2))]
+            continue
+        for k in range(max(i2 - i1, j2 - j1)):
+            i, j = i1 + k, j1 + k
+            l, r = i < i2, j < j2
+            m = '!' if l and r else '-' if l else '+'
+            if not (l and r) and logic((A[i] if l else B[j])) == 'copy':
+                m += 'c'  # a copy only one side has: removed/added, but faded like '~'
+            out.append((m, i + 1 if l else None, j + 1 if r else None,
+                        A[i] if l else '', B[j] if r else ''))
+    # A line only left and the same line only right is one instruction that moved: '>'.
+    for x, (m, na, nb, ta, tb, *_) in enumerate(out):
+        if m != '-':
+            continue
+        for y, (m2, na2, nb2, ta2, tb2, *_) in enumerate(out):
+            if m2 == '+' and logic(tb2) == logic(ta):
+                out[x] = ('>', na, None, ta, '', nb2)
+                out[y] = ('>', None, nb2, '', tb2, na)
+                break
+    return out
+
 for p in P:
     for side in ('a', 'b'):
         x = p[side]
         x['asm'] = asm_of(p['name'] + '_' + side, p['fn'], x['c'], x['flags'])
-    # Lines that differ between the two sides get highlighted; jump targets and register
-    # names are ignored unless the example is about registers.
-    norm = lambda ls: [re.sub(r'→ \d+', '→', l if p['regs'] else re.sub(r'\br\d+\b', 'r', l))
-                       for l in ls]
-    sm = difflib.SequenceMatcher(None, norm(p['a']['asm']), norm(p['b']['asm']), autojunk=False)
-    p['a']['key'], p['b']['key'] = [], []
-    if p['key']:
-        p['a']['key'], p['b']['key'] = [[n - 1 for n in k] for k in p['key']]
-        continue
-    for op, i1, i2, j1, j2 in sm.get_opcodes():
-        if op != 'equal':
-            p['a']['key'] += range(i1, i2)
-            p['b']['key'] += range(j1, j2)
+    p['c_rows'] = None if p['a']['c'] == p['b']['c'] else \
+        rows(p['a']['c'].split('\n'), p['b']['c'].split('\n'), lambda l: l, lambda l: l)
+    p['asm_rows'] = rows(p['a']['asm'], p['b']['asm'], asm_logic, lambda l: re.sub(r' → \d+', '', l))
 # index.html: template.html with the examples filled in.
 t = open('template.html').read()
 head, body = t.split('</style>\n', 1)

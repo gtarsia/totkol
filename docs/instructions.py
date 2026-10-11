@@ -103,18 +103,18 @@ ins('Load and store', 'ldr', 'Load 32 bits.',
     '<code>[sp, #N]</code> loads of the same N over and over are a variable that didn\'t fit in a '
     'register (spilled). <code>[pc, #N]</code> loads a <code>.word</code> after the function: a big '
     'constant or the address of a global.')
-ins('Load and store', 'ldrb', 'Load a byte, zero-extended.',
+ins('Load and store', 'ldrb', 'Load a byte, zero-extended: the upper 24 bits become 0.',
     [('ldrb rd, [rb, #imm]', 'byte at rb + imm, 0–31'), ('ldrb rd, [rb, ro]', 'byte at rb + ro')], '',
     'A u8 field or array element. The offset tells the field\'s position in the struct.')
-ins('Load and store', 'ldrh', 'Load a halfword, zero-extended.',
+ins('Load and store', 'ldrh', 'Load a halfword, zero-extended: the upper 16 bits become 0.',
     [('ldrh rd, [rb, #imm]', 'halfword at rb + imm (even, 0–62)'), ('ldrh rd, [rb, ro]', 'at rb + ro')], '',
     'A u16 field.')
-ins('Load and store', 'ldrsb', 'Load a byte, sign-extended.',
+ins('Load and store', 'ldrsb', 'Load a byte, sign-extended: the upper 24 bits copy bit 7 (all 1 if negative).',
     [('ldrsb rd, [rb, ro]', 'byte at rb + ro; register offset only')], '',
     'There is no immediate form, so reading an s8 field needs the offset in a register first '
     '(<code>movs r1, #3; ldrsb r0, [r2, r1]</code>). Often agbcc does <code>ldrb</code> + '
     '<code>lsls #24</code> + <code>asrs #24</code> instead.')
-ins('Load and store', 'ldrsh', 'Load a halfword, sign-extended.',
+ins('Load and store', 'ldrsh', 'Load a halfword, sign-extended: the upper 16 bits copy bit 15.',
     [('ldrsh rd, [rb, ro]', 'halfword at rb + ro; register offset only')], '',
     'Same as <code>ldrsb</code>: an s16 with a constant offset needs <code>movs</code> first.')
 ins('Load and store', 'str', 'Store 32 bits.',
@@ -261,13 +261,13 @@ EX = {
   'ldr': [('ldr r0, [r1, #4]', 'r1 = 0x02000100, word at 0x02000104 = 0x1234', 'r0 = 0x1234 (s-&gt;field at +4)'),
           ('ldr r0, [pc, #8]<br>…<br>.word 0x0203A000', '', 'r0 = 0x0203A000 (a constant from the pool)'),
           ('ldr r0, [sp, #4]', 'sp = 0x03007DF0', 'r0 = the local at 0x03007DF4')],
-  'ldrb': [('ldrb r0, [r1, #3]', 'byte at r1+3 = 0xFE', 'r0 = 0x000000FE (254)')],
-  'ldrh': [('ldrh r0, [r1, #2]', 'halfword at r1+2 = 0xFFFE', 'r0 = 0x0000FFFE (65534)')],
-  'ldrsb': [('movs r0, #3<br>ldrsb r0, [r1, r0]', 'byte at r1+3 = 0xFE', 'r0 = 0xFFFFFFFE (−2)')],
-  'ldrsh': [('movs r2, #2<br>ldrsh r0, [r1, r2]', 'halfword at r1+2 = 0xFFFE', 'r0 = 0xFFFFFFFE (−2)')],
+  'ldrb': [('ldrb r0, [r1, #3]', 'r1 = 0x02000100, byte at 0x02000103 = 0xFE', 'r0 = 0x000000FE (254)')],
+  'ldrh': [('ldrh r0, [r1, #2]', 'r1 = 0x02000100, halfword at 0x02000102 = 0xFFFE', 'r0 = 0x0000FFFE (65534)')],
+  'ldrsb': [('movs r0, #3<br>ldrsb r0, [r1, r0]', 'r1 = 0x02000100, byte at 0x02000103 = 0xFE', 'r0 = 0xFFFFFFFE (−2)')],
+  'ldrsh': [('movs r2, #2<br>ldrsh r0, [r1, r2]', 'r1 = 0x02000100, halfword at 0x02000102 = 0xFFFE', 'r0 = 0xFFFFFFFE (−2)')],
   'str': [('str r0, [r1, #8]', 'r0 = 7, r1 = 0x02000100', 'word at 0x02000108 = 7 (s-&gt;field = 7)')],
-  'strb': [('strb r0, [r1]', 'r0 = 0x1234', 'byte at r1 = 0x34 (only the low 8 bits)')],
-  'strh': [('strh r0, [r1, #2]', 'r0 = 0x12345678', 'halfword at r1+2 = 0x5678')],
+  'strb': [('strb r0, [r1]', 'r0 = 0x1234, r1 = 0x02000100', 'byte at 0x02000100 = 0x34 (only the low 8 bits)')],
+  'strh': [('strh r0, [r1, #2]', 'r0 = 0x12345678, r1 = 0x02000100', 'halfword at 0x02000102 = 0x5678')],
   'ldmia': [('ldmia r1!, {r2, r3}', 'r1 = 0x02000100', 'r2 = word at 0x100, r3 = word at 0x104, r1 = 0x02000108')],
   'stmia': [('stmia r0!, {r2, r3}', 'r0 = 0x02000100, r2 = 1, r3 = 2', 'words 1, 2 at 0x100, 0x104; r0 = 0x02000108 (struct copy)')],
   'push': [('push {r4, r5, lr}', 'sp = 0x03007E00', 'sp = 0x03007DF4; r4, r5, lr saved there')],

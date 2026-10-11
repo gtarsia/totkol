@@ -1,131 +1,139 @@
 # Pass examples: (pass card id, name, title, note, A, B). A and B are (label, C, extra flags): the
-# same function f built two ways, so the asm difference is what the pass did. regs: highlight
-# register changes too. key: ([lines], [lines]) to highlight by hand, 1-based.
+# same function f built two ways, so the asm difference is what the pass did.
 P = []
-def add(pid, name, title, note, a, b, regs=False, key=None):
+def add(pid, name, title, note, a, b):
     side = lambda x: dict(label=x[0], c=x[1].strip('\n'), flags=x[2])
-    P.append(dict(pid=pid, name=name, fn='f', title=title, note=note, a=side(a), b=side(b),
-                  regs=regs, key=key))
+    P.append(dict(pid=pid, name=name, fn='f', title=title, note=note, a=side(a), b=side(b)))
 
-SW4 = '''extern void g(s32);
-void f(s32 x)
+SW4 = '''extern void Play(s32);
+void f(s32 kind)
 {
-    switch (x) {
-    case 0: g(10); break;
-    case 1: g(20); break;
-    case 2: g(30); break;
-    case 3: g(40); break;
+    switch (kind) {
+    case 0: Play(10); break;
+    case 1: Play(20); break;
+    case 2: Play(30); break;
+    case 3: Play(40); break;
     }
 }'''
 add('expand', 'px_switch', 'switch: 4 cases vs 5',
+    'Gain: past the threshold, one indexed jump replaces a chain of compares. '
     'With 4 cases it is a tree of compares; the 5th case reaches the threshold and it becomes a '
     'jump table (<code>mov pc, r0</code> and one <code>.word</code> per case).',
     ('C · 4 cases', SW4, []),
-    ('C · 5 cases', SW4.replace('    case 3: g(40); break;\n',
-                                '    case 3: g(40); break;\n    case 4: g(50); break;\n'), []))
+    ('C · 5 cases', SW4.replace('    case 3: Play(40); break;\n',
+                                '    case 3: Play(40); break;\n    case 4: Play(50); break;\n'), []))
 
-add('jump', 'px_invert', 'while vs goto loop',
-    'The <code>while</code> is inverted: the test runs once before entering (<code>cmp</code>, '
-    '<code>bge</code>) and again at the bottom (<code>blt</code>). The goto loop keeps one test '
-    'and jumps back to it (<code>b.n → 4</code>).',
-    ('C · while', '''extern s32 g(s32);
-void f(s32 n)
+add('jump', 'px_invert', 'goto loop vs while',
+    'Gain: one branch per round instead of two. The <code>while</code> is inverted: tested once '
+    'before entering, then at the bottom (<code>bne.n → 4</code>), so each round ends with one '
+    'branch. The goto loop tests at the top and jumps back (<code>beq</code> + <code>b.n</code>).',
+    ('C · goto', '''extern s32 Step(s32);
+void f(s32 i)
 {
-    s32 i = 0;
-    while (i < n)
-        i += g(i);
-}''', []),
-    ('C · goto', '''extern s32 g(s32);
-void f(s32 n)
-{
-    s32 i = 0;
 loop:
-    if (i >= n)
+    if (!i)
         return;
-    i += g(i);
+    i = Step(i);
     goto loop;
+}''', []),
+    ('C · while', '''extern s32 Step(s32);
+void f(s32 i)
+{
+    while (i)
+        i = Step(i);
 }''', []))
 
-CSE = '''struct S { u8 a, b; };
-u32 f(struct S *p)
+CSE = '''u32 f(u8 *hp)
 {
-    return p->a + p->a * 3;
+    return *hp * *hp;
 }'''
-add('cse', 'px_cse', 'A field read twice',
-    'cse loads <code>p-&gt;a</code> once and even folds <code>a + a * 3</code> into '
-    '<code>a &lt;&lt; 2</code>. <code>volatile</code> forces both loads, and the math stays '
-    'as written.',
-    ('C', CSE, []),
-    ('C · volatile', CSE.replace('struct S *p', 'volatile struct S *p'), []))
+add('cse', 'px_cse', 'A value read twice',
+    'Gain: one load fewer. The C reads <code>*hp</code> twice; cse sees the same load and does '
+    'it once. With <code>volatile</code> it may not assume the value stayed the same, so both '
+    'loads stay.',
+    ('C · volatile', CSE.replace('u8 *hp', 'volatile u8 *hp'), []),
+    ('C · plain', CSE, []))
 
-GCSE = '''s32 f(s32 *p, s32 c)
+FULL = '''s32 f(s32 *hp, s32 boost)
 {
-    s32 r;
-    if (c)
-        r = p[1] * 3;
+    s32 total;
+    if (boost)
+        total = *hp + 1;
     else
-        r = 7;
-    p[0] = 1;
-    return r + p[1] * 3;
+        total = *hp - 1;
+    return total + *hp;
 }'''
-add('gcse', 'px_pre', 'PRE: the second p[1] load',
-    'With gcse, the <code>if</code> arm keeps <code>p[1]</code> in <code>r2</code> and the '
-    '<code>else</code> arm gets its own load (line 10), so the load after the store is gone. '
-    'Without it, <code>p[1]</code> is loaded again after <code>p[0] = 1</code>.',
-    ('-O2', GCSE, []),
-    ('-fno-gcse', GCSE, ['-fno-gcse']))
+add('gcse', 'px_full', 'A load both arms already did',
+    'Gain: one load fewer, 11 instructions down to 9. Both arms load <code>*hp</code>, so after '
+    'they meet it is already in <code>r0</code>. cse only sees straight runs of code and stops at '
+    'the merge; gcse sees the whole function and drops the third load.',
+    ('-fno-gcse', FULL, ['-fno-gcse']),
+    ('-O2', FULL, []))
 
-SR = '''struct E { u32 a, b, c; };
-void f(struct E *e, s32 n)
+PRE = '''s32 f(s32 *hp, s32 boost)
+{
+    s32 total;
+    if (boost)
+        total = *hp * 3;
+    else
+        total = 7;
+    return total + *hp;
+}'''
+add('gcse', 'px_pre', 'PRE: a load only one arm did',
+    'Gain: the <code>if</code> path loads once instead of twice. Only the <code>if</code> arm '
+    'loads <code>*hp</code>, so after the merge it is there on one path only. PRE adds the load to '
+    'the <code>else</code> arm (line 8), so the load after the merge goes away. Both sides keep '
+    'two <code>ldr</code>: PRE moves loads, it does not delete them.',
+    ('-fno-gcse', PRE, ['-fno-gcse']),
+    ('-O2', PRE, []))
+
+SR = '''struct Slot { u32 count, id, flags; };
+void f(struct Slot *slots, s32 len)
 {
     s32 i;
-    for (i = 0; i < n; i++)
-        e[i].b = 0;
+    for (i = 0; i < len; i++)
+        slots[i].count = 0;
 }'''
-add('loop', 'px_sr', 'Strength reduction: e[i]',
-    'With it, <code>e[i]</code> becomes a pointer that grows by 12 (<code>adds r0, #12</code>) '
-    'and <code>i</code> turns into a counter going down to 0. Without it, each round computes '
-    '<code>i * 12</code> with shifts and adds.',
-    ('-O2', SR, []),
-    ('-fno-strength-reduce', SR, ['-fno-strength-reduce']))
+add('loop', 'px_sr', 'Strength reduction: slots[i]',
+    'Gain: the loop body is 5 instructions instead of 8. Without it, each round computes '
+    '<code>i * 12</code> with shifts and adds. With it, <code>slots[i]</code> becomes a pointer '
+    'that grows by 12 (<code>adds r0, #12</code>) and <code>i</code> a counter going down to 0.',
+    ('-fno-strength-reduce', SR, ['-fno-strength-reduce']),
+    ('-O2', SR, []))
 
-AL = '''extern s32 g(s32);
-s32 f(s32 x, s32 y)
+AL = '''extern s32 Roll(void);
+s32 f(void)
 {
-    s32 a, b;
-    a = g(x);
-    b = g(y);
-    g(0);
-    return a + b;
+    s32 hit = Roll();
+    s32 dmg = Roll();
+    Roll();
+    return hit + dmg;
 }'''
-add('alloc', 'px_prio', 'An extra use moves b to r4',
-    'Same values, but <code>b</code> gets two more uses. Its priority goes up, so it takes '
-    '<code>r4</code> first and <code>a</code> drops to <code>r5</code>.',
-    ('C', AL, []),
-    ('C · b used more', AL.replace('    return a + b;',
-                                   '    if (b == 7)\n        b = 9;\n    return a + b;'), []),
-    regs=True)
+add('alloc', 'px_prio', 'An extra use moves dmg to r4',
+    'No gain here: this shows a choice, not an optimization. <code>dmg</code> gets two more uses, '
+    'its priority goes up, so it takes <code>r4</code> first and <code>hit</code> drops to '
+    '<code>r5</code>.',
+    ('C · plain', AL, []),
+    ('C · dmg used more', AL.replace('    return hit', '    if (dmg == 7)\n        dmg = 9;\n    return hit'), []))
 
-CJ = '''struct M { u8 e; };
-extern s32 g(s32);
-void f(struct M *m, s32 a, s32 b)
+CJ = '''extern void Mark(void);
+void f(u8 *edges, s32 north, s32 south)
 {
-    if (a & 0x80) {
-        m->e = 0xFF;
+    if (north) {
+        *edges = 0xFF;
         return;
     }
-    g(a);
-    if (b & 0x20) {
-        m->e = 0xFF;
+    Mark();
+    if (south) {
+        *edges = 0xFF;
         return;
     }
-    g(b);
+    Mark();
 }'''
 add('jump2', 'px_cross', 'Two identical blocks, one in the asm',
-    'Left: the C has <code>m-&gt;e = 0xFF; return;</code> twice, the asm once. The first '
-    '<code>if</code> jumps into the second copy (<code>bne.n → 14</code>). Right: with the '
-    'blocks different (<code>0xFE</code>), both stay.',
-    ('C · same blocks', CJ, []),
-    ('C · different blocks', CJ.replace('0xFF;\n        return;\n    }\n    g(b)',
-                                        '0xFE;\n        return;\n    }\n    g(b)'), []),
-    key=([7, 14, 15], [8, 9, 17, 18]))
+    'Gain: 3 instructions fewer. Left: with the blocks different (<code>0xFE</code>), both '
+    'copies stay. Right: <code>*edges = 0xFF; return;</code> is in the C twice but in the asm '
+    'once; the first <code>if</code> jumps into the second copy.',
+    ('C · different blocks', CJ.replace('0xFF;\n        return;\n    }\n    Mark();\n}',
+                                        '0xFE;\n        return;\n    }\n    Mark();\n}'), []),
+    ('C · same blocks', CJ, []))
