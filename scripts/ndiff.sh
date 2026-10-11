@@ -7,8 +7,9 @@
 # targets aren't compared; they show as "→ N", the line they land on. In a terminal, shows the
 # logic differences first, then the whole diff, side by side in color (marks: ! the code differs,
 # ~ only registers or stack offsets, - only in the original, + only in yours); piped, plain
-# side-by-side. The counts also give the logic-only differences (registers and stack offsets
-# ignored) and whether the stack frames match.
+# side-by-side. At the far right, code from a static inline is tagged ":222 → Edge#2": the 2nd
+# copy of Edge, the one called at line 222. The counts also give the logic-only differences
+# (registers and stack offsets ignored) and whether the stack frames match.
 # Options, anywhere on the line:
 #   --logic        don't mark differences that are only registers or stack offsets
 #   --context N    only the changes and N lines around them
@@ -45,11 +46,24 @@ arm-none-eabi-as -mcpu=arm7tdmi -o $OUT/nm.o $OUT/nm.s
 # Prints FUNC's instructions from object $1, one per line, without addresses. Branch targets are
 # dropped (they move whenever the code above changes size); with ANNOT set, each branch shows its
 # target as "→ N", N being that line in the same listing. With SRC set, also prints the C lines
-# objdump -S shows (marked "C\t", instructions "A\t").
+# objdump -S shows (marked "C\t", instructions "A\t"), and with TAGS set writes to that file, one
+# line per instruction, where it comes from in the C: "CALL|INLINE|LINE" ("222|Edge#2|157":
+# line 157 of the 2nd copy of Edge, called at line 222), or "||LINE" outside inlines.
 dump() {
 	arm-none-eabi-objdump -d -r --no-show-raw-insn ${SRC:+-S -l} --disassemble=$FUNC $1 |
 		sed -n '/^[0-9a-f]* <.*>:$/,$p' | tail -n +2 |
-		awk '
+		awk -v inl="$INLINES" -v me="src/$NAME.c" '
+			BEGIN {
+				k = split(inl, r, " ")
+				for (i = 1; i <= k; i++) { split(r[i], q, ":"); s[i] = q[1]; e[i] = q[2]; fn[i] = q[3] }
+				# Where each inline is called: lines with "NAME(" outside its body.
+				while ((getline x < me) > 0) {
+					ln++
+					for (i = 1; i <= k; i++)
+						if ((ln < s[i] || ln > e[i]) && x ~ ("(^|[^A-Za-z0-9_])" fn[i] "\\("))
+							call[i, ++nc[i]] = ln
+				}
+			}
 			# With -l, "file:N" comes before each block of C lines, and the block ends at line N.
 			function flush(   i) {
 				for (i = 1; i <= ns; i++)
@@ -57,7 +71,23 @@ dump() {
 				ns = 0
 			}
 			/^\/.*:[0-9]+( \(discriminator [0-9]+\))?$/ {
-				flush(); n = $0; sub(/ \(.*/, "", n); sub(/^.*:/, "", n); next
+				flush(); n = $0; sub(/ \(.*/, "", n); sub(/^.*:/, "", n)
+				tag = ""
+				if (!index($0, me ":")) next
+				tag = "||" n
+				for (i = 1; i <= k; i++)
+					if (n + 0 >= s[i] && n + 0 <= e[i]) {
+						# Each copy of an inline starts at its first line (the name, or the "{"
+						# below it). It was called at the first call after the last line seen
+						# outside it (or, failing that, at its Nth call).
+						if (n + 0 <= s[i] + 1) {
+							cnt[i]++; at[i] = call[i, cnt[i]]
+							for (j = nc[i]; j >= 1; j--) if (call[i, j] >= out) at[i] = call[i, j]
+						}
+						tag = at[i] "|" fn[i] "#" cnt[i] "|" n
+					}
+				if (tag ~ /^\|\|/) out = n + 0
+				next
 			}
 			/^[A-Za-z_][A-Za-z0-9_]*\(\):$/ { next }
 			!/^\s+[0-9a-f]+:/ { sl[++ns] = $0; next }
@@ -71,10 +101,10 @@ dump() {
 					if (t !~ /^bl /) { target = t; sub(/^.* /, "", target) }  # calls show their callee
 					sub(/ [0-9a-f]+$/, "", t)
 				}
-				print "A\t" addr "\t" t "\t" target; next
+				print "A\t" addr "\t" t "\t" target "\t" tag; next
 			}
 			END { flush() }' |
-		awk -F '\t' -v from="$FROM" -v to="$TO" -v src="$SRC" -v annot="$ANNOT" '
+		awk -F '\t' -v from="$FROM" -v to="$TO" -v src="$SRC" -v annot="$ANNOT" -v tags="$TAGS" '
 			/^C/ { if (src) c[++nc] = $0; next }
 			!on && from != "" && $3 !~ from { nc = 0; next }
 			{
@@ -92,6 +122,7 @@ dump() {
 					t = f[3]
 					if (annot && f[4] != "") t = t " → " (f[4] in line ? line[f[4]] : "?")
 					print src ? "A\t" t : t
+					if (tags != "") print f[5] > tags
 				}
 			}'
 }
@@ -164,23 +195,35 @@ show() {
 	hl 5 c c > $OUT/rightc.txt
 	local w=$(cut -d "$sep" -f4 $OUT/rows.txt | awk '{ if (length > w) w = length } END { print w }')
 	paste -d "$sep" $OUT/rows.txt $OUT/left.txt $OUT/right.txt $OUT/rightc.txt |
-		awk -F "$sep" -v w=$w '
+		awk -F "$sep" -v w=$w -v tagf=$OUT/new.tag '
 		BEGIN {
 			c["~"] = "\033[33m"; c["!"] = "\033[1;31m"; c["-"] = "\033[31m"; c["+"] = "\033[32m"
 			c[" "] = c["c"] = "\033[90m"
+			while ((getline x < tagf) > 0) tag[++nt] = x
 		}
 		$1 == "." { print "\033[90m  ⋯\033[0m"; next }
 		$1 == "c" {
 			printf "%*s\033[90m│ %4s \033[36m%5s\033[0m  %s\n", w + 8, "", "", $2 ? ":" $2 : "", $8
 			next
 		}
-		{ printf "%s%s %4s\033[0m %s%*s %s│ %4s\033[0m %s\n", c[$1], $1, $2, $6, w - length($4), "",
-			c[$1], $3, $7 }'
+		{
+			# Which inline copy the instruction on the right comes from, if any.
+			# Inside an inline, which copy and where it was called: ":222 → Edge#2".
+			t = ""
+			if ($3 != "" && split(tag[$3], g, "|") && g[2] != "")
+				t = sprintf("%*s\033[90m:%s → \033[35m%s\033[0m", 40 - length($5), "", g[1], g[2])
+			printf "%s%s %4s\033[0m %s%*s %s│ %4s\033[0m %s%s\n", c[$1], $1, $2, $6, w - length($4), "",
+				c[$1], $3, $7, t
+		}'
 }
 dump build/totkol/src/$NAME.o > $OUT/orig.txt
 ANNOT=1 dump build/totkol/src/$NAME.o > $OUT/orig.ann
 ANNOT=1 dump $OUT/nm.o > $OUT/new.ann
-SRC=1 dump $OUT/nm.o > $OUT/newsrc.txt
+# Inline functions in the C, as "first:last:name": from the line with the name to the closing "}".
+INLINES=$(awk 'match($0, /^static inline [^(]*[ *]([A-Za-z_][A-Za-z0-9_]*)\(/) {
+		f = $0; sub(/\(.*/, "", f); sub(/.*[ *]/, "", f); s = NR }
+	s && /^}/ { printf "%d:%d:%s ", s, NR, f; s = 0 }' src/$NAME.c)
+INLINES=$INLINES TAGS=$OUT/new.tag SRC=1 dump $OUT/nm.o > $OUT/newsrc.txt
 sed -n "s/^A\t//p" $OUT/newsrc.txt > $OUT/new.txt
 # Logic only: every register and stack offset made the same.
 # Copies between registers are logistics too: "mov rX, rY" and "adds rX, rY, #0" are the same copy
