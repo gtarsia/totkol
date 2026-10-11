@@ -40,10 +40,28 @@ uncommitted first.
   `scripts/why.sh NAME FUNC LINE [--orig]` explains why a line of that diff uses its registers,
   from agbcc's own notes (its values, their priority, reload's round-robin).
   These scripts print their usage with `-h`; `scripts/completion.zsh` adds zsh tab completion.
-- Matching tips (agbcc): to find which pass makes a difference, compile with the pass off
-  (e.g. `-fno-cse-follow-jumps`) and see if the diff shrinks. A field the original reads twice
-  needs a `volatile` pointer. Loops can need gotos. Examples: `src/message.c`
-  (sub_0801995C), `src/battle_reach.c` (ReachTileCost).
+- `docs/index.html` (built by `docs/build.py`): C→asm patterns, the Thumb instructions and the
+  agbcc passes with examples. Written for Guido; the tips below are the short version.
+- Matching tips (agbcc; source in `~/git/agbcc-src/gcc`, pass order in `toplev.c:2562`):
+  - Find the pass: compile with it off (`-fno-gcse`, `-fno-cse-follow-jumps`,
+    `-fno-strength-reduce`, `-fno-regmove`...) and see if the diff shrinks. `-da` writes the
+    RTL after each pass (`FILE.c.jump`, `.cse`, `.gcse`, ... `.greg`, `.jump2`, `.mach`): diff
+    two neighbours to see what one pass did. `-dp` puts insn numbers in the asm.
+  - A field the original reads twice needs a `volatile` pointer. Loops can need gotos: jump
+    turns `while` into `if` + `do`. Examples: `src/message.c` (sub_0801995C),
+    `src/battle_reach.c` (ReachTileCost).
+  - r4 vs r5 swapped: global alloc ranks by `floor_log2(refs) * refs / live_length`
+    (`global.c:614`); an extra use or a shorter life raises a value. Exact ties (rare) go to the
+    lower pseudo, which follows declaration order.
+  - Reload temporaries rotate over the spill regs (`last_spill_reg`, `reload1.c:5197`);
+    preassigned or inherited reloads don't advance it. Rotation off by one with identical asm
+    before it: the original had that block twice. Cross-jumping (jump2, after reload, no flag)
+    deletes the upper copy, which already took its step. Write the block twice
+    (`BuildReachMap`, the first 0xFF check).
+  - A dead check can steer gcse's PRE: `if (dh1 == 0) cost1 = 0;` moved `h1 - h0` in
+    `BuildReachMap`.
+  - `switch` becomes a jump table only with >= 5 cases and a range <= 10x the count
+    (`stmt.c:4926`).
 
 ## Finding things
 

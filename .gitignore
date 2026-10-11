@@ -60,3 +60,5 @@ useful
 # Local Claude Code config
 .claude/
 .mcp.json
+!docs/*.py
+docs/out/

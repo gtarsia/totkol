@@ -1,4 +1,4 @@
-<title>agbcc Thumb Patterns</title>
+<title>agbcc Notes</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,600;1,400&display=swap">
@@ -148,19 +148,77 @@ footer code { font-family: var(--mono); font-size: 12px; }
 .seen { margin-top: 6px; font-size: 14px; }
 .seen summary { cursor: pointer; color: var(--accent); font-size: 13px; }
 .seen .pair { margin-top: 8px; }
+.guess { font: 600 11px var(--cond); letter-spacing: .08em; text-transform: uppercase;
+  color: var(--key-ink); background: var(--key-bg); padding: 1px 5px; border-radius: 3px; }
+
+.pipe { margin-top: 14px; display: flex; flex-wrap: wrap;
+  gap: 4px; align-items: center; }
+.pipe a { font: 500 13px/1 var(--mono); padding: 6px 7px; border-radius: 4px;
+  border: 1px solid var(--rule); background: var(--surface); color: var(--a-mn);
+  text-decoration: none; }
+.pipe a.post { border-color: var(--key-ink); }
+.pipe span { color: var(--muted); font-size: 12px; }
+.pipe .split { font: 600 11px var(--cond); letter-spacing: .08em; text-transform: uppercase;
+  color: var(--key-ink); padding-inline: 4px; }
+
+.pass { background: var(--surface); border: 1px solid var(--rule); border-radius: 8px;
+  padding: 14px 16px; margin-bottom: 12px; scroll-margin-top: 64px; }
+.pass.on { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-soft); }
+.pass h3 { font: 600 19px/1.3 var(--cond); margin: 0; display: flex; flex-wrap: wrap;
+  gap: 4px 10px; align-items: baseline; }
+.pass h3 .no { font: 600 13px var(--mono); color: var(--muted); }
+.pass h3 .src { font: 13px var(--mono); color: var(--muted); }
+.pass > p { margin: 6px 0; max-width: 78ch; }
+.pass ul { margin: 6px 0; padding-left: 20px; max-width: 78ch; }
+.pass li { margin: 3px 0; }
+dl.facts { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 4px 14px;
+  margin: 10px 0 2px; font-size: 14px; }
+dl.facts dt { font: 600 12px/1.9 var(--cond); letter-spacing: .08em; text-transform: uppercase;
+  color: var(--muted); }
+dl.facts dd { margin: 0; }
+@media (max-width: 600px) {
+  dl.facts { grid-template-columns: minmax(0, 1fr); }
+  dl.facts dd { margin-bottom: 6px; }
+}
+.post-reload { border-left: 4px solid var(--key-ink); }
+
+pre.code.raw { padding: 8px 12px; margin: 8px 0; white-space: pre; }
+pre.code.raw .cap { padding: 0 0 4px; }
+.hl { background: var(--key-bg); color: var(--key-ink); }
+.del { background: var(--del-bg); color: var(--del); text-decoration: line-through; }
+
+table.seentab { border-collapse: collapse; width: 100%; font-size: 14px; background: var(--surface);
+  border: 1px solid var(--rule); border-radius: 8px; overflow: hidden; }
+.seentab th { font: 600 12px var(--cond); letter-spacing: .08em; text-transform: uppercase;
+  color: var(--muted); text-align: left; padding: 8px 10px; }
+.seentab td { border-top: 1px solid var(--rule); padding: 7px 10px; vertical-align: top; }
+.tablewrap { overflow-x: auto; }
+.how { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+.how > div { border-left: 3px solid var(--accent); padding: 2px 0 2px 12px; font-size: 14px; }
+.how b { display: block; font: 600 14px var(--cond); letter-spacing: .02em; }
+.how p { margin: 2px 0; color: var(--muted); }
+:root { --del: #b3261e; --del-bg: #fbe3e1; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --del: #ff8a80; --del-bg: #3a1714; } }
+:root[data-theme="dark"] { --del: #ff8a80; --del-bg: #3a1714; }
+.pass, #view-x section { scroll-margin-top: 72px; }
+.pexi { margin: 12px 0 4px; }
+.pexi h4 { font: 600 15px var(--cond); margin: 0; }
+.pexi .pair > div { display: grid; gap: 8px; align-content: start; }
+.pexi > .code { margin-bottom: 8px; }
 </style>
 
 <div class="wrap">
   <header>
     <div class="eyebrow">GBA decomp · agbcc · Thumb</div>
-    <h1>What C turns into</h1>
-    <p class="lede">Small pieces of C, each compiled with agbcc exactly as lodis-qol builds it, next to the asm it produces. Pick an instruction below to see every example that uses it, for example <code>negs</code>: "what produces this?"</p>
+    <h1>agbcc notes</h1>
+    <p class="lede"><b>Patterns</b>: small pieces of C, each compiled with agbcc exactly as lodis-qol builds it, next to the asm it produces. Pick an instruction below to see every example that uses it, for example <code>negs</code>: "what produces this?" <b>Instructions</b>: the Thumb reference. <b>Passes</b>: what each agbcc pass does to the C and how to spot it in a diff.</p>
   </header>
 
   <div class="bar">
     <nav class="tabs" aria-label="Views">
       <a class="tab" id="tab-p" href="#">Patterns</a>
       <a class="tab" id="tab-i" href="#ins">Instructions</a>
+      <a class="tab" id="tab-x" href="#passes">Passes</a>
     </nav>
     <div class="search">
       <input id="q" type="search" placeholder="Filter: switch, u8, spill, ldrb…" aria-label="Filter">
@@ -215,8 +273,335 @@ footer code { font-family: var(--mono); font-size: 12px; }
     <main id="ilist"></main>
   </div>
 
+  <div id="view-x" hidden>
+    <p class="lede" style="margin-top:14px">What agbcc <code>-O2</code> does to the C before it becomes asm, in order: which pass turned my C into something different from the original? Source: <code>~/git/agbcc-src/gcc</code>, order in <code>rest_of_compilation</code> (<code>toplev.c:2562</code>), <code>-O2</code> flags at <code>toplev.c:3595</code>. Items tagged <span class="guess">guess</span> are not checked in the source.</p>
+    <nav class="pipe" aria-label="Pass order">
+  <a href="#pass/expand">expand</a><span>→</span>
+  <a href="#pass/jump">jump</a><span>→</span>
+  <a href="#pass/cse">cse</a><span>→</span>
+  <a href="#pass/gcse">gcse</a><span>→</span>
+  <a href="#pass/loop">loop</a><span>→</span>
+  <a href="#pass/cse2">cse2</a><span>→</span>
+  <a href="#pass/flow">flow</a><span>→</span>
+  <a href="#pass/combine">combine</a><span>→</span>
+  <a href="#pass/regmove">regmove</a><span>→</span>
+  <a href="#pass/alloc">alloc</a><span>→</span>
+  <a href="#pass/reload">reload</a>
+  <span class="split">after reload</span>
+  <a class="post" href="#pass/rcse">reload_cse</a><span>→</span>
+  <a class="post" href="#pass/jump2">jump2</a><span>→</span>
+  <a class="post" href="#pass/reorg">thumb_reorg</a><span>→</span>
+  <a class="post" href="#pass/final">final</a>
+  <a href="#pass/seen">seen here</a>
+</nav>
+<section id="p-look">
+  <h2>How to look</h2>
+  <div class="how">
+    <div><b><code>-da</code>: dumps per pass</b>
+      <p>Writes the RTL (agbcc's internal code, one <code>(insn N …)</code> per instruction)
+      after every pass to <code>FILE.c.PASS</code>. Diff two neighbours to see what one pass
+      did.</p>
+      <p><code>.rtl .jump .cse .addressof .gcse .loop .cse2 .flow .combine .regmove .lreg .greg
+      .jump2 .mach</code></p>
+      <p>Single letters: <code>r j s F G L t f c N l g J M</code>.</p></div>
+    <div><b><code>-dp</code>: insn numbers in the asm</b>
+      <p>Each asm line gets its insn number (<code>@ 151</code>), to find it in the dumps.</p></div>
+    <div><b><code>-fno-X</code>: turn a pass off</b>
+      <p>If the diff changes, that pass is involved. Each card lists the flags that exist; many
+      passes have none.</p></div>
+    <div><b>Instrumented compiler</b>
+      <p><code>$TMPDIR/agbcc-dbg/gcc/agbcc</code> with <code>RLDBG=1</code> prints each reload
+      register choice (<code>RLD insn N reload R -&gt; rX</code>). Same asm as
+      <code>tools/agbcc</code>. Any other decision can be logged the same way: one
+      <code>fprintf</code> where the pass decides.</p></div>
+    <div><b><code>scripts/why.sh</code></b>
+      <p>Explains a line's registers from agbcc's own notes.</p></div>
+  </div>
+</section>
+
+<section>
+  <h2>Before register allocation</h2>
+
+  <article class="pass" id="p-expand">
+    <h3><span class="no">1</span>Expand: C → RTL
+      <span class="src">stmt.c expr.c expmed.c fold-const.c</span></h3>
+    <p>Turns the C tree into RTL. Many shapes are decided here, before any optimization.</p>
+    <ul>
+      <li><b>switch</b>: a jump table only with at least 5 cases and a value range of at most
+        10 × the case count (<code>stmt.c:4926</code>). Otherwise a tree of compares.</li>
+      <li><b>Constant folding</b>: <code>a + 2 + 3</code> → <code>a + 5</code>,
+        <code>x * 8</code> → shift, comparisons simplified.</li>
+      <li><b>Multiply / divide by constants</b> (<code>expmed.c</code>): shifts and adds instead of
+        <code>mul</code>; signed divide by a power of 2 adds a fix-up for negatives.</li>
+      <li><b>Types</b>: <code>u8</code>/<code>s8</code>/<code>u16</code> get widened with
+        <code>lsl #24; lsr #24</code> (<code>asr</code> if signed). The type of a local,
+        parameter or cast decides which shifts appear and where.</li>
+    </ul>
+    <div class="pex" data-pass="expand"></div>
+    <dl class="facts">
+      <dt>Levers</dt><dd>Types, casts, <code>switch</code> vs <code>if</code> chain, how an
+        expression is split into statements.</dd>
+    </dl>
+  </article>
+
+  <article class="pass" id="p-jump">
+    <h3><span class="no">2</span>jump <span class="src">jump.c</span></h3>
+    <p>Cleans up branches. Runs again after cse, gcse and loop, all without cross-jumping
+      (that one is only in <a href="#pass/jump2">jump2</a>).</p>
+    <ul>
+      <li><b>Loop inversion</b> (<code>duplicate_loop_exit_test</code>, <code>jump.c:2424</code>):
+        <code>while (c) body</code> becomes <code>if (c) do body while (c)</code>. That's why
+        loops test before entering and again at the bottom.</li>
+      <li>Jumps to jumps redirected; unreachable code deleted; an <code>if</code> with an empty
+        arm is flipped.</li>
+      <li>At <code>-O2</code> also <code>delete_null_pointer_checks</code> and
+        <code>merge_blocks</code> (<code>flow.c:3811</code>).</li>
+    </ul>
+    <div class="pex" data-pass="jump"></div>
+    <dl class="facts">
+      <dt>Levers</dt><dd><code>for</code> vs <code>while</code> vs <code>do</code> vs
+        <code>goto</code> (CLAUDE.md: loops can need gotos).</dd>
+    </dl>
+  </article>
+
+  <article class="pass" id="p-cse">
+    <h3><span class="no">3</span>cse <span class="src">cse.c + thread_jumps</span></h3>
+    <p>Common subexpression elimination inside a stretch of code: a value computed twice is
+      computed once and reused; a load from the same address is reused while nothing could have
+      changed it. <code>thread_jumps</code> sends a branch whose outcome is already known
+      straight to its target.</p>
+    <div class="pex" data-pass="cse"></div>
+    <dl class="facts">
+      <dt>In the asm</dt><dd>A field read once though the C reads it twice; a constant kept in a
+        register.</dd>
+      <dt>Levers</dt><dd><code>volatile</code> to force each read; recomputing vs storing in a
+        local.</dd>
+      <dt>Flags</dt><dd><code>-fno-cse-follow-jumps</code> <code>-fno-cse-skip-blocks</code>
+        <code>-fno-thread-jumps</code></dd>
+    </dl>
+  </article>
+
+  <article class="pass" id="p-gcse">
+    <h3><span class="no">4</span>gcse <span class="src">gcse.c</span></h3>
+    <p>Global cse over the whole function, up to <code>MAX_PASSES</code> rounds
+      (<code>gcse.c:730</code>). Each round:</p>
+    <ul>
+      <li><b>cprop</b>: copy and constant propagation (<code>x = 5; … y = x</code> →
+        <code>y = 5</code>).</li>
+      <li><b>PRE</b> (partial redundancy elimination): if a value is computed on some paths and
+        again after they meet, it computes it on the missing paths too, so the later one becomes a
+        reuse. Creates new pseudos. <span class="guess">guess</span> their stack slots follow
+        its hash table order.</li>
+      <li>Code hoisting only with <code>-Os</code> (<code>gcse.c:767</code>), so not here.</li>
+    </ul>
+    <div class="pex" data-pass="gcse"></div>
+    <dl class="facts">
+      <dt>In the asm</dt><dd>A computation moved into the branches before a merge point, or
+        moved earlier.</dd>
+      <dt>Seen here</dt><dd>A dead check like <code>if (dh1 == 0) cost1 = 0;</code> gives PRE a
+        second computation to unify, so it moves <code>h1 - h0</code>
+        (<code>BuildReachMap</code>).</dd>
+      <dt>Flags</dt><dd><code>-fno-gcse</code></dd>
+    </dl>
+  </article>
+
+  <article class="pass" id="p-loop">
+    <h3><span class="no">5</span>loop <span class="src">loop.c, twice (-frerun-loop-opt)</span></h3>
+    <ul>
+      <li><b>Invariant motion</b>: a computation that doesn't change inside the loop moves before
+        it.</li>
+      <li><b>Strength reduction</b>: <code>i * 12</code> inside the loop becomes a variable that
+        grows by 12. <span class="guess">guess</span> <code>(u8)y</code> with <code>y</code> a
+        counter becomes a <code>y &lt;&lt; 24</code> value kept in a slot
+        (<code>BuildReachMap</code>: <code>#160</code>).</li>
+      <li>No unrolling (<code>-funroll-loops</code> not set).</li>
+    </ul>
+    <div class="pex" data-pass="loop"></div>
+    <dl class="facts">
+      <dt>In the asm</dt><dd>Values computed once before the loop, extra counters, shifted
+        counters in stack slots.</dd>
+      <dt>Flags</dt><dd><code>-fno-strength-reduce</code> <code>-fno-rerun-loop-opt</code></dd>
+    </dl>
+  </article>
+
+  <article class="pass" id="p-cse2">
+    <h3><span class="no">6</span>cse2 <span class="src">cse.c again</span></h3>
+    <p>Same as <a href="#pass/cse">cse</a>, after loop changed things.</p>
+    <dl class="facts"><dt>Flags</dt><dd><code>-fno-rerun-cse-after-loop</code></dd></dl>
+  </article>
+
+  <article class="pass" id="p-flow">
+    <h3><span class="no">7</span>flow <span class="src">flow.c</span></h3>
+    <p>Life analysis: which value is alive where. Deletes stores to values never read. Its
+      results (lifetimes, number of uses) feed the register allocators.</p>
+  </article>
+
+  <article class="pass" id="p-combine">
+    <h3><span class="no">8</span>combine <span class="src">combine.c</span></h3>
+    <p>Merges 2–3 instructions that feed each other into one, when the Thumb has a single
+      instruction for the result, and simplifies it.</p>
+    <div class="pair">
+<pre class="code raw"><span class="cap">before</span><span class="mn">add</span>  r1, r0, #2
+<span class="mn">ldrb</span> r2, [r1]</pre>
+<pre class="code raw"><span class="cap">after combine</span><span class="mn">ldrb</span> r2, [r0, <span class="hl">#2</span>]</pre>
+    </div>
+    <dl class="facts">
+      <dt>In the asm</dt><dd>Fewer instructions than the C suggests; offsets folded into loads
+        and stores.</dd>
+      <dt>Flags</dt><dd>None.</dd>
+    </dl>
+  </article>
+
+  <article class="pass" id="p-regmove">
+    <h3><span class="no">9</span>regmove <span class="src">regmove.c</span></h3>
+    <p>Rewrites register copies so an instruction's input and output can be the same register
+      (Thumb <code>add r0, r1</code> needs the output to be an input).</p>
+    <dl class="facts"><dt>Flags</dt><dd><code>-fno-regmove</code></dd></dl>
+  </article>
+
+  <article class="pass" id="p-alloc">
+    <h3><span class="no">10</span>Register allocation
+      <span class="src">local-alloc.c, then global.c</span></h3>
+    <p>Each value the C needs (a "pseudo") gets a hard register, or none, and then it lives on
+      the stack.</p>
+    <ul>
+      <li><b>local-alloc</b>: values that live inside one basic block. Priority
+        <code>floor_log2(refs) × refs × size / lifetime</code>
+        (<code>local-alloc.c:1435</code>).</li>
+      <li><b>global</b>: the rest, by <code>floor_log2(refs) × refs / lifetime</code>
+        (<code>global.c:614</code>). A tie goes to the lower pseudo number
+        (<code>global.c:630</code>), so <b>declaration order matters</b>.</li>
+      <li>Values that live across a call want r4–r7 (the callee keeps them); r0–r3 are
+        clobbered by calls. <code>-fcaller-saves</code> can keep them in r0–r3 and save them
+        around the call.</li>
+    </ul>
+    <div class="pex" data-pass="alloc"></div>
+    <dl class="facts">
+      <dt>In the asm</dt><dd>Which value is in r4 vs r5; who ends up on the stack.</dd>
+      <dt>Levers</dt><dd>Declaration order; number of uses (an extra use raises priority);
+        lifetimes (moving a use earlier or later); splitting a variable in two.</dd>
+    </dl>
+  </article>
+
+  <article class="pass" id="p-reload">
+    <h3><span class="no">11</span>reload <span class="src">reload1.c reload.c</span></h3>
+    <p>Fixes everything the Thumb can't do as allocated: values without a register are loaded
+      into a temporary ("reload register") around each use; stack slots are assigned.</p>
+    <ul>
+      <li><b>Rotation</b>: temporaries are taken round-robin from the spill registers (r0–r2 in
+        <code>BuildReachMap</code>; the set varies per function), starting after the last one
+        picked (<code>last_spill_reg</code>, reset per function at <code>reload1.c:817</code>,
+        picked at <code>reload1.c:5197</code>). Busy registers are skipped.</li>
+      <li>A temporary whose register is already fixed (<code>reload1.c:5769</code>) or reused
+        from before (inheritance) doesn't advance the rotation.</li>
+      <li><b>Stack slots</b>: assigned in pseudo order; the Thumb frame grows upward
+        (<code>thumb.h:633</code>).</li>
+    </ul>
+    <dl class="facts">
+      <dt>In the asm</dt><dd><code>ldr rX, [sp, #N]</code> right before a use; the same
+        <code>[sp, #N]</code> loaded into r1, then r2, then r0.</dd>
+      <dt>If</dt><dd>The rotation is off by one with identical asm before it: see
+        <a href="#pass/jump2">jump2</a>.</dd>
+      <dt>Tools</dt><dd><code>RLDBG=1</code>, <code>scripts/why.sh</code></dd>
+    </dl>
+  </article>
+</section>
+
+<section>
+  <h2>After reload</h2>
+  <p class="lede" style="margin-bottom:12px">These run after registers are fixed, so anything
+    they delete already left its mark on the allocation.</p>
+
+  <article class="pass post-reload" id="p-rcse">
+    <h3><span class="no">12</span>reload_cse_regs <span class="src">reload1.c:8487</span></h3>
+    <p>A small cse over hard registers: drops a load if the register already holds that
+      value.</p>
+    <dl class="facts"><dt>In the asm</dt><dd>A reload you'd expect is missing.</dd></dl>
+  </article>
+
+  <article class="pass post-reload" id="p-jump2">
+    <h3><span class="no">13</span>jump2 + cross-jumping
+      <span class="src">jump.c, called at toplev.c:3143</span></h3>
+    <p>The last jump pass, the only one with cross-jumping. Two blocks that end in the same
+      instructions and jump to the same place are merged. Going top to bottom, the block it is
+      looking at deletes its own copy and jumps into the other one (<code>jump.c:1970</code>,
+      <code>do_cross_jump</code> at <code>jump.c:2836</code>), so <b>the lower copy
+      survives</b>. Also deletes moves from a register to itself.</p>
+    <p>Because it runs after reload, the deleted copy already took a step of the reload
+      rotation.</p>
+    <div class="pair">
+<pre class="code raw"><span class="cap">C (original, BuildReachMap)</span><span class="kw">if</span> (tile-&gt;field0 &amp; <span class="num">0x80</span>) {   <span class="com">// A: reload r1</span>
+    <span class="del">map-&gt;edges = 0xFF;</span>
+    <span class="del">goto next;</span>         <span class="com">// deleted, jumps to C</span>
+}
+<span class="kw">if</span> (b || c) {                  <span class="com">// B: reload r2</span>
+    map-&gt;edges = <span class="num">0xFF</span>;
+    <span class="kw">goto</span> next;
+}
+…
+<span class="kw">if</span> (!(tile-&gt;flags &amp; <span class="num">0x20</span>)) {   <span class="com">// C: reload r1</span>
+    map-&gt;edges = <span class="num">0xFF</span>;     <span class="com">// survives</span>
+    <span class="kw">goto</span> next;
+}</pre>
+<pre class="code raw"><span class="cap">what goes wrong with one merged if</span><span class="kw">if</span> (a || b || c) {   <span class="com">// one block: r1</span>
+    map-&gt;edges = <span class="num">0xFF</span>;
+    <span class="kw">goto</span> next;
+}
+<span class="com">// the rotation is one step behind
+// from here on: r1 where the
+// original has r2, and so on</span></pre>
+    </div>
+    <div class="pex" data-pass="jump2"></div>
+    <dl class="facts">
+      <dt>Symptom</dt><dd>Asm before is identical but the reload registers after are shifted by
+        one step.</dd>
+      <dt>Fix</dt><dd>Look for a block the original had twice and write it twice.</dd>
+      <dt>Flags</dt><dd>None; it can't be turned off.</dd>
+    </dl>
+  </article>
+
+  <article class="pass post-reload" id="p-reorg">
+    <h3><span class="no">14</span>thumb_reorg <span class="src">thumb.c:352</span></h3>
+    <p>Puts constants that don't fit in an instruction into literal pools after a barrier
+      (<code>ldr r0, =0x…</code> → <code>ldr r0, [pc, #N]</code> + <code>.word</code>). Decides
+      where pools and alignment padding (<code>.short 0x0000</code>) go.</p>
+  </article>
+
+  <article class="pass post-reload" id="p-final">
+    <h3><span class="no">15</span>shorten_branches + final <span class="src">final.c</span></h3>
+    <p>Picks short or long branch forms and writes the asm. The Thumb has one peephole
+      (<code>thumb.md:619</code>): <code>mov rX, #const; add rX, sp</code> →
+      <code>add rX, sp, #const</code>.</p>
+    <dl class="facts"><dt>Flags</dt><dd><code>-fno-peephole</code></dd></dl>
+  </article>
+</section>
+
+<section id="p-seen">
+  <h2>Seen in this repo</h2>
+  <div class="tablewrap">
+  <table class="seentab">
+    <thead><tr><th>Symptom</th><th>Pass</th><th>Example</th></tr></thead>
+    <tbody>
+      <tr><td>A field read twice in the original</td><td><a href="#pass/cse">cse</a></td>
+        <td><code>volatile</code> pointer, CLAUDE.md</td></tr>
+      <tr><td>Loop shape</td><td><a href="#pass/jump">jump</a> (inversion)</td>
+        <td>gotos, <code>src/message.c</code></td></tr>
+      <tr><td>Computation moved by a dead check</td><td><a href="#pass/gcse">gcse</a> (PRE)</td>
+        <td><code>BuildReachMap</code>, <code>h1 - h0</code></td></tr>
+      <tr><td><code>y &lt;&lt; 24</code> value in a stack slot</td>
+        <td><span class="guess">guess</span> <a href="#pass/loop">loop</a></td>
+        <td><code>BuildReachMap</code>, <code>#160</code></td></tr>
+      <tr><td>Reload registers shifted by one</td><td><a href="#pass/jump2">jump2</a>
+        (cross-jumping)</td><td><code>BuildReachMap</code>, the 0xFF split</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+  </div>
+
   <footer>
-    Every listing is real output: <code>agbcc -mthumb-interwork -O2 -fhex-asm -fprologue-bugfix</code>, assembled and disassembled with <code>arm-none-eabi-objdump</code> (the same view <code>scripts/ndiff.sh</code> shows). Jump targets show as <code>→ N</code>, the line they land on. Highlighted lines are the ones the example is about.
+    Every Patterns and Instructions listing is real output: <code>agbcc -mthumb-interwork -O2 -fhex-asm -fprologue-bugfix</code>, assembled and disassembled with <code>arm-none-eabi-objdump</code> (the same view <code>scripts/ndiff.sh</code> shows). Jump targets show as <code>→ N</code>, the line they land on. Highlighted lines are the ones the example is about. The Passes sketches are hand-written; add a row to "Seen in this repo" whenever a match teaches something new.
   </footer>
 </div>
 
@@ -225,6 +610,7 @@ const DATA = __DATA__;
 const INSNS = __INSNS__;
 const CONDS = __CONDS__;
 const PIECES = __PIECES__;
+const PASSES_EX = __PASSES__;
 
 const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 const mnOf = l => l.split(/\s/)[0].replace(/\.n$/, '');
@@ -303,12 +689,17 @@ function save() { try { localStorage.setItem('atlas', JSON.stringify({ q: q.valu
 try { q.value = JSON.parse(localStorage.getItem('atlas') || '{}').q || ''; } catch (e) {}
 
 // Hash routes: '' patterns, #mn/X patterns using X, #ex/NAME one example, #ins the reference,
-// #ins/ID one instruction. Old links (#negs) still filter.
+// #ins/ID one instruction, #passes the agbcc passes, #pass/ID one pass. Old links (#negs) still
+// filter.
 function route() {
   const h = decodeURIComponent(location.hash.slice(1));
   let target = null;
   active = null;
   if (h === 'calls') { view = 'i'; target = 'calls'; }
+  else if (h === 'passes' || h.startsWith('pass/')) {
+    view = 'x';
+    if (h.startsWith('pass/')) target = 'p-' + h.slice(5);
+  }
   else if (h === 'ins' || h.startsWith('ins/')) {
     view = 'i';
     if (h.startsWith('ins/')) target = 'i-' + h.slice(4);
@@ -320,8 +711,10 @@ function route() {
   }
   document.getElementById('view-p').hidden = view !== 'p';
   document.getElementById('view-i').hidden = view !== 'i';
+  document.getElementById('view-x').hidden = view !== 'x';
   document.getElementById('tab-p').setAttribute('aria-current', view === 'p' ? 'page' : 'false');
   document.getElementById('tab-i').setAttribute('aria-current', view === 'i' ? 'page' : 'false');
+  document.getElementById('tab-x').setAttribute('aria-current', view === 'x' ? 'page' : 'false');
   render();
   // The hash isn't the element's id, so :target never applies; mark it by hand.
   const el = target && document.getElementById(target);
@@ -345,7 +738,29 @@ window.addEventListener('hashchange', route);
 
 const matches = (text, term) => !term || text.toLowerCase().includes(term);
 
-function render() { view === 'p' ? renderP() : renderI(); }
+function render() { view === 'p' ? renderP() : view === 'i' ? renderI() : renderX(); }
+
+// Pass examples: the same f built two ways; lines that differ are highlighted.
+PASSES_EX.forEach(p => {
+  const box = document.querySelector('.pex[data-pass="' + p.pid + '"]');
+  if (!box) return;
+  const side = x => block('asm · ' + esc(x.label.replace(/^C · /, '')), x.asm.map(hlA), i => x.key.includes(i));
+  const sameC = p.a.c === p.b.c;
+  box.insertAdjacentHTML('beforeend', '<div class="pexi" id="' + p.name + '"><h4>' + esc(p.title) +
+    '</h4><p class="note">' + p.note + '</p>' +
+    (sameC ? block('C', hlC(p.a.c), null) + '<div class="pair">' + side(p.a) + side(p.b) + '</div>'
+           : '<div class="pair"><div>' + block(esc(p.a.label), hlC(p.a.c), null) + side(p.a) +
+             '</div><div>' + block(esc(p.b.label), hlC(p.b.c), null) + side(p.b) + '</div></div>') +
+    '</div>');
+});
+
+const PASSES = [...document.querySelectorAll('#view-x .pass')];
+function renderX() {
+  const term = q.value.trim().toLowerCase();
+  let n = 0;
+  PASSES.forEach(p => { p.hidden = !matches(p.textContent, term); n += !p.hidden; });
+  document.getElementById('count').textContent = n + ' of ' + PASSES.length + ' passes';
+}
 
 function renderP() {
   const term = q.value.trim().toLowerCase();

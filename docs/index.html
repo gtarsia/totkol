@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>agbcc Thumb Patterns</title>
+<title>agbcc Notes</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,600;1,400&display=swap">
@@ -153,6 +153,63 @@ footer code { font-family: var(--mono); font-size: 12px; }
 .seen { margin-top: 6px; font-size: 14px; }
 .seen summary { cursor: pointer; color: var(--accent); font-size: 13px; }
 .seen .pair { margin-top: 8px; }
+.guess { font: 600 11px var(--cond); letter-spacing: .08em; text-transform: uppercase;
+  color: var(--key-ink); background: var(--key-bg); padding: 1px 5px; border-radius: 3px; }
+
+.pipe { margin-top: 14px; display: flex; flex-wrap: wrap;
+  gap: 4px; align-items: center; }
+.pipe a { font: 500 13px/1 var(--mono); padding: 6px 7px; border-radius: 4px;
+  border: 1px solid var(--rule); background: var(--surface); color: var(--a-mn);
+  text-decoration: none; }
+.pipe a.post { border-color: var(--key-ink); }
+.pipe span { color: var(--muted); font-size: 12px; }
+.pipe .split { font: 600 11px var(--cond); letter-spacing: .08em; text-transform: uppercase;
+  color: var(--key-ink); padding-inline: 4px; }
+
+.pass { background: var(--surface); border: 1px solid var(--rule); border-radius: 8px;
+  padding: 14px 16px; margin-bottom: 12px; scroll-margin-top: 64px; }
+.pass.on { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-soft); }
+.pass h3 { font: 600 19px/1.3 var(--cond); margin: 0; display: flex; flex-wrap: wrap;
+  gap: 4px 10px; align-items: baseline; }
+.pass h3 .no { font: 600 13px var(--mono); color: var(--muted); }
+.pass h3 .src { font: 13px var(--mono); color: var(--muted); }
+.pass > p { margin: 6px 0; max-width: 78ch; }
+.pass ul { margin: 6px 0; padding-left: 20px; max-width: 78ch; }
+.pass li { margin: 3px 0; }
+dl.facts { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 4px 14px;
+  margin: 10px 0 2px; font-size: 14px; }
+dl.facts dt { font: 600 12px/1.9 var(--cond); letter-spacing: .08em; text-transform: uppercase;
+  color: var(--muted); }
+dl.facts dd { margin: 0; }
+@media (max-width: 600px) {
+  dl.facts { grid-template-columns: minmax(0, 1fr); }
+  dl.facts dd { margin-bottom: 6px; }
+}
+.post-reload { border-left: 4px solid var(--key-ink); }
+
+pre.code.raw { padding: 8px 12px; margin: 8px 0; white-space: pre; }
+pre.code.raw .cap { padding: 0 0 4px; }
+.hl { background: var(--key-bg); color: var(--key-ink); }
+.del { background: var(--del-bg); color: var(--del); text-decoration: line-through; }
+
+table.seentab { border-collapse: collapse; width: 100%; font-size: 14px; background: var(--surface);
+  border: 1px solid var(--rule); border-radius: 8px; overflow: hidden; }
+.seentab th { font: 600 12px var(--cond); letter-spacing: .08em; text-transform: uppercase;
+  color: var(--muted); text-align: left; padding: 8px 10px; }
+.seentab td { border-top: 1px solid var(--rule); padding: 7px 10px; vertical-align: top; }
+.tablewrap { overflow-x: auto; }
+.how { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+.how > div { border-left: 3px solid var(--accent); padding: 2px 0 2px 12px; font-size: 14px; }
+.how b { display: block; font: 600 14px var(--cond); letter-spacing: .02em; }
+.how p { margin: 2px 0; color: var(--muted); }
+:root { --del: #b3261e; --del-bg: #fbe3e1; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --del: #ff8a80; --del-bg: #3a1714; } }
+:root[data-theme="dark"] { --del: #ff8a80; --del-bg: #3a1714; }
+.pass, #view-x section { scroll-margin-top: 72px; }
+.pexi { margin: 12px 0 4px; }
+.pexi h4 { font: 600 15px var(--cond); margin: 0; }
+.pexi .pair > div { display: grid; gap: 8px; align-content: start; }
+.pexi > .code { margin-bottom: 8px; }
 </style>
 </head>
 <body>
@@ -160,14 +217,15 @@ footer code { font-family: var(--mono); font-size: 12px; }
 <div class="wrap">
   <header>
     <div class="eyebrow">GBA decomp · agbcc · Thumb</div>
-    <h1>What C turns into</h1>
-    <p class="lede">Small pieces of C, each compiled with agbcc exactly as lodis-qol builds it, next to the asm it produces. Pick an instruction below to see every example that uses it, for example <code>negs</code>: "what produces this?"</p>
+    <h1>agbcc notes</h1>
+    <p class="lede"><b>Patterns</b>: small pieces of C, each compiled with agbcc exactly as lodis-qol builds it, next to the asm it produces. Pick an instruction below to see every example that uses it, for example <code>negs</code>: "what produces this?" <b>Instructions</b>: the Thumb reference. <b>Passes</b>: what each agbcc pass does to the C and how to spot it in a diff.</p>
   </header>
 
   <div class="bar">
     <nav class="tabs" aria-label="Views">
       <a class="tab" id="tab-p" href="#">Patterns</a>
       <a class="tab" id="tab-i" href="#ins">Instructions</a>
+      <a class="tab" id="tab-x" href="#passes">Passes</a>
     </nav>
     <div class="search">
       <input id="q" type="search" placeholder="Filter: switch, u8, spill, ldrb…" aria-label="Filter">
@@ -222,8 +280,335 @@ footer code { font-family: var(--mono); font-size: 12px; }
     <main id="ilist"></main>
   </div>
 
+  <div id="view-x" hidden>
+    <p class="lede" style="margin-top:14px">What agbcc <code>-O2</code> does to the C before it becomes asm, in order: which pass turned my C into something different from the original? Source: <code>~/git/agbcc-src/gcc</code>, order in <code>rest_of_compilation</code> (<code>toplev.c:2562</code>), <code>-O2</code> flags at <code>toplev.c:3595</code>. Items tagged <span class="guess">guess</span> are not checked in the source.</p>
+    <nav class="pipe" aria-label="Pass order">
+  <a href="#pass/expand">expand</a><span>→</span>
+  <a href="#pass/jump">jump</a><span>→</span>
+  <a href="#pass/cse">cse</a><span>→</span>
+  <a href="#pass/gcse">gcse</a><span>→</span>
+  <a href="#pass/loop">loop</a><span>→</span>
+  <a href="#pass/cse2">cse2</a><span>→</span>
+  <a href="#pass/flow">flow</a><span>→</span>
+  <a href="#pass/combine">combine</a><span>→</span>
+  <a href="#pass/regmove">regmove</a><span>→</span>
+  <a href="#pass/alloc">alloc</a><span>→</span>
+  <a href="#pass/reload">reload</a>
+  <span class="split">after reload</span>
+  <a class="post" href="#pass/rcse">reload_cse</a><span>→</span>
+  <a class="post" href="#pass/jump2">jump2</a><span>→</span>
+  <a class="post" href="#pass/reorg">thumb_reorg</a><span>→</span>
+  <a class="post" href="#pass/final">final</a>
+  <a href="#pass/seen">seen here</a>
+</nav>
+<section id="p-look">
+  <h2>How to look</h2>
+  <div class="how">
+    <div><b><code>-da</code>: dumps per pass</b>
+      <p>Writes the RTL (agbcc's internal code, one <code>(insn N …)</code> per instruction)
+      after every pass to <code>FILE.c.PASS</code>. Diff two neighbours to see what one pass
+      did.</p>
+      <p><code>.rtl .jump .cse .addressof .gcse .loop .cse2 .flow .combine .regmove .lreg .greg
+      .jump2 .mach</code></p>
+      <p>Single letters: <code>r j s F G L t f c N l g J M</code>.</p></div>
+    <div><b><code>-dp</code>: insn numbers in the asm</b>
+      <p>Each asm line gets its insn number (<code>@ 151</code>), to find it in the dumps.</p></div>
+    <div><b><code>-fno-X</code>: turn a pass off</b>
+      <p>If the diff changes, that pass is involved. Each card lists the flags that exist; many
+      passes have none.</p></div>
+    <div><b>Instrumented compiler</b>
+      <p><code>$TMPDIR/agbcc-dbg/gcc/agbcc</code> with <code>RLDBG=1</code> prints each reload
+      register choice (<code>RLD insn N reload R -&gt; rX</code>). Same asm as
+      <code>tools/agbcc</code>. Any other decision can be logged the same way: one
+      <code>fprintf</code> where the pass decides.</p></div>
+    <div><b><code>scripts/why.sh</code></b>
+      <p>Explains a line's registers from agbcc's own notes.</p></div>
+  </div>
+</section>
+
+<section>
+  <h2>Before register allocation</h2>
+
+  <article class="pass" id="p-expand">
+    <h3><span class="no">1</span>Expand: C → RTL
+      <span class="src">stmt.c expr.c expmed.c fold-const.c</span></h3>
+    <p>Turns the C tree into RTL. Many shapes are decided here, before any optimization.</p>
+    <ul>
+      <li><b>switch</b>: a jump table only with at least 5 cases and a value range of at most
+        10 × the case count (<code>stmt.c:4926</code>). Otherwise a tree of compares.</li>
+      <li><b>Constant folding</b>: <code>a + 2 + 3</code> → <code>a + 5</code>,
+        <code>x * 8</code> → shift, comparisons simplified.</li>
+      <li><b>Multiply / divide by constants</b> (<code>expmed.c</code>): shifts and adds instead of
+        <code>mul</code>; signed divide by a power of 2 adds a fix-up for negatives.</li>
+      <li><b>Types</b>: <code>u8</code>/<code>s8</code>/<code>u16</code> get widened with
+        <code>lsl #24; lsr #24</code> (<code>asr</code> if signed). The type of a local,
+        parameter or cast decides which shifts appear and where.</li>
+    </ul>
+    <div class="pex" data-pass="expand"></div>
+    <dl class="facts">
+      <dt>Levers</dt><dd>Types, casts, <code>switch</code> vs <code>if</code> chain, how an
+        expression is split into statements.</dd>
+    </dl>
+  </article>
+
+  <article class="pass" id="p-jump">
+    <h3><span class="no">2</span>jump <span class="src">jump.c</span></h3>
+    <p>Cleans up branches. Runs again after cse, gcse and loop, all without cross-jumping
+      (that one is only in <a href="#pass/jump2">jump2</a>).</p>
+    <ul>
+      <li><b>Loop inversion</b> (<code>duplicate_loop_exit_test</code>, <code>jump.c:2424</code>):
+        <code>while (c) body</code> becomes <code>if (c) do body while (c)</code>. That's why
+        loops test before entering and again at the bottom.</li>
+      <li>Jumps to jumps redirected; unreachable code deleted; an <code>if</code> with an empty
+        arm is flipped.</li>
+      <li>At <code>-O2</code> also <code>delete_null_pointer_checks</code> and
+        <code>merge_blocks</code> (<code>flow.c:3811</code>).</li>
+    </ul>
+    <div class="pex" data-pass="jump"></div>
+    <dl class="facts">
+      <dt>Levers</dt><dd><code>for</code> vs <code>while</code> vs <code>do</code> vs
+        <code>goto</code> (CLAUDE.md: loops can need gotos).</dd>
+    </dl>
+  </article>
+
+  <article class="pass" id="p-cse">
+    <h3><span class="no">3</span>cse <span class="src">cse.c + thread_jumps</span></h3>
+    <p>Common subexpression elimination inside a stretch of code: a value computed twice is
+      computed once and reused; a load from the same address is reused while nothing could have
+      changed it. <code>thread_jumps</code> sends a branch whose outcome is already known
+      straight to its target.</p>
+    <div class="pex" data-pass="cse"></div>
+    <dl class="facts">
+      <dt>In the asm</dt><dd>A field read once though the C reads it twice; a constant kept in a
+        register.</dd>
+      <dt>Levers</dt><dd><code>volatile</code> to force each read; recomputing vs storing in a
+        local.</dd>
+      <dt>Flags</dt><dd><code>-fno-cse-follow-jumps</code> <code>-fno-cse-skip-blocks</code>
+        <code>-fno-thread-jumps</code></dd>
+    </dl>
+  </article>
+
+  <article class="pass" id="p-gcse">
+    <h3><span class="no">4</span>gcse <span class="src">gcse.c</span></h3>
+    <p>Global cse over the whole function, up to <code>MAX_PASSES</code> rounds
+      (<code>gcse.c:730</code>). Each round:</p>
+    <ul>
+      <li><b>cprop</b>: copy and constant propagation (<code>x = 5; … y = x</code> →
+        <code>y = 5</code>).</li>
+      <li><b>PRE</b> (partial redundancy elimination): if a value is computed on some paths and
+        again after they meet, it computes it on the missing paths too, so the later one becomes a
+        reuse. Creates new pseudos. <span class="guess">guess</span> their stack slots follow
+        its hash table order.</li>
+      <li>Code hoisting only with <code>-Os</code> (<code>gcse.c:767</code>), so not here.</li>
+    </ul>
+    <div class="pex" data-pass="gcse"></div>
+    <dl class="facts">
+      <dt>In the asm</dt><dd>A computation moved into the branches before a merge point, or
+        moved earlier.</dd>
+      <dt>Seen here</dt><dd>A dead check like <code>if (dh1 == 0) cost1 = 0;</code> gives PRE a
+        second computation to unify, so it moves <code>h1 - h0</code>
+        (<code>BuildReachMap</code>).</dd>
+      <dt>Flags</dt><dd><code>-fno-gcse</code></dd>
+    </dl>
+  </article>
+
+  <article class="pass" id="p-loop">
+    <h3><span class="no">5</span>loop <span class="src">loop.c, twice (-frerun-loop-opt)</span></h3>
+    <ul>
+      <li><b>Invariant motion</b>: a computation that doesn't change inside the loop moves before
+        it.</li>
+      <li><b>Strength reduction</b>: <code>i * 12</code> inside the loop becomes a variable that
+        grows by 12. <span class="guess">guess</span> <code>(u8)y</code> with <code>y</code> a
+        counter becomes a <code>y &lt;&lt; 24</code> value kept in a slot
+        (<code>BuildReachMap</code>: <code>#160</code>).</li>
+      <li>No unrolling (<code>-funroll-loops</code> not set).</li>
+    </ul>
+    <div class="pex" data-pass="loop"></div>
+    <dl class="facts">
+      <dt>In the asm</dt><dd>Values computed once before the loop, extra counters, shifted
+        counters in stack slots.</dd>
+      <dt>Flags</dt><dd><code>-fno-strength-reduce</code> <code>-fno-rerun-loop-opt</code></dd>
+    </dl>
+  </article>
+
+  <article class="pass" id="p-cse2">
+    <h3><span class="no">6</span>cse2 <span class="src">cse.c again</span></h3>
+    <p>Same as <a href="#pass/cse">cse</a>, after loop changed things.</p>
+    <dl class="facts"><dt>Flags</dt><dd><code>-fno-rerun-cse-after-loop</code></dd></dl>
+  </article>
+
+  <article class="pass" id="p-flow">
+    <h3><span class="no">7</span>flow <span class="src">flow.c</span></h3>
+    <p>Life analysis: which value is alive where. Deletes stores to values never read. Its
+      results (lifetimes, number of uses) feed the register allocators.</p>
+  </article>
+
+  <article class="pass" id="p-combine">
+    <h3><span class="no">8</span>combine <span class="src">combine.c</span></h3>
+    <p>Merges 2–3 instructions that feed each other into one, when the Thumb has a single
+      instruction for the result, and simplifies it.</p>
+    <div class="pair">
+<pre class="code raw"><span class="cap">before</span><span class="mn">add</span>  r1, r0, #2
+<span class="mn">ldrb</span> r2, [r1]</pre>
+<pre class="code raw"><span class="cap">after combine</span><span class="mn">ldrb</span> r2, [r0, <span class="hl">#2</span>]</pre>
+    </div>
+    <dl class="facts">
+      <dt>In the asm</dt><dd>Fewer instructions than the C suggests; offsets folded into loads
+        and stores.</dd>
+      <dt>Flags</dt><dd>None.</dd>
+    </dl>
+  </article>
+
+  <article class="pass" id="p-regmove">
+    <h3><span class="no">9</span>regmove <span class="src">regmove.c</span></h3>
+    <p>Rewrites register copies so an instruction's input and output can be the same register
+      (Thumb <code>add r0, r1</code> needs the output to be an input).</p>
+    <dl class="facts"><dt>Flags</dt><dd><code>-fno-regmove</code></dd></dl>
+  </article>
+
+  <article class="pass" id="p-alloc">
+    <h3><span class="no">10</span>Register allocation
+      <span class="src">local-alloc.c, then global.c</span></h3>
+    <p>Each value the C needs (a "pseudo") gets a hard register, or none, and then it lives on
+      the stack.</p>
+    <ul>
+      <li><b>local-alloc</b>: values that live inside one basic block. Priority
+        <code>floor_log2(refs) × refs × size / lifetime</code>
+        (<code>local-alloc.c:1435</code>).</li>
+      <li><b>global</b>: the rest, by <code>floor_log2(refs) × refs / lifetime</code>
+        (<code>global.c:614</code>). A tie goes to the lower pseudo number
+        (<code>global.c:630</code>), so <b>declaration order matters</b>.</li>
+      <li>Values that live across a call want r4–r7 (the callee keeps them); r0–r3 are
+        clobbered by calls. <code>-fcaller-saves</code> can keep them in r0–r3 and save them
+        around the call.</li>
+    </ul>
+    <div class="pex" data-pass="alloc"></div>
+    <dl class="facts">
+      <dt>In the asm</dt><dd>Which value is in r4 vs r5; who ends up on the stack.</dd>
+      <dt>Levers</dt><dd>Declaration order; number of uses (an extra use raises priority);
+        lifetimes (moving a use earlier or later); splitting a variable in two.</dd>
+    </dl>
+  </article>
+
+  <article class="pass" id="p-reload">
+    <h3><span class="no">11</span>reload <span class="src">reload1.c reload.c</span></h3>
+    <p>Fixes everything the Thumb can't do as allocated: values without a register are loaded
+      into a temporary ("reload register") around each use; stack slots are assigned.</p>
+    <ul>
+      <li><b>Rotation</b>: temporaries are taken round-robin from the spill registers (r0–r2 in
+        <code>BuildReachMap</code>; the set varies per function), starting after the last one
+        picked (<code>last_spill_reg</code>, reset per function at <code>reload1.c:817</code>,
+        picked at <code>reload1.c:5197</code>). Busy registers are skipped.</li>
+      <li>A temporary whose register is already fixed (<code>reload1.c:5769</code>) or reused
+        from before (inheritance) doesn't advance the rotation.</li>
+      <li><b>Stack slots</b>: assigned in pseudo order; the Thumb frame grows upward
+        (<code>thumb.h:633</code>).</li>
+    </ul>
+    <dl class="facts">
+      <dt>In the asm</dt><dd><code>ldr rX, [sp, #N]</code> right before a use; the same
+        <code>[sp, #N]</code> loaded into r1, then r2, then r0.</dd>
+      <dt>If</dt><dd>The rotation is off by one with identical asm before it: see
+        <a href="#pass/jump2">jump2</a>.</dd>
+      <dt>Tools</dt><dd><code>RLDBG=1</code>, <code>scripts/why.sh</code></dd>
+    </dl>
+  </article>
+</section>
+
+<section>
+  <h2>After reload</h2>
+  <p class="lede" style="margin-bottom:12px">These run after registers are fixed, so anything
+    they delete already left its mark on the allocation.</p>
+
+  <article class="pass post-reload" id="p-rcse">
+    <h3><span class="no">12</span>reload_cse_regs <span class="src">reload1.c:8487</span></h3>
+    <p>A small cse over hard registers: drops a load if the register already holds that
+      value.</p>
+    <dl class="facts"><dt>In the asm</dt><dd>A reload you'd expect is missing.</dd></dl>
+  </article>
+
+  <article class="pass post-reload" id="p-jump2">
+    <h3><span class="no">13</span>jump2 + cross-jumping
+      <span class="src">jump.c, called at toplev.c:3143</span></h3>
+    <p>The last jump pass, the only one with cross-jumping. Two blocks that end in the same
+      instructions and jump to the same place are merged. Going top to bottom, the block it is
+      looking at deletes its own copy and jumps into the other one (<code>jump.c:1970</code>,
+      <code>do_cross_jump</code> at <code>jump.c:2836</code>), so <b>the lower copy
+      survives</b>. Also deletes moves from a register to itself.</p>
+    <p>Because it runs after reload, the deleted copy already took a step of the reload
+      rotation.</p>
+    <div class="pair">
+<pre class="code raw"><span class="cap">C (original, BuildReachMap)</span><span class="kw">if</span> (tile-&gt;field0 &amp; <span class="num">0x80</span>) {   <span class="com">// A: reload r1</span>
+    <span class="del">map-&gt;edges = 0xFF;</span>
+    <span class="del">goto next;</span>         <span class="com">// deleted, jumps to C</span>
+}
+<span class="kw">if</span> (b || c) {                  <span class="com">// B: reload r2</span>
+    map-&gt;edges = <span class="num">0xFF</span>;
+    <span class="kw">goto</span> next;
+}
+…
+<span class="kw">if</span> (!(tile-&gt;flags &amp; <span class="num">0x20</span>)) {   <span class="com">// C: reload r1</span>
+    map-&gt;edges = <span class="num">0xFF</span>;     <span class="com">// survives</span>
+    <span class="kw">goto</span> next;
+}</pre>
+<pre class="code raw"><span class="cap">what goes wrong with one merged if</span><span class="kw">if</span> (a || b || c) {   <span class="com">// one block: r1</span>
+    map-&gt;edges = <span class="num">0xFF</span>;
+    <span class="kw">goto</span> next;
+}
+<span class="com">// the rotation is one step behind
+// from here on: r1 where the
+// original has r2, and so on</span></pre>
+    </div>
+    <div class="pex" data-pass="jump2"></div>
+    <dl class="facts">
+      <dt>Symptom</dt><dd>Asm before is identical but the reload registers after are shifted by
+        one step.</dd>
+      <dt>Fix</dt><dd>Look for a block the original had twice and write it twice.</dd>
+      <dt>Flags</dt><dd>None; it can't be turned off.</dd>
+    </dl>
+  </article>
+
+  <article class="pass post-reload" id="p-reorg">
+    <h3><span class="no">14</span>thumb_reorg <span class="src">thumb.c:352</span></h3>
+    <p>Puts constants that don't fit in an instruction into literal pools after a barrier
+      (<code>ldr r0, =0x…</code> → <code>ldr r0, [pc, #N]</code> + <code>.word</code>). Decides
+      where pools and alignment padding (<code>.short 0x0000</code>) go.</p>
+  </article>
+
+  <article class="pass post-reload" id="p-final">
+    <h3><span class="no">15</span>shorten_branches + final <span class="src">final.c</span></h3>
+    <p>Picks short or long branch forms and writes the asm. The Thumb has one peephole
+      (<code>thumb.md:619</code>): <code>mov rX, #const; add rX, sp</code> →
+      <code>add rX, sp, #const</code>.</p>
+    <dl class="facts"><dt>Flags</dt><dd><code>-fno-peephole</code></dd></dl>
+  </article>
+</section>
+
+<section id="p-seen">
+  <h2>Seen in this repo</h2>
+  <div class="tablewrap">
+  <table class="seentab">
+    <thead><tr><th>Symptom</th><th>Pass</th><th>Example</th></tr></thead>
+    <tbody>
+      <tr><td>A field read twice in the original</td><td><a href="#pass/cse">cse</a></td>
+        <td><code>volatile</code> pointer, CLAUDE.md</td></tr>
+      <tr><td>Loop shape</td><td><a href="#pass/jump">jump</a> (inversion)</td>
+        <td>gotos, <code>src/message.c</code></td></tr>
+      <tr><td>Computation moved by a dead check</td><td><a href="#pass/gcse">gcse</a> (PRE)</td>
+        <td><code>BuildReachMap</code>, <code>h1 - h0</code></td></tr>
+      <tr><td><code>y &lt;&lt; 24</code> value in a stack slot</td>
+        <td><span class="guess">guess</span> <a href="#pass/loop">loop</a></td>
+        <td><code>BuildReachMap</code>, <code>#160</code></td></tr>
+      <tr><td>Reload registers shifted by one</td><td><a href="#pass/jump2">jump2</a>
+        (cross-jumping)</td><td><code>BuildReachMap</code>, the 0xFF split</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+  </div>
+
   <footer>
-    Every listing is real output: <code>agbcc -mthumb-interwork -O2 -fhex-asm -fprologue-bugfix</code>, assembled and disassembled with <code>arm-none-eabi-objdump</code> (the same view <code>scripts/ndiff.sh</code> shows). Jump targets show as <code>→ N</code>, the line they land on. Highlighted lines are the ones the example is about.
+    Every Patterns and Instructions listing is real output: <code>agbcc -mthumb-interwork -O2 -fhex-asm -fprologue-bugfix</code>, assembled and disassembled with <code>arm-none-eabi-objdump</code> (the same view <code>scripts/ndiff.sh</code> shows). Jump targets show as <code>→ N</code>, the line they land on. Highlighted lines are the ones the example is about. The Passes sketches are hand-written; add a row to "Seen in this repo" whenever a match teaches something new.
   </footer>
 </div>
 
@@ -232,6 +617,7 @@ const DATA = [{"section": "Constants", "name": "k_small", "title": "A small cons
 const INSNS = [{"group": "Move", "id": "movs", "aliases": ["movs"], "summary": "Put a small constant in a register.", "forms": [["movs rd, #imm", "rd = imm, 0\u2013255"]], "flags": "N Z", "note": "Bigger constants come from a literal pool (<code>ldr rd, [pc, #N]</code>), or from <code>movs</code> + <code>lsls</code>/<code>negs</code>. Only r0\u2013r7.", "mn": "MOVe + Set flags", "ex": [["movs r0, #200", "", "r0 = 200 (0xC8); Z=0, N=0"]]}, {"group": "Move", "id": "mov", "aliases": ["mov"], "summary": "Copy between registers when one is r8 or higher.", "forms": [["mov rd, rs", "rd = rs; rd or rs is r8\u2013r15 (sl, fp, ip, sp, lr, pc)"]], "flags": "none", "note": "Moving a value into r8\u2013sl means a callee-saved low register ran out: agbcc parks values there (<code>mov sl, r5</code>) and brings them back with <code>mov r5, sl</code>. A copy between r0\u2013r7 shows as <code>adds rd, rs, #0</code> instead.", "mn": "MOVe", "ex": [["mov r8, r4", "r4 = 7", "r8 = 7 (r4 parked in a high register)"], ["mov r4, r8", "r8 = 7", "r4 = 7 (brought back)"]]}, {"group": "Move", "id": "mvns", "aliases": ["mvns"], "summary": "Bitwise NOT.", "forms": [["mvns rd, rs", "rd = ~rs"]], "flags": "N Z", "note": "C: <code>~x</code>.", "mn": "MoVe Not + Set flags", "ex": [["mvns r0, r1", "r1 = 0x0000000F", "r0 = 0xFFFFFFF0"]]}, {"group": "Move", "id": "negs", "aliases": ["negs"], "summary": "Negate.", "forms": [["negs rd, rs", "rd = 0 \u2212 rs"]], "flags": "N Z C V", "note": "C: <code>-x</code>, or the second half of a negative constant (<code>movs r0, #1; negs r0, r0</code> is \u22121).", "mn": "NEGate + Set flags", "ex": [["negs r0, r0", "r0 = 5", "r0 = \u22125 (0xFFFFFFFB)"], ["movs r0, #1<br>negs r0, r0", "", "r0 = \u22121 (0xFFFFFFFF)"]]}, {"group": "Arithmetic", "id": "adds", "aliases": ["adds"], "summary": "Add, setting flags.", "forms": [["adds rd, rs, rn", "rd = rs + rn"], ["adds rd, rs, #imm", "rd = rs + imm, 0\u20137"], ["adds rd, #imm", "rd = rd + imm, 0\u2013255"], ["adds rd, rs, #0", "copy rs to rd (r0\u2013r7)"]], "flags": "N Z C V", "note": "<code>adds rd, rs, #0</code> is how agbcc copies a register, e.g. right after a <code>bl</code> to keep the result: <code>adds r2, r0, #0</code>.", "mn": "ADD + Set flags", "ex": [["adds r0, r1, r2", "r1 = 10, r2 = 3", "r0 = 13"], ["adds r0, #0x40", "r0 = 0x02000000", "r0 = 0x02000040 (a field's address)"], ["adds r4, r0, #0", "r0 = 99 (a call's result)", "r4 = 99, kept past the next call"]]}, {"group": "Arithmetic", "id": "add", "aliases": ["add"], "summary": "Add without flags: high registers, sp and pc.", "forms": [["add rd, rs", "rd = rd + rs; either can be r8\u2013r15"], ["add rd, sp, #imm", "rd = address of a stack slot (imm: multiple of 4, \u22641020)"], ["add rd, pc, #imm", "rd = address near the code"], ["add sp, #imm", "free stack space (end of the function)"]], "flags": "none", "note": "<code>add rX, sp, #N</code> means C takes the address of a local (an array or struct on the stack).", "mn": "ADD", "ex": [["add r0, sp, #8", "sp = 0x03007E00", "r0 = 0x03007E08 (&amp;local)"], ["add sp, #-16", "sp = 0x03007E00", "sp = 0x03007DF0 (16 bytes for locals)"]]}, {"group": "Arithmetic", "id": "subs", "aliases": ["subs"], "summary": "Subtract, setting flags.", "forms": [["subs rd, rs, rn", "rd = rs \u2212 rn"], ["subs rd, rs, #imm", "rd = rs \u2212 imm, 0\u20137"], ["subs rd, #imm", "rd = rd \u2212 imm, 0\u2013255"]], "flags": "N Z C V", "note": "<code>subs r0, r6, #1</code> followed by a compare is often <code>x - 1 &lt;= N</code>: a range check like <code>x == 1 || x == 2</code> folded into one unsigned compare.", "mn": "SUBtract + Set flags", "ex": [["subs r0, r1, #1", "r1 = 0", "r0 = 0xFFFFFFFF (\u22121); N=1, C=0 (borrow)"], ["subs r0, #1<br>bne loop", "r0 = 3", "r0 = 2, Z=0: loops again"]]}, {"group": "Arithmetic", "id": "sub", "aliases": ["sub"], "summary": "Subtract from sp without flags.", "forms": [["sub sp, #imm", "reserve stack space (start of the function)"]], "flags": "none", "note": "The size tells how many bytes of locals and spill slots the function uses.", "mn": "SUBtract", "ex": [["sub sp, #12", "sp = 0x03007E00", "sp = 0x03007DF4"]]}, {"group": "Arithmetic", "id": "adcs", "aliases": ["adcs"], "summary": "Add with carry.", "forms": [["adcs rd, rs", "rd = rd + rs + C"]], "flags": "N Z C V", "note": "For 64-bit numbers (<code>u64</code>), which take two registers: one holds the low 32 bits, the other the high 32. <code>adds</code> adds the low halves; if that overflows, C = 1 (the \"carry the 1\" of school addition) and <code>adcs</code> adds it to the high halves.", "mn": "ADd with Carry + Set flags", "ex": [["adds r0, r2", "r0 = 0xFFFFFFFF, r2 = 1", "r0 = 0, C = 1: the sum (0x100000000) needs 33 bits; the 33rd is the carry"], ["adcs r1, r3", "r1 = 0, r3 = 0, C = 1", "r1 = 0 + 0 + 1 = 1. Together r1, r0 = 0x00000001 00000000: 0xFFFFFFFF + 1 done in 64 bits"]]}, {"group": "Arithmetic", "id": "sbcs", "aliases": ["sbcs"], "summary": "Subtract with carry.", "forms": [["sbcs rd, rs", "rd = rd \u2212 rs \u2212 not C"]], "flags": "N Z C V", "note": "The same for 64-bit subtraction: <code>subs</code> on the low halves, then <code>sbcs</code> takes 1 more from the high halves if the low ones had to borrow (C = 0).", "mn": "SuBtract with Carry + Set flags", "ex": [["subs r0, r2", "r0 = 0, r2 = 1", "r0 = 0xFFFFFFFF, C = 0: it had to borrow"], ["sbcs r1, r3", "r1 = 1, r3 = 0, C = 0", "r1 = 1 \u2212 0 \u2212 1 = 0. Together r1, r0 = 0x00000000 FFFFFFFF: 0x100000000 \u2212 1 done in 64 bits"]]}, {"group": "Arithmetic", "id": "muls", "aliases": ["muls"], "summary": "Multiply.", "forms": [["muls rd, rs", "rd = rd \u00d7 rs (low 32 bits)"]], "flags": "N Z", "note": "Only for two variables: agbcc turns multiplying by a constant into shifts and adds.", "mn": "MULtiply + Set flags", "ex": [["muls r0, r1", "r0 = 6, r1 = 7", "r0 = 42"]]}, {"group": "Logic", "id": "ands", "aliases": ["ands"], "summary": "Bitwise AND.", "forms": [["ands rd, rs", "rd = rd &amp; rs"]], "flags": "N Z", "note": "No immediate form: <code>x &amp; 2</code> needs the 2 in a register first (<code>movs r0, #2; ands r0, r1</code>). Then <code>cmp r0, #0</code> tests the bit.", "mn": "AND + Set flags", "ex": [["movs r1, #0xF<br>ands r0, r1", "r0 = 0x1234", "r0 = 0x4 (x &amp; 15)"]]}, {"group": "Logic", "id": "orrs", "aliases": ["orrs"], "summary": "Bitwise OR.", "forms": [["orrs rd, rs", "rd = rd | rs"]], "flags": "N Z", "note": "Setting flags in a field: load, <code>movs</code> the bit, <code>orrs</code>, store.", "mn": "logical OR (OR + R for Register) + Set flags", "ex": [["movs r1, #0x80<br>orrs r0, r1", "r0 = 0x05", "r0 = 0x85 (set bit 7)"]]}, {"group": "Logic", "id": "eors", "aliases": ["eors"], "summary": "Bitwise XOR.", "forms": [["eors rd, rs", "rd = rd ^ rs"]], "flags": "N Z", "note": "", "mn": "Exclusive OR + Set flags", "ex": [["eors r0, r1", "r0 = 0b1100, r1 = 0b1010", "r0 = 0b0110"]]}, {"group": "Logic", "id": "bics", "aliases": ["bics"], "summary": "Clear bits.", "forms": [["bics rd, rs", "rd = rd &amp; ~rs"]], "flags": "N Z", "note": "C: <code>x &amp;= ~MASK</code>.", "mn": "BIt Clear + Set flags", "ex": [["movs r1, #2<br>bics r0, r1", "r0 = 0b0111", "r0 = 0b0101 (clear bit 1)"]]}, {"group": "Logic", "id": "tst", "aliases": ["tst"], "summary": "Test bits without storing a result.", "forms": [["tst rn, rm", "flags of rn &amp; rm"]], "flags": "N Z", "note": "agbcc rarely emits it; it usually does <code>ands</code> + <code>cmp #0</code>.", "mn": "TeST", "ex": [["movs r1, #2<br>tst r0, r1<br>beq skip", "r0 = 0b0101", "r0 &amp; 2 = 0 \u2192 Z=1 \u2192 jumps (bit was clear)"]]}, {"group": "Shift", "id": "lsls", "aliases": ["lsls"], "summary": "Shift left.", "forms": [["lsls rd, rs, #imm", "rd = rs &lt;&lt; imm, 0\u201331"], ["lsls rd, rs", "rd = rd &lt;&lt; rs"]], "flags": "N Z C", "note": "Multiplying by a power of 2, indexing arrays (<code>lsls #2</code>: \u00d74 for a u32 array), and the first half of a truncation (<code>lsls #24</code>).", "mn": "Logical Shift Left + Set flags", "ex": [["lsls r0, r0, #2", "r0 = 5", "r0 = 20 (\u00d74, e.g. index \u2192 word offset)"], ["lsls r0, r0, #24", "r0 = 0x000001FE", "r0 = 0xFE000000 (keeps the low byte, on top)"]]}, {"group": "Shift", "id": "lsrs", "aliases": ["lsrs"], "summary": "Logical shift right (fills with 0).", "forms": [["lsrs rd, rs, #imm", "rd = rs &gt;&gt; imm, 1\u201332"], ["lsrs rd, rs", "rd = rd &gt;&gt; rs"]], "flags": "N Z C", "note": "After <code>lsls #24</code>: the value is a u8; after <code>lsls #16</code>: a u16. Also unsigned division by a power of 2.", "mn": "Logical Shift Right + Set flags", "ex": [["lsrs r0, r0, #24", "r0 = 0xFE000000", "r0 = 0xFE (254): u8 result"], ["lsrs r0, r0, #3", "r0 = 40", "r0 = 5 (\u00f78, unsigned)"]]}, {"group": "Shift", "id": "asrs", "aliases": ["asrs"], "summary": "Arithmetic shift right (keeps the sign).", "forms": [["asrs rd, rs, #imm", "rd = rs &gt;&gt; imm, 1\u201332"], ["asrs rd, rs", "rd = rd &gt;&gt; rs"]], "flags": "N Z C", "note": "After <code>lsls #24</code>: an s8; after <code>lsls #16</code>: an s16. Also signed division by a power of 2 (with a fix-up for negatives).", "mn": "Arithmetic Shift Right + Set flags", "ex": [["asrs r0, r0, #24", "r0 = 0xFE000000", "r0 = 0xFFFFFFFE (\u22122): s8 result"], ["asrs r0, r0, #1", "r0 = \u22127", "r0 = \u22124 (rounds down, not toward 0)"]]}, {"group": "Shift", "id": "rors", "aliases": ["rors"], "summary": "Rotate right.", "forms": [["rors rd, rs", "rd = rd rotated right by rs"]], "flags": "N Z C", "note": "", "mn": "ROtate Right + Set flags", "ex": [["rors r0, r1", "r0 = 0x00000001, r1 = 1", "r0 = 0x80000000"]]}, {"group": "Compare", "id": "cmp", "aliases": ["cmp"], "summary": "Compare: subtract and keep only the flags.", "forms": [["cmp rn, #imm", "flags of rn \u2212 imm, 0\u2013255"], ["cmp rn, rm", "flags of rn \u2212 rm (any registers)"]], "flags": "N Z C V", "note": "Always followed by a conditional branch; the branch tells whether the compare is signed (<code>bgt</code>, <code>blt</code>\u2026) or unsigned (<code>bhi</code>, <code>bcc</code>\u2026).", "mn": "CoMPare", "ex": [["cmp r0, #10<br>bgt big", "r0 = 12", "12 \u2212 10 = 2 \u2192 N=0, Z=0, V=0 \u2192 jumps"], ["cmp r0, r1<br>bcc less", "r0 = 1, r1 = 0xFFFFFFFF", "unsigned 1 &lt; 4294967295 \u2192 C=0 \u2192 jumps"]]}, {"group": "Compare", "id": "cmn", "aliases": ["cmn"], "summary": "Compare with the negative.", "forms": [["cmn rn, rm", "flags of rn + rm"]], "flags": "N Z C V", "note": "Comparing against a negative constant without negating it first.", "mn": "CoMpare Negative", "ex": [["cmn r0, r1", "r0 = 5, r1 = \u22125", "5 + (\u22125) = 0 \u2192 Z=1 (like cmp r0, #\u22125)"]]}, {"group": "Load and store", "id": "ldr", "aliases": ["ldr"], "summary": "Load 32 bits.", "forms": [["ldr rd, [rb, #imm]", "word at rb + imm (multiple of 4, \u2264124)"], ["ldr rd, [rb, ro]", "word at rb + ro"], ["ldr rd, [sp, #imm]", "a local or a spilled variable (\u22641020)"], ["ldr rd, [pc, #imm]", "a constant or address from the literal pool"]], "flags": "", "note": "<code>[sp, #N]</code> loads of the same N over and over are a variable that didn't fit in a register (spilled). <code>[pc, #N]</code> loads a <code>.word</code> after the function: a big constant or the address of a global.", "mn": "LoaD Register", "ex": [["ldr r0, [r1, #4]", "r1 = 0x02000100, word at 0x02000104 = 0x1234", "r0 = 0x1234 (s-&gt;field at +4)"], ["ldr r0, [pc, #8]<br>\u2026<br>.word 0x0203A000", "", "r0 = 0x0203A000 (a constant from the pool)"], ["ldr r0, [sp, #4]", "sp = 0x03007DF0", "r0 = the local at 0x03007DF4"]]}, {"group": "Load and store", "id": "ldrb", "aliases": ["ldrb"], "summary": "Load a byte, zero-extended.", "forms": [["ldrb rd, [rb, #imm]", "byte at rb + imm, 0\u201331"], ["ldrb rd, [rb, ro]", "byte at rb + ro"]], "flags": "", "note": "A u8 field or array element. The offset tells the field's position in the struct.", "mn": "LoaD Register Byte", "ex": [["ldrb r0, [r1, #3]", "byte at r1+3 = 0xFE", "r0 = 0x000000FE (254)"]]}, {"group": "Load and store", "id": "ldrh", "aliases": ["ldrh"], "summary": "Load a halfword, zero-extended.", "forms": [["ldrh rd, [rb, #imm]", "halfword at rb + imm (even, 0\u201362)"], ["ldrh rd, [rb, ro]", "at rb + ro"]], "flags": "", "note": "A u16 field.", "mn": "LoaD Register Halfword", "ex": [["ldrh r0, [r1, #2]", "halfword at r1+2 = 0xFFFE", "r0 = 0x0000FFFE (65534)"]]}, {"group": "Load and store", "id": "ldrsb", "aliases": ["ldrsb"], "summary": "Load a byte, sign-extended.", "forms": [["ldrsb rd, [rb, ro]", "byte at rb + ro; register offset only"]], "flags": "", "note": "There is no immediate form, so reading an s8 field needs the offset in a register first (<code>movs r1, #3; ldrsb r0, [r2, r1]</code>). Often agbcc does <code>ldrb</code> + <code>lsls #24</code> + <code>asrs #24</code> instead.", "mn": "LoaD Register Signed Byte", "ex": [["movs r0, #3<br>ldrsb r0, [r1, r0]", "byte at r1+3 = 0xFE", "r0 = 0xFFFFFFFE (\u22122)"]]}, {"group": "Load and store", "id": "ldrsh", "aliases": ["ldrsh"], "summary": "Load a halfword, sign-extended.", "forms": [["ldrsh rd, [rb, ro]", "halfword at rb + ro; register offset only"]], "flags": "", "note": "Same as <code>ldrsb</code>: an s16 with a constant offset needs <code>movs</code> first.", "mn": "LoaD Register Signed Halfword", "ex": [["movs r2, #2<br>ldrsh r0, [r1, r2]", "halfword at r1+2 = 0xFFFE", "r0 = 0xFFFFFFFE (\u22122)"]]}, {"group": "Load and store", "id": "str", "aliases": ["str"], "summary": "Store 32 bits.", "forms": [["str rd, [rb, #imm]", "word at rb + imm (multiple of 4, \u2264124)"], ["str rd, [rb, ro]", "at rb + ro"], ["str rd, [sp, #imm]", "a local or a spilled variable"]], "flags": "", "note": "A <code>str [sp, #N]</code> right before a call keeps a value the call would destroy; one at the start of the function spills an argument.", "mn": "STore Register", "ex": [["str r0, [r1, #8]", "r0 = 7, r1 = 0x02000100", "word at 0x02000108 = 7 (s-&gt;field = 7)"]]}, {"group": "Load and store", "id": "strb", "aliases": ["strb"], "summary": "Store a byte.", "forms": [["strb rd, [rb, #imm]", "byte at rb + imm, 0\u201331"], ["strb rd, [rb, ro]", "at rb + ro"]], "flags": "", "note": "Assigning a u8/s8 field.", "mn": "STore Register Byte", "ex": [["strb r0, [r1]", "r0 = 0x1234", "byte at r1 = 0x34 (only the low 8 bits)"]]}, {"group": "Load and store", "id": "strh", "aliases": ["strh"], "summary": "Store a halfword.", "forms": [["strh rd, [rb, #imm]", "at rb + imm (even, 0\u201362)"], ["strh rd, [rb, ro]", "at rb + ro"]], "flags": "", "note": "Assigning a u16/s16 field.", "mn": "STore Register Halfword", "ex": [["strh r0, [r1, #2]", "r0 = 0x12345678", "halfword at r1+2 = 0x5678"]]}, {"group": "Load and store", "id": "ldmia", "aliases": ["ldmia"], "summary": "Load several registers and advance the pointer.", "forms": [["ldmia rb!, {r0, r1, \u2026}", "load consecutive words from rb; rb += 4 \u00d7 count"]], "flags": "", "note": "Paired with <code>stmia</code>: a struct copy (<code>a = b</code> for structs).", "mn": "LoaD Multiple, Increment After", "ex": [["ldmia r1!, {r2, r3}", "r1 = 0x02000100", "r2 = word at 0x100, r3 = word at 0x104, r1 = 0x02000108"]]}, {"group": "Load and store", "id": "stmia", "aliases": ["stmia"], "summary": "Store several registers and advance the pointer.", "forms": [["stmia rb!, {r0, r1, \u2026}", "store consecutive words at rb; rb += 4 \u00d7 count"]], "flags": "", "note": "Struct copies, and zeroing several words in a row.", "mn": "STore Multiple, Increment After", "ex": [["stmia r0!, {r2, r3}", "r0 = 0x02000100, r2 = 1, r3 = 2", "words 1, 2 at 0x100, 0x104; r0 = 0x02000108 (struct copy)"]]}, {"group": "Stack", "id": "push", "aliases": ["push"], "summary": "Save registers on the stack.", "forms": [["push {r4, r5, \u2026, lr}", "store the registers; sp \u2212= 4 \u00d7 count"]], "flags": "", "note": "At the start of a function: the callee-saved registers it uses (r4\u2013r7) plus <code>lr</code> if it calls anything. Saving r8\u2013sl takes <code>mov</code> to a low register and another <code>push</code>.", "mn": "PUSH onto the stack", "ex": [["push {r4, r5, lr}", "sp = 0x03007E00", "sp = 0x03007DF4; r4, r5, lr saved there"]]}, {"group": "Stack", "id": "pop", "aliases": ["pop"], "summary": "Restore registers from the stack.", "forms": [["pop {r4, r5, \u2026}", "load the registers; sp += 4 \u00d7 count"], ["pop {r0}", "get the saved lr"]], "flags": "", "note": "agbcc returns with <code>pop {r0}; bx r0</code> (interworking), not <code>pop {pc}</code>.", "mn": "POP off the stack", "ex": [["pop {r4, r5}<br>pop {r0}<br>bx r0", "sp = 0x03007DF4", "r4, r5 restored; r0 = saved lr; return"]]}, {"group": "Branch", "id": "b", "aliases": ["b"], "summary": "Jump.", "forms": [["b label", "always jump (\u00b12 KB)"]], "flags": "", "note": "Loops jump back with it; an <code>else</code> or a <code>break</code> jumps over code with it.", "mn": "Branch", "ex": [["b .L5", "", "always continues at .L5"]]}, {"group": "Branch", "id": "bcond", "aliases": ["beq", "bne", "bhi", "bcs", "bcc", "bls", "bgt", "bge", "blt", "ble", "bmi", "bpl", "bvs", "bvc", "bhs", "blo"], "summary": "Jump if a condition holds.", "forms": [["beq label", "equal (Z=1)"], ["bne label", "not equal (Z=0)"], ["bhi label", "unsigned &gt; (C=1 and Z=0)"], ["bcs label", "unsigned &ge; (also <code>bhs</code>) (C=1)"], ["bcc label", "unsigned &lt; (also <code>blo</code>) (C=0)"], ["bls label", "unsigned &le; (C=0 or Z=1)"], ["bgt label", "signed &gt; (Z=0 and N=V)"], ["bge label", "signed &ge; (N=V)"], ["blt label", "signed &lt; (N&ne;V)"], ["ble label", "signed &le; (Z=1 or N&ne;V)"], ["bmi label", "negative (N=1)"], ["bpl label", "positive or zero (N=0)"], ["bvs label", "overflow (V=1)"], ["bvc label", "no overflow (V=0)"]], "flags": "", "note": "Range \u00b1256 bytes; farther targets get the inverted branch over a <code>b</code>. An <code>if (x == 3) {\u2026}</code> usually comes out as <code>cmp x, #3; bne</code> past the body: the condition is inverted.", "mn": "Branch + a condition (eq, ne, gt\u2026)", "ex": [["cmp r0, #0<br>beq .L3", "r0 = 0", "Z=1 \u2192 jumps to .L3"], ["cmp r0, #5<br>bls .L4", "r0 = 0xFFFFFFFF", "unsigned huge &gt; 5 \u2192 no jump (a switch's range check)"]]}, {"group": "Branch", "id": "bl", "aliases": ["bl"], "summary": "Call a function.", "forms": [["bl func", "lr = return address; jump to func (\u00b14 MB)"]], "flags": "", "note": "Arguments go in r0\u2013r3 (more on the stack), the result comes back in r0. r0\u2013r3 and ip are destroyed by the call; r4\u2013r7 and r8\u2013sl survive. A call through a pointer is <code>bl _call_via_rN</code>.", "mn": "Branch with Link", "ex": [["bl sub_08012345", "pc = 0x08000100", "lr = 0x08000105 (return address, +1 = Thumb); runs sub_08012345"]]}, {"group": "Branch", "id": "bx", "aliases": ["bx"], "summary": "Jump to an address in a register.", "forms": [["bx rm", "jump to rm; bit 0 picks Thumb (1) or ARM (0)"]], "flags": "", "note": "<code>bx r0</code> after <code>pop {r0}</code> is a return; <code>bx lr</code> returns from a leaf function.", "mn": "Branch and eXchange (instruction set)", "ex": [["bx lr", "lr = 0x08000105", "returns to 0x08000104 in Thumb (bit 0 = 1)"], ["ldr r1, [pc, #4]<br>bx r1", "r1 = a function pointer", "calls through the pointer (no return address set)"]]}, {"group": "Branch", "id": "swi", "aliases": ["swi"], "summary": "Call the BIOS.", "forms": [["swi #n", "BIOS function n (e.g. 6 = Div, 0xB = CpuSet)"]], "flags": "", "note": "Not emitted by agbcc for C operators; it comes from inline asm or libraries.", "mn": "SoftWare Interrupt", "ex": [["movs r0, #100<br>movs r1, #7<br>swi #6", "", "BIOS Div: r0 = 14, r1 = 2 (remainder)"]]}, {"group": "Data", "id": ".word", "aliases": [".word"], "summary": "A 32-bit value in the code.", "forms": [[".word value", "literal pool entry, read by ldr [pc, #N]"], [".word label", "an address: a global, a function, or a switch jump-table entry"]], "flags": "", "note": "After the function's last instruction (or after a <code>b</code>). A run of <code>.word</code>s pointing inside the function is a <code>switch</code> jump table.", "mn": "a WORD: 32 bits", "ex": [[".word 0x0203A000", "", "4 bytes of data after the function, read by <code>ldr rd, [pc, #N]</code>"]]}, {"group": "Data", "id": ".short", "aliases": [".short"], "summary": "16 bits of padding.", "forms": [[".short 0", "align the literal pool to 4 bytes"]], "flags": "", "note": "Its presence depends only on whether the code before it has an odd number of halfwords: a <code>.short</code> that only one side has means the code above differs in length by one instruction.", "mn": "a SHORT: 16 bits", "ex": [[".short 0", "", "2 bytes so the following <code>.word</code>s start at a multiple of 4"]]}, {"group": "Data", "id": "nop", "aliases": ["nop"], "summary": "Do nothing.", "forms": [["nop", "mov r8, r8"]], "flags": "", "note": "Padding.", "mn": "No OPeration", "ex": [["nop", "", "nothing; fills 2 bytes"]]}];
 const CONDS = [{"c": "eq", "mn": "EQual", "meaning": "equal", "flags": "Z=1"}, {"c": "ne", "mn": "Not Equal", "meaning": "not equal", "flags": "Z=0"}, {"c": "hi", "mn": "HIgher", "meaning": "unsigned &gt;", "flags": "C=1 and Z=0"}, {"c": "cs", "mn": "Carry Set", "meaning": "unsigned &ge; (also <code>bhs</code>)", "flags": "C=1"}, {"c": "cc", "mn": "Carry Clear", "meaning": "unsigned &lt; (also <code>blo</code>)", "flags": "C=0"}, {"c": "ls", "mn": "Lower or Same", "meaning": "unsigned &le;", "flags": "C=0 or Z=1"}, {"c": "gt", "mn": "Greater Than", "meaning": "signed &gt;", "flags": "Z=0 and N=V"}, {"c": "ge", "mn": "Greater or Equal", "meaning": "signed &ge;", "flags": "N=V"}, {"c": "lt", "mn": "Less Than", "meaning": "signed &lt;", "flags": "N&ne;V"}, {"c": "le", "mn": "Less or Equal", "meaning": "signed &le;", "flags": "Z=1 or N&ne;V"}, {"c": "mi", "mn": "MInus", "meaning": "negative", "flags": "N=1"}, {"c": "pl", "mn": "PLus", "meaning": "positive or zero", "flags": "N=0"}, {"c": "vs", "mn": "oVerflow Set", "meaning": "overflow", "flags": "V=1"}, {"c": "vc", "mn": "oVerflow Clear", "meaning": "no overflow", "flags": "V=0"}];
 const PIECES = [["\u2026s", "Set flags: the result also updates N Z C V, for a later branch", "adds, subs, movs, lsls"], ["ld\u2026 / st\u2026", "LoaD (memory \u2192 register) / STore (register \u2192 memory)", "ldr, str"], ["\u2026r", "Register: a whole 32-bit word", "ldr, str"], ["\u2026b / \u2026h", "Byte (8 bits) / Halfword (16 bits)", "ldrb, strh"], ["\u2026s b / \u2026s h", "Signed: the loaded value keeps its sign", "ldrsb, ldrsh"], ["\u2026m ia", "Multiple registers, Increment After each one", "ldmia, stmia"], ["b\u2026", "Branch; with a condition, only if it holds", "b, beq, bhi"], ["\u2026l", "Link: save the return address in lr (a call)", "bl"], ["\u2026x", "eXchange: may switch between Thumb and ARM", "bx"]];
+const PASSES_EX = [{"pid": "expand", "name": "px_switch", "fn": "f", "title": "switch: 4 cases vs 5", "note": "With 4 cases it is a tree of compares; the 5th case reaches the threshold and it becomes a jump table (<code>mov pc, r0</code> and one <code>.word</code> per case).", "a": {"label": "C \u00b7 4 cases", "c": "extern void g(s32);\nvoid f(s32 x)\n{\n    switch (x) {\n    case 0: g(10); break;\n    case 1: g(20); break;\n    case 2: g(30); break;\n    case 3: g(40); break;\n    }\n}", "flags": [], "asm": ["push {lr}", "cmp r0, #1", "beq.n \u2192 17", "cmp r0, #1", "bgt.n \u2192 9", "cmp r0, #0", "beq.n \u2192 14", "b.n \u2192 25", "cmp r0, #2", "beq.n \u2192 20", "cmp r0, #3", "beq.n \u2192 23", "b.n \u2192 25", "movs r0, #10", "bl g", "b.n \u2192 25", "movs r0, #20", "bl g", "b.n \u2192 25", "movs r0, #30", "bl g", "b.n \u2192 25", "movs r0, #40", "bl g", "pop {r0}", "bx r0"], "key": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}, "b": {"label": "C \u00b7 5 cases", "c": "extern void g(s32);\nvoid f(s32 x)\n{\n    switch (x) {\n    case 0: g(10); break;\n    case 1: g(20); break;\n    case 2: g(30); break;\n    case 3: g(40); break;\n    case 4: g(50); break;\n    }\n}", "flags": [], "asm": ["push {lr}", "cmp r0, #4", "bhi.n \u2192 29", "lsls r0, r0, #2", "ldr r1, [pc, #4]", "adds r0, r0, r1", "ldr r0, [r0, #0]", "mov pc, r0", ".word 0x00000014   ; = &.text", ".word 0x00000028   ; = &.text", ".word 0x00000030   ; = &.text", ".word 0x00000038   ; = &.text", ".word 0x00000040   ; = &.text", ".word 0x00000048   ; = &.text", "movs r0, #10", "bl g", "b.n \u2192 29", "movs r0, #20", "bl g", "b.n \u2192 29", "movs r0, #30", "bl g", "b.n \u2192 29", "movs r0, #40", "bl g", "b.n \u2192 29", "movs r0, #50", "bl g", "pop {r0}", "bx r0"], "key": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 25, 26, 27]}, "regs": false, "key": null}, {"pid": "jump", "name": "px_invert", "fn": "f", "title": "while vs goto loop", "note": "The <code>while</code> is inverted: the test runs once before entering (<code>cmp</code>, <code>bge</code>) and again at the bottom (<code>blt</code>). The goto loop keeps one test and jumps back to it (<code>b.n \u2192 4</code>).", "a": {"label": "C \u00b7 while", "c": "extern s32 g(s32);\nvoid f(s32 n)\n{\n    s32 i = 0;\n    while (i < n)\n        i += g(i);\n}", "flags": [], "asm": ["push {r4, r5, lr}", "adds r5, r0, #0", "movs r4, #0", "cmp r4, r5", "bge.n \u2192 11", "adds r0, r4, #0", "bl g", "adds r4, r4, r0", "cmp r4, r5", "blt.n \u2192 6", "pop {r4, r5}", "pop {r0}", "bx r0"], "key": [8, 9]}, "b": {"label": "C \u00b7 goto", "c": "extern s32 g(s32);\nvoid f(s32 n)\n{\n    s32 i = 0;\nloop:\n    if (i >= n)\n        return;\n    i += g(i);\n    goto loop;\n}", "flags": [], "asm": ["push {r4, r5, lr}", "adds r5, r0, #0", "movs r4, #0", "cmp r4, r5", "bge.n \u2192 10", "adds r0, r4, #0", "bl g", "adds r4, r4, r0", "b.n \u2192 4", "pop {r4, r5}", "pop {r0}", "bx r0"], "key": [8]}, "regs": false, "key": null}, {"pid": "cse", "name": "px_cse", "fn": "f", "title": "A field read twice", "note": "cse loads <code>p-&gt;a</code> once and even folds <code>a + a * 3</code> into <code>a &lt;&lt; 2</code>. <code>volatile</code> forces both loads, and the math stays as written.", "a": {"label": "C", "c": "struct S { u8 a, b; };\nu32 f(struct S *p)\n{\n    return p->a + p->a * 3;\n}", "flags": [], "asm": ["ldrb r0, [r0, #0]", "lsls r0, r0, #2", "bx lr"], "key": [1]}, "b": {"label": "C \u00b7 volatile", "c": "struct S { u8 a, b; };\nu32 f(volatile struct S *p)\n{\n    return p->a + p->a * 3;\n}", "flags": [], "asm": ["adds r1, r0, #0", "ldrb r0, [r1, #0]", "ldrb r2, [r1, #0]", "lsls r1, r2, #1", "adds r1, r1, r2", "adds r0, r0, r1", "bx lr"], "key": [0, 2, 3, 4, 5]}, "regs": false, "key": null}, {"pid": "gcse", "name": "px_pre", "fn": "f", "title": "PRE: the second p[1] load", "note": "With gcse, the <code>if</code> arm keeps <code>p[1]</code> in <code>r2</code> and the <code>else</code> arm gets its own load (line 10), so the load after the store is gone. Without it, <code>p[1]</code> is loaded again after <code>p[0] = 1</code>.", "a": {"label": "-O2", "c": "s32 f(s32 *p, s32 c)\n{\n    s32 r;\n    if (c)\n        r = p[1] * 3;\n    else\n        r = 7;\n    p[0] = 1;\n    return r + p[1] * 3;\n}", "flags": [], "asm": ["adds r3, r0, #0", "cmp r1, #0", "beq.n \u2192 9", "ldr r0, [r3, #4]", "lsls r1, r0, #1", "adds r1, r1, r0", "adds r2, r0, #0", "b.n \u2192 11", "movs r1, #7", "ldr r2, [r3, #4]", "movs r0, #1", "str r0, [r3, #0]", "lsls r0, r2, #1", "adds r0, r0, r2", "adds r0, r1, r0", "bx lr"], "key": [6, 9]}, "b": {"label": "-fno-gcse", "c": "s32 f(s32 *p, s32 c)\n{\n    s32 r;\n    if (c)\n        r = p[1] * 3;\n    else\n        r = 7;\n    p[0] = 1;\n    return r + p[1] * 3;\n}", "flags": ["-fno-gcse"], "asm": ["adds r2, r0, #0", "cmp r1, #0", "beq.n \u2192 8", "ldr r1, [r2, #4]", "lsls r0, r1, #1", "adds r3, r0, r1", "b.n \u2192 9", "movs r3, #7", "movs r0, #1", "str r0, [r2, #0]", "ldr r1, [r2, #4]", "lsls r0, r1, #1", "adds r0, r0, r1", "adds r0, r3, r0", "bx lr"], "key": [10]}, "regs": false, "key": null}, {"pid": "loop", "name": "px_sr", "fn": "f", "title": "Strength reduction: e[i]", "note": "With it, <code>e[i]</code> becomes a pointer that grows by 12 (<code>adds r0, #12</code>) and <code>i</code> turns into a counter going down to 0. Without it, each round computes <code>i * 12</code> with shifts and adds.", "a": {"label": "-O2", "c": "struct E { u32 a, b, c; };\nvoid f(struct E *e, s32 n)\n{\n    s32 i;\n    for (i = 0; i < n; i++)\n        e[i].b = 0;\n}", "flags": [], "asm": ["cmp r1, #0", "ble.n \u2192 9", "movs r2, #0", "str r2, [r0, #4]", "adds r0, #12", "subs r1, #1", "cmp r1, #0", "bne.n \u2192 4", "bx lr"], "key": [0, 1, 4, 5, 6, 7, 8]}, "b": {"label": "-fno-strength-reduce", "c": "struct E { u32 a, b, c; };\nvoid f(struct E *e, s32 n)\n{\n    s32 i;\n    for (i = 0; i < n; i++)\n        e[i].b = 0;\n}", "flags": ["-fno-strength-reduce"], "asm": ["push {r4, lr}", "adds r3, r0, #0", "movs r2, #0", "cmp r2, r1", "bge.n \u2192 15", "movs r4, #0", "lsls r0, r2, #1", "adds r0, r0, r2", "lsls r0, r0, #2", "adds r0, r0, r3", "str r4, [r0, #4]", "adds r2, #1", "cmp r2, r1", "blt.n \u2192 7", "pop {r4}", "pop {r0}", "bx r0"], "key": [0, 1, 3, 4, 5, 6, 7, 8, 9, 11, 12, 13, 14, 15, 16]}, "regs": false, "key": null}, {"pid": "alloc", "name": "px_prio", "fn": "f", "title": "An extra use moves b to r4", "note": "Same values, but <code>b</code> gets two more uses. Its priority goes up, so it takes <code>r4</code> first and <code>a</code> drops to <code>r5</code>.", "a": {"label": "C", "c": "extern s32 g(s32);\ns32 f(s32 x, s32 y)\n{\n    s32 a, b;\n    a = g(x);\n    b = g(y);\n    g(0);\n    return a + b;\n}", "flags": [], "asm": ["push {r4, r5, lr}", "adds r5, r1, #0", "bl g", "adds r4, r0, #0", "adds r0, r5, #0", "bl g", "adds r5, r0, #0", "movs r0, #0", "bl g", "adds r4, r4, r5", "adds r0, r4, #0", "pop {r4, r5}", "pop {r1}", "bx r1"], "key": [1, 4, 5, 6, 9, 10]}, "b": {"label": "C \u00b7 b used more", "c": "extern s32 g(s32);\ns32 f(s32 x, s32 y)\n{\n    s32 a, b;\n    a = g(x);\n    b = g(y);\n    g(0);\n    if (b == 7)\n        b = 9;\n    return a + b;\n}", "flags": [], "asm": ["push {r4, r5, lr}", "adds r4, r1, #0", "bl g", "adds r5, r0, #0", "adds r0, r4, #0", "bl g", "adds r4, r0, #0", "movs r0, #0", "bl g", "cmp r4, #7", "bne.n \u2192 13", "movs r4, #9", "adds r0, r5, r4", "pop {r4, r5}", "pop {r1}", "bx r1"], "key": [1, 2, 3, 4, 9, 10, 11, 12]}, "regs": true, "key": null}, {"pid": "jump2", "name": "px_cross", "fn": "f", "title": "Two identical blocks, one in the asm", "note": "Left: the C has <code>m-&gt;e = 0xFF; return;</code> twice, the asm once. The first <code>if</code> jumps into the second copy (<code>bne.n \u2192 14</code>). Right: with the blocks different (<code>0xFE</code>), both stay.", "a": {"label": "C \u00b7 same blocks", "c": "struct M { u8 e; };\nextern s32 g(s32);\nvoid f(struct M *m, s32 a, s32 b)\n{\n    if (a & 0x80) {\n        m->e = 0xFF;\n        return;\n    }\n    g(a);\n    if (b & 0x20) {\n        m->e = 0xFF;\n        return;\n    }\n    g(b);\n}", "flags": [], "asm": ["push {r4, r5, lr}", "adds r5, r0, #0", "adds r4, r2, #0", "movs r0, #128", "ands r0, r1", "cmp r0, #0", "bne.n \u2192 14", "adds r0, r1, #0", "bl g", "movs r0, #32", "ands r0, r4", "cmp r0, #0", "beq.n \u2192 17", "movs r0, #255", "strb r0, [r5, #0]", "b.n \u2192 19", "adds r0, r4, #0", "bl g", "pop {r4, r5}", "pop {r0}", "bx r0"], "key": [6, 13, 14]}, "b": {"label": "C \u00b7 different blocks", "c": "struct M { u8 e; };\nextern s32 g(s32);\nvoid f(struct M *m, s32 a, s32 b)\n{\n    if (a & 0x80) {\n        m->e = 0xFF;\n        return;\n    }\n    g(a);\n    if (b & 0x20) {\n        m->e = 0xFE;\n        return;\n    }\n    g(b);\n}", "flags": [], "asm": ["push {r4, r5, lr}", "adds r5, r0, #0", "adds r4, r2, #0", "movs r0, #128", "ands r0, r1", "cmp r0, #0", "beq.n \u2192 11", "movs r0, #255", "strb r0, [r5, #0]", "b.n \u2192 22", "adds r0, r1, #0", "bl g", "movs r0, #32", "ands r0, r4", "cmp r0, #0", "beq.n \u2192 20", "movs r0, #254", "strb r0, [r5, #0]", "b.n \u2192 22", "adds r0, r4, #0", "bl g", "pop {r4, r5}", "pop {r0}", "bx r0"], "key": [7, 8, 16, 17]}, "regs": false, "key": [[7, 14, 15], [8, 9, 17, 18]]}];
 
 const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 const mnOf = l => l.split(/\s/)[0].replace(/\.n$/, '');
@@ -310,12 +696,17 @@ function save() { try { localStorage.setItem('atlas', JSON.stringify({ q: q.valu
 try { q.value = JSON.parse(localStorage.getItem('atlas') || '{}').q || ''; } catch (e) {}
 
 // Hash routes: '' patterns, #mn/X patterns using X, #ex/NAME one example, #ins the reference,
-// #ins/ID one instruction. Old links (#negs) still filter.
+// #ins/ID one instruction, #passes the agbcc passes, #pass/ID one pass. Old links (#negs) still
+// filter.
 function route() {
   const h = decodeURIComponent(location.hash.slice(1));
   let target = null;
   active = null;
   if (h === 'calls') { view = 'i'; target = 'calls'; }
+  else if (h === 'passes' || h.startsWith('pass/')) {
+    view = 'x';
+    if (h.startsWith('pass/')) target = 'p-' + h.slice(5);
+  }
   else if (h === 'ins' || h.startsWith('ins/')) {
     view = 'i';
     if (h.startsWith('ins/')) target = 'i-' + h.slice(4);
@@ -327,8 +718,10 @@ function route() {
   }
   document.getElementById('view-p').hidden = view !== 'p';
   document.getElementById('view-i').hidden = view !== 'i';
+  document.getElementById('view-x').hidden = view !== 'x';
   document.getElementById('tab-p').setAttribute('aria-current', view === 'p' ? 'page' : 'false');
   document.getElementById('tab-i').setAttribute('aria-current', view === 'i' ? 'page' : 'false');
+  document.getElementById('tab-x').setAttribute('aria-current', view === 'x' ? 'page' : 'false');
   render();
   // The hash isn't the element's id, so :target never applies; mark it by hand.
   const el = target && document.getElementById(target);
@@ -352,7 +745,29 @@ window.addEventListener('hashchange', route);
 
 const matches = (text, term) => !term || text.toLowerCase().includes(term);
 
-function render() { view === 'p' ? renderP() : renderI(); }
+function render() { view === 'p' ? renderP() : view === 'i' ? renderI() : renderX(); }
+
+// Pass examples: the same f built two ways; lines that differ are highlighted.
+PASSES_EX.forEach(p => {
+  const box = document.querySelector('.pex[data-pass="' + p.pid + '"]');
+  if (!box) return;
+  const side = x => block('asm · ' + esc(x.label.replace(/^C · /, '')), x.asm.map(hlA), i => x.key.includes(i));
+  const sameC = p.a.c === p.b.c;
+  box.insertAdjacentHTML('beforeend', '<div class="pexi" id="' + p.name + '"><h4>' + esc(p.title) +
+    '</h4><p class="note">' + p.note + '</p>' +
+    (sameC ? block('C', hlC(p.a.c), null) + '<div class="pair">' + side(p.a) + side(p.b) + '</div>'
+           : '<div class="pair"><div>' + block(esc(p.a.label), hlC(p.a.c), null) + side(p.a) +
+             '</div><div>' + block(esc(p.b.label), hlC(p.b.c), null) + side(p.b) + '</div></div>') +
+    '</div>');
+});
+
+const PASSES = [...document.querySelectorAll('#view-x .pass')];
+function renderX() {
+  const term = q.value.trim().toLowerCase();
+  let n = 0;
+  PASSES.forEach(p => { p.hidden = !matches(p.textContent, term); n += !p.hidden; });
+  document.getElementById('count').textContent = n + ' of ' + PASSES.length + ' passes';
+}
 
 function renderP() {
   const term = q.value.trim().toLowerCase();
