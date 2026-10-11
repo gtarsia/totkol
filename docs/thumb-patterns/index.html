@@ -53,25 +53,36 @@ body {
   padding-inline: 16px; padding-block: 0 64px;
 }
 .wrap { max-width: 1120px; margin: 0 auto; }
-header { padding-block: 40px 20px; display: grid; gap: 10px; }
+header { padding-block: 20px 12px; display: grid; gap: 6px; }
 .eyebrow { font: 600 12px/1 var(--cond); letter-spacing: .14em; text-transform: uppercase; color: var(--accent); }
-h1 { font: 700 clamp(30px, 5vw, 46px)/1.05 var(--cond); margin: 0; text-wrap: balance; letter-spacing: -.01em; }
+h1 { font: 700 clamp(24px, 4vw, 34px)/1.05 var(--cond); margin: 0; text-wrap: balance; letter-spacing: -.01em; }
 .lede { max-width: 68ch; color: var(--muted); margin: 0; }
 .lede code, .note code, .tips code { font-family: var(--mono); font-size: .9em; background: var(--accent-soft); padding: 0 4px; border-radius: 3px; color: var(--ink); }
 
 .bar {
   position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg);
-  border-bottom: 1px solid var(--rule); padding-block: 12px; display: grid; gap: 10px;
+  border-bottom: 1px solid var(--rule); padding-block: 8px; display: flex; gap: 10px;
+  align-items: center; flex-wrap: wrap;
 }
-.search { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.tabs { display: flex; gap: 2px; background: var(--rule); padding: 2px; border-radius: 7px; }
+.tab {
+  font: 600 14px var(--cond); letter-spacing: .02em; border: 0; border-radius: 5px; padding: 7px 12px;
+  background: none; color: var(--muted); cursor: pointer; text-decoration: none;
+}
+.tab[aria-current="page"] { background: var(--surface); color: var(--ink); }
+.tab:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.search { display: flex; gap: 10px; align-items: center; flex: 1 1 320px; min-width: 0; }
 .search input {
-  flex: 1 1 260px; min-width: 0; font: 15px var(--sans); color: var(--ink); background: var(--surface);
-  border: 1px solid var(--rule); border-radius: 6px; padding: 9px 12px;
+  flex: 1 1 auto; min-width: 0; font: 15px var(--sans); color: var(--ink); background: var(--surface);
+  border: 1px solid var(--rule); border-radius: 6px; padding: 7px 10px;
 }
 .search input:focus-visible, .chip:focus-visible, .clear:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .count { font: 500 13px var(--cond); color: var(--muted); font-variant-numeric: tabular-nums; }
 .clear { font: 600 13px var(--cond); background: none; border: 1px solid var(--rule); color: var(--muted); border-radius: 6px; padding: 7px 10px; cursor: pointer; }
-.chips { display: flex; flex-wrap: wrap; gap: 6px; max-height: 92px; overflow-y: auto; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; }
+.focus { margin-top: 12px; padding: 10px 14px; background: var(--key-bg); border-radius: 6px; color: var(--ink); }
+.focus a { color: var(--key-ink); font-weight: 600; }
+.focus:empty { display: none; }
 .chips .label { font: 600 12px/26px var(--cond); color: var(--muted); letter-spacing: .06em; text-transform: uppercase; margin-right: 4px; }
 .chip {
   font: 13px/1 var(--mono); padding: 6px 8px; border-radius: 4px; border: 1px solid var(--rule);
@@ -88,6 +99,28 @@ h1 { font: 700 clamp(30px, 5vw, 46px)/1.05 var(--cond); margin: 0; text-wrap: ba
 .tip p { margin: 0; color: var(--muted); font-size: 14px; }
 
 section { margin-top: 36px; }
+.entry, .ins, #calls { scroll-margin-top: 72px; }
+.code a.mn { text-decoration: none; }
+.code a.mn:hover { text-decoration: underline; }
+.ins { background: var(--surface); border: 1px solid var(--rule); border-radius: 8px; padding: 12px 16px; margin-bottom: 10px; }
+.ins.on, .entry.on { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-soft); }
+.ins h3 { font: 600 22px/1.2 var(--mono); margin: 0; color: var(--a-mn); }
+.ins h3 small { font: 13px var(--mono); color: var(--muted); margin-left: 6px; }
+.expand { font: 15px var(--mono); margin: 4px 0 2px; color: var(--muted); }
+.expand b { color: var(--key-ink); background: var(--key-bg); padding: 0 1px; border-radius: 2px; font-weight: 600; }
+.sum { margin: 4px 0 6px; }
+table.forms { border-collapse: collapse; width: 100%; font-size: 14px; margin-bottom: 4px; }
+.forms td { border-top: 1px solid var(--rule); padding: 5px 8px 5px 0; vertical-align: top; }
+.forms td:first-child { font: 13px var(--mono); white-space: nowrap; color: var(--a-mn); width: 1%; padding-right: 18px; }
+.forms td code { font-family: var(--mono); font-size: .9em; }
+.wrapx { overflow-x: auto; }
+.meta { font-size: 14px; color: var(--muted); margin: 4px 0; }
+.meta code, .sum code, .forms code { font-family: var(--mono); font-size: .9em; background: var(--accent-soft); padding: 0 4px; border-radius: 3px; color: var(--ink); }
+.uses { font-size: 14px; margin-top: 8px; display: flex; flex-wrap: wrap; gap: 4px 12px; }
+.uses b { font: 600 13px var(--cond); color: var(--muted); letter-spacing: .06em; text-transform: uppercase; }
+.uses a, .meta a { color: var(--accent); }
+.toc { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; }
+.toc a { font: 13px/1 var(--mono); padding: 6px 8px; border-radius: 4px; border: 1px solid var(--rule); background: var(--surface); color: var(--a-mn); text-decoration: none; }
 h2 { font: 700 22px/1.2 var(--cond); margin: 0 0 12px; display: flex; align-items: baseline; gap: 10px; }
 h2 span { font: 500 13px var(--cond); color: var(--muted); }
 .entry { background: var(--surface); border: 1px solid var(--rule); border-radius: 8px; padding: 16px; margin-bottom: 14px; }
@@ -110,6 +143,16 @@ h2 span { font: 500 13px var(--cond); color: var(--muted); }
 footer { margin-top: 48px; color: var(--muted); font-size: 13px; border-top: 1px solid var(--rule); padding-top: 16px; }
 footer code { font-family: var(--mono); font-size: 12px; }
 @media (prefers-reduced-motion: no-preference) { .chip { transition: background .12s, border-color .12s; } }
+.ins h3 .expand { display: inline; font-size: 14px; font-weight: 400; margin-left: 12px; }
+.cols { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 0 20px; }
+@media (max-width: 760px) { .cols { grid-template-columns: minmax(0, 1fr); } }
+.wex { font-size: 13px; }
+.wrow { display: grid; grid-template-columns: max-content 1fr; gap: 0 12px; padding: 5px 0; border-top: 1px solid var(--rule); }
+.wasm { white-space: nowrap; font-family: var(--mono); }
+.cxs { margin-top: 12px; }
+.seen { margin-top: 6px; font-size: 14px; }
+.seen summary { cursor: pointer; color: var(--accent); font-size: 13px; }
+.seen .pair { margin-top: 8px; }
 </style>
 </head>
 <body>
@@ -122,22 +165,62 @@ footer code { font-family: var(--mono); font-size: 12px; }
   </header>
 
   <div class="bar">
+    <nav class="tabs" aria-label="Views">
+      <a class="tab" id="tab-p" href="#">Patterns</a>
+      <a class="tab" id="tab-i" href="#ins">Instructions</a>
+    </nav>
     <div class="search">
-      <input id="q" type="search" placeholder="Filter by text: switch, u8, global, spill…" aria-label="Filter examples">
+      <input id="q" type="search" placeholder="Filter: switch, u8, spill, ldrb…" aria-label="Filter">
       <button class="clear" id="clear" type="button">Clear</button>
       <span class="count" id="count"></span>
     </div>
+  </div>
+
+  <div id="view-p">
     <div class="chips" id="chips" role="group" aria-label="Filter by instruction"><span class="label">Instruction</span></div>
+    <div class="focus" id="focus"></div>
+    <div class="tips">
+      <div class="tip"><b>Conditions come out inverted</b><p>An <code>if</code> becomes "if NOT the condition, jump over the body".</p></div>
+      <div class="tip"><b><code>lsrs</code> vs <code>asrs</code></b><p>After <code>lsls #24</code>/<code>#16</code>: <code>lsrs</code> is a u8/u16, <code>asrs</code> an s8/s16.</p></div>
+      <div class="tip"><b>The jump tells the type</b><p><code>bgt</code>/<code>blt</code>… signed; <code>bhi</code>/<code>bcc</code>… unsigned.</p></div>
+      <div class="tip"><b>Registers</b><p><code>r0</code>–<code>r3</code> arguments and result; <code>r4</code>–<code>r7</code>, <code>r8</code>–<code>sl</code> survive calls. <a href="#calls">Calling convention →</a></p></div>
+    </div>
+    <main id="list"></main>
   </div>
 
-  <div class="tips">
-    <div class="tip"><b>Conditions come out inverted</b><p>An <code>if</code> becomes "if NOT the condition, jump over the body".</p></div>
-    <div class="tip"><b><code>lsrs</code> vs <code>asrs</code></b><p>After <code>lsls #24</code>/<code>#16</code>: <code>lsrs</code> is a u8/u16, <code>asrs</code> an s8/s16.</p></div>
-    <div class="tip"><b>The jump tells the type</b><p><code>bgt</code>/<code>blt</code>… signed; <code>bhi</code>/<code>bcc</code>… unsigned.</p></div>
-    <div class="tip"><b>Registers</b><p><code>r0</code>–<code>r3</code> arguments and result; <code>r4</code>–<code>r7</code>, <code>r8</code>–<code>sl</code> survive calls.</p></div>
+  <div id="view-i" hidden>
+    <section>
+      <h2>How the names are built</h2>
+      <div class="ins">
+        <p class="sum">Each mnemonic is a few letters taken from English words, plus pieces that repeat. Learn the pieces and most names read themselves: <code>ldrsb</code> = <b>L</b>oa<b>D</b> <b>R</b>egister <b>S</b>igned <b>B</b>yte.</p>
+        <div class="wrapx"><table class="forms" id="pieces"></table></div>
+        <p class="meta">Operands in the forms: <code>rd</code> = Destination register (gets the result), <code>rs</code> = Source register, <code>rn</code> = first operand or the base of an address, <code>rm</code> = second operand register, <code>#imm</code> = IMMediate (a constant inside the instruction).</p>
+        <p class="meta">Registers: <code>r0</code>–<code>r7</code> are the "low" ones, which almost every instruction can use; <code>r8</code>–<code>r12</code> only with <code>mov</code>, <code>add</code>, <code>cmp</code>. objdump names some by their role: <code>sl</code> = r10, <code>fp</code> = r11, <code>ip</code> = r12, <code>sp</code> = r13 (stack pointer), <code>lr</code> = r14 (link register: the return address), <code>pc</code> = r15 (program counter).</p>
+        <p class="meta">Flags, set by the <code>…s</code> instructions and <code>cmp</code>: <b>N</b> result Negative, <b>Z</b> result Zero, <b>C</b> Carry (unsigned overflow; after a compare, "no borrow"), <b>V</b> oVerflow (signed).</p>
+      </div>
+    </section>
+    <section id="calls">
+      <h2>Calling convention</h2>
+      <div class="ins">
+        <p class="sum">What every function agrees on, so any caller can call any callee. ARM publishes the rule (the Procedure Call Standard, APCS back then); what counts here is how agbcc applies it, set in <code>agbcc-src/gcc_arm/config/arm/thumb.h</code> (<code>CALL_USED_REGISTERS</code>, <code>FIXED_REGISTERS</code>, <code>FUNCTION_ARG_REGNO_P</code>, <code>FUNCTION_VALUE</code>). The game was built with the same compiler, so its functions follow it too: whatever is in <code>r0</code>–<code>r3</code> on entry is the arguments.</p>
+        <div class="wrapx"><table class="forms">
+          <tr><td>r0–r3</td><td>Arguments 1–4; the result comes back in <code>r0</code> (<code>r0</code>+<code>r1</code> for 64 bits). A call may overwrite them: <b>caller-saved</b>.</td></tr>
+          <tr><td>r4–r7</td><td>Survive calls: <b>callee-saved</b>. A function that uses them saves them first (<code>push {r4, lr}</code>) and restores them before returning.</td></tr>
+          <tr><td>r8–sl</td><td>Also callee-saved. agbcc only parks values there (<code>mov r8, r4</code>) when r4–r7 run out.</td></tr>
+          <tr><td>fp (r11)</td><td>Reserved; agbcc never hands it out.</td></tr>
+          <tr><td>ip (r12)</td><td>Scratch; a call may overwrite it.</td></tr>
+          <tr><td>sp, lr, pc</td><td>Stack pointer, return address (set by <code>bl</code>), program counter.</td></tr>
+          <tr><td>5th arg on</td><td>On the stack: the caller stores them at <code>[sp, #0]</code>, <code>[sp, #4]</code>… right before the <code>bl</code>.</td></tr>
+          <tr><td>big structs</td><td>A struct over 4 bytes isn't returned in <code>r0</code>: the caller passes a hidden pointer in <code>r0</code> and the callee writes the result there (<code>thumb_return_in_memory</code> in <code>thumb.c</code>).</td></tr>
+        </table></div>
+        <p class="meta">Why <code>pop {r1}; bx r1</code> and not <code>pop {pc}</code>: the saved <code>lr</code> comes back into a free scratch register and <code>bx</code> returns through it, so the caller may be ARM or Thumb (bit 0 of the address). Which scratch register depends on which one isn't holding the result.</p>
+        <div class="cxs" data-ex="r_keep"></div>
+        <div class="cxs" data-ex="r_five"></div>
+      </div>
+    </section>
+    <nav class="toc" id="toc" aria-label="Instructions"></nav>
+    <main id="ilist"></main>
   </div>
-
-  <main id="list"></main>
 
   <footer>
     Every listing is real output: <code>agbcc -mthumb-interwork -O2 -fhex-asm -fprologue-bugfix</code>, assembled and disassembled with <code>arm-none-eabi-objdump</code> (the same view <code>scripts/ndiff.sh</code> shows). Jump targets show as <code>→ N</code>, the line they land on. Highlighted lines are the ones the example is about.
@@ -146,6 +229,9 @@ footer code { font-family: var(--mono); font-size: 12px; }
 
 <script>
 const DATA = [{"section": "Constants", "name": "k_small", "title": "A small constant (0\u2013255)", "c": "s32 k_small(void)\n{\n    return 200;\n}", "note": "One <code>movs</code>: Thumb can load 0\u2013255 directly. <code>r0</code> carries the return value.", "key": ["movs"], "asm": ["movs r0, #200", "bx lr"]}, {"section": "Constants", "name": "k_neg", "title": "A negative constant", "c": "s32 k_neg(void)\n{\n    return -5;\n}", "note": "No instruction loads a negative number, so it loads 5 and negates it. <code>movs</code> + <code>negs</code> together mean \"the constant \u2212N\".", "key": ["negs"], "asm": ["movs r0, #5", "negs r0, r0", "bx lr"]}, {"section": "Constants", "name": "k_shift", "title": "A large constant that is a shifted small one", "c": "s32 k_shift(void)\n{\n    return 0x4000;\n}", "note": "0x4000 is 128 &lt;&lt; 7, so it builds it with <code>movs</code> + <code>lsls</code> instead of reading it from memory.", "key": ["lsls"], "asm": ["movs r0, #128", "lsls r0, r0, #7", "bx lr"]}, {"section": "Constants", "name": "k_big", "title": "Any other large constant", "c": "s32 k_big(void)\n{\n    return 0x12345;\n}", "note": "Read from a <em>literal pool</em>: a <code>.word</code> placed after the function, loaded with <code>ldr rX, [pc, #N]</code>.", "key": ["ldr", ".word"], "asm": ["ldr r0, [pc, #0]", "bx lr", ".word 0x00012345"]}, {"section": "Constants", "name": "k_ffff", "title": "0xFFFF and friends", "c": "u32 k_ffff(void)\n{\n    return 0xFFFF;\n}", "note": "Also from the literal pool: it doesn't fit in 8 bits and isn't a shifted small number.", "key": [".word"], "asm": ["ldr r0, [pc, #0]", "bx lr", ".word 0x0000ffff"]}, {"section": "Arithmetic", "name": "a_addk", "title": "Adding a constant", "c": "s32 a_addk(s32 x)\n{\n    return x + 3;\n}", "note": "<code>adds rX, #N</code> (or with three operands when the result goes to another register).", "key": ["adds"], "asm": ["adds r0, #3", "bx lr"]}, {"section": "Arithmetic", "name": "a_sub", "title": "Subtracting two values", "c": "s32 a_sub(s32 a, s32 b)\n{\n    return a - b;\n}", "note": "", "key": ["subs"], "asm": ["subs r0, r0, r1", "bx lr"]}, {"section": "Arithmetic", "name": "a_neg", "title": "Unary minus", "c": "s32 a_neg(s32 x)\n{\n    return -x;\n}", "note": "<code>negs</code> is <code>0 - x</code>. The other common source of <code>negs</code> besides negative constants.", "key": ["negs"], "asm": ["negs r0, r0", "bx lr"]}, {"section": "Arithmetic", "name": "a_mulk", "title": "Multiplying by a constant", "c": "s32 a_mulk(s32 x)\n{\n    return x * 10;\n}", "note": "agbcc turns multiplication by small constants into shifts and adds (x\u00b710 = (x\u00b74 + x)\u00b72) instead of <code>muls</code>.", "key": ["lsls", "adds"], "asm": ["adds r1, r0, #0", "lsls r0, r1, #2", "adds r0, r0, r1", "lsls r0, r0, #1", "bx lr"]}, {"section": "Arithmetic", "name": "a_mul", "title": "Multiplying two values", "c": "s32 a_mul(s32 a, s32 b)\n{\n    return a * b;\n}", "note": "", "key": ["muls"], "asm": ["muls r0, r1", "bx lr"]}, {"section": "Arithmetic", "name": "a_div4", "title": "Signed division by a power of 2", "c": "s32 a_div4(s32 x)\n{\n    return x / 4;\n}", "note": "A plain <code>asrs</code> would round negatives the wrong way, so when x is negative it adds 3 first. The <code>cmp #0</code> + <code>bge</code> skips that fix-up for positive x.", "key": ["asrs"], "asm": ["cmp r0, #0", "bge.n \u2192 4", "adds r0, #3", "asrs r0, r0, #2", "bx lr"]}, {"section": "Arithmetic", "name": "a_udiv4", "title": "Unsigned division by a power of 2", "c": "u32 a_udiv4(u32 x)\n{\n    return x / 4;\n}", "note": "Unsigned: a single <code>lsrs</code>, no fix-up.", "key": ["lsrs"], "asm": ["lsrs r0, r0, #2", "bx lr"]}, {"section": "Arithmetic", "name": "a_div", "title": "Division by a variable", "c": "s32 a_div(s32 a, s32 b)\n{\n    return a / b;\n}", "note": "The GBA has no divide instruction: it calls a library routine (<code>__divsi3</code>; <code>__udivsi3</code> unsigned, <code>__modsi3</code> for <code>%</code>).", "key": ["bl"], "asm": ["push {lr}", "bl __divsi3", "pop {r1}", "bx r1"]}, {"section": "Arithmetic", "name": "a_mod8", "title": "Unsigned remainder by a power of 2", "c": "u32 a_mod8(u32 x)\n{\n    return x % 8;\n}", "note": "<code>x % 8</code> is <code>x &amp; 7</code>.", "key": ["ands"], "asm": ["adds r1, r0, #0", "movs r0, #7", "ands r0, r1", "bx lr"]}, {"section": "Bits", "name": "b_and", "title": "AND with a constant", "c": "u32 b_and(u32 x)\n{\n    return x & 0x20;\n}", "note": "Thumb's <code>ands</code> only takes registers, so the constant is loaded first with <code>movs</code>.", "key": ["ands"], "asm": ["adds r1, r0, #0", "movs r0, #32", "ands r0, r1", "bx lr"]}, {"section": "Bits", "name": "b_or", "title": "Setting bits", "c": "void b_or(u8 *p)\n{\n    *p |= 4;\n}", "note": "Load, <code>orrs</code>, store back.", "key": ["orrs"], "asm": ["ldrb r1, [r0, #0]", "movs r2, #4", "orrs r1, r2", "strb r1, [r0, #0]", "bx lr"]}, {"section": "Bits", "name": "b_bic", "title": "Clearing bits", "c": "u32 b_bic(u32 x, u32 m)\n{\n    return x & ~m;\n}", "note": "<code>bics</code> is AND with the inverse.", "key": ["bics"], "asm": ["bics r0, r1", "bx lr"]}, {"section": "Bits", "name": "b_not", "title": "Bitwise NOT", "c": "u32 b_not(u32 x)\n{\n    return ~x;\n}", "note": "", "key": ["mvns"], "asm": ["mvns r0, r0", "bx lr"]}, {"section": "Bits", "name": "b_xor", "title": "XOR", "c": "u32 b_xor(u32 a, u32 b)\n{\n    return a ^ b;\n}", "note": "", "key": ["eors"], "asm": ["eors r0, r1", "bx lr"]}, {"section": "Bits", "name": "b_shr", "title": "Shifting right: signed vs unsigned", "c": "s32 b_shr(s32 a, u32 b)\n{\n    return (a >> 3) + (b >> 3);\n}", "note": "Signed values shift with <code>asrs</code> (keeps the sign); unsigned ones with <code>lsrs</code>.", "key": ["asrs", "lsrs"], "asm": ["asrs r0, r0, #3", "lsrs r1, r1, #3", "adds r0, r0, r1", "bx lr"]}, {"section": "Bits", "name": "b_test", "title": "Testing a bit in an if", "c": "extern void f(void);\nvoid b_test(u32 flags)\n{\n    if (flags & 0x20)\n        f();\n}", "note": "AND, compare with 0, jump over the call when the bit is clear. The jump goes <em>around</em> the body, so its condition is the opposite of the C one.", "key": ["ands", "cmp", "beq"], "asm": ["push {lr}", "movs r1, #32", "ands r1, r0", "cmp r1, #0", "beq.n \u2192 7", "bl f", "pop {r0}", "bx r0"]}, {"section": "Types and conversions", "name": "t_u8", "title": "Converting to u8", "c": "u32 t_u8(u32 x)\n{\n    return (u8)x;\n}", "note": "Shift left 24, then right 24 with <code>lsrs</code>: only the low byte survives. With 16 instead of 24, it's <code>(u16)</code>.", "key": ["lsls", "lsrs"], "asm": ["lsls r0, r0, #24", "lsrs r0, r0, #24", "bx lr"]}, {"section": "Types and conversions", "name": "t_s8", "title": "Converting to s8", "c": "s32 t_s8(s32 x)\n{\n    return (s8)x;\n}", "note": "Same shape, but the right shift is <code>asrs</code>, which copies the sign bit. <code>lsrs</code> = unsigned, <code>asrs</code> = signed.", "key": ["lsls", "asrs"], "asm": ["lsls r0, r0, #24", "asrs r0, r0, #24", "bx lr"]}, {"section": "Types and conversions", "name": "t_param", "title": "u8 parameters", "c": "s32 t_param(u8 a, u8 b)\n{\n    return a + b;\n}", "note": "agbcc trims every u8/s8/u16/s16 parameter on entry, because the caller may leave junk in the upper bits.", "key": ["lsls", "lsrs"], "asm": ["lsls r0, r0, #24", "lsrs r0, r0, #24", "lsls r1, r1, #24", "lsrs r1, r1, #24", "adds r0, r0, r1", "bx lr"]}, {"section": "Types and conversions", "name": "t_ret", "title": "Returning a u8", "c": "u8 t_ret(u32 x)\n{\n    return x + 1;\n}", "note": "The result is trimmed to 8 bits before returning.", "key": ["lsls", "lsrs"], "asm": ["adds r0, #1", "lsls r0, r0, #24", "lsrs r0, r0, #24", "bx lr"]}, {"section": "Types and conversions", "name": "t_bool", "title": "A comparison as a value (bool)", "c": "s32 t_bool(s32 x)\n{\n    return x != 0;\n}", "note": "Here agbcc branches: if x is 0 it returns x as it is (0), otherwise it loads 1. Other comparisons can come out as <code>negs</code>/<code>adcs</code>/<code>lsrs #31</code> tricks.", "key": ["cmp", "beq"], "asm": ["cmp r0, #0", "beq.n \u2192 4", "movs r0, #1", "bx lr"]}, {"section": "Memory", "name": "m_fields", "title": "Struct fields of different sizes", "c": "struct S { u8 a; s8 b; u16 c; u32 d; };\ns32 m_fields(struct S *s)\n{\n    return s->a + s->b + s->c + s->d;\n}", "note": "<code>ldrb</code> for u8, <code>ldrh</code> for u16, <code>ldr</code> for 32 bits; the <code>#N</code> is the field's offset. Signed loads (<code>ldrsb</code>, <code>ldrsh</code>) only take the offset in a register, hence the <code>movs r0, #1</code> before the <code>ldrsb</code> of the s8 field.", "key": ["ldrb", "ldrh", "ldr", "ldrsb"], "asm": ["adds r1, r0, #0", "movs r0, #1", "ldrsb r0, [r1, r0]", "ldrb r2, [r1, #0]", "adds r0, r0, r2", "ldrh r2, [r1, #2]", "adds r0, r0, r2", "ldr r1, [r1, #4]", "adds r0, r0, r1", "bx lr"]}, {"section": "Memory", "name": "m_store", "title": "Writing a field", "c": "struct T { u8 cost; u8 height; u8 edges; };\nvoid m_store(struct T *t)\n{\n    t->edges = 0xFF;\n}", "note": "<code>strb</code> (<code>strh</code>, <code>str</code> for wider fields).", "key": ["strb"], "asm": ["movs r1, #255", "strb r1, [r0, #2]", "bx lr"]}, {"section": "Memory", "name": "m_arr8", "title": "Array of bytes", "c": "u8 m_arr8(u8 *a, s32 i)\n{\n    return a[i];\n}", "note": "Base + index added first, then <code>ldrb [rX, #0]</code>.", "key": ["ldrb"], "asm": ["adds r0, r0, r1", "ldrb r0, [r0, #0]", "bx lr"]}, {"section": "Memory", "name": "m_arr16", "title": "Array of u16", "c": "u16 m_arr16(u16 *a, s32 i)\n{\n    return a[i];\n}", "note": "Index \u00d7 2 first: <code>lsls rI, rI, #1</code>.", "key": ["lsls", "ldrh"], "asm": ["lsls r1, r1, #1", "adds r1, r1, r0", "ldrh r0, [r1, #0]", "bx lr"]}, {"section": "Memory", "name": "m_structarr", "title": "Array of 16-byte structs", "c": "struct R { u8 cost; u8 height; u8 edges; u8 flags; u32 pad[3]; };\nu8 m_structarr(struct R *r, s32 i)\n{\n    return r[i].edges;\n}", "note": "Index \u00d7 16 is <code>lsls #4</code>; the field offset (2) goes in the load.", "key": ["lsls", "ldrb"], "asm": ["lsls r1, r1, #4", "adds r1, r1, r0", "ldrb r0, [r1, #2]", "bx lr"]}, {"section": "Memory", "name": "m_global", "title": "A global variable", "c": "extern s32 gCount;\nvoid m_global(void)\n{\n    gCount++;\n}", "note": "The global's <em>address</em> comes from the literal pool (<code>ldr rX, [pc, #N]</code> + a <code>.word</code> that the linker fills in), then a normal load and store. The <code>.short 0x0000</code> is padding so the <code>.word</code> is aligned.", "key": ["ldr", ".word"], "asm": ["ldr r1, [pc, #8]", "ldr r0, [r1, #0]", "adds r0, #1", "str r0, [r1, #0]", "bx lr", ".short 0x0000", ".word 0x00000000   ; = &gCount"]}, {"section": "Memory", "name": "m_volatile", "title": "volatile: read every time", "c": "s32 m_volatile(volatile u8 *p)\n{\n    return *p + *p;\n}", "note": "Without <code>volatile</code> it would read once; with it, two <code>ldrb</code>s. Decomps use this to force a field to be read twice.", "key": ["ldrb"], "asm": ["ldrb r1, [r0, #0]", "ldrb r0, [r0, #0]", "adds r0, r0, r1", "bx lr"]}, {"section": "Memory", "name": "m_local_array", "title": "A local array", "c": "extern void use(u8 *);\nvoid m_local_array(void)\n{\n    u8 buf[8];\n    use(buf);\n}", "note": "Lives on the stack: <code>sub sp</code> to make room and <code>mov r0, sp</code> to pass its address.", "key": ["sub", "mov"], "asm": ["push {lr}", "sub sp, #8", "mov r0, sp", "bl use", "add sp, #8", "pop {r0}", "bx r0"]}, {"section": "Control flow", "name": "c_ifelse", "title": "if / else", "c": "s32 c_ifelse(s32 x)\n{\n    if (x > 10)\n        return 1;\n    else\n        return 2;\n}", "note": "A compare and a conditional jump. Here agbcc lays out the else first: <code>bgt</code> jumps to the then-part, and the else ends with a <code>b</code> over it.", "key": ["cmp", "bgt", "b"], "asm": ["cmp r0, #10", "bgt.n \u2192 5", "movs r0, #2", "b.n \u2192 6", "movs r0, #1", "bx lr"]}, {"section": "Control flow", "name": "c_signed", "title": "Signed vs unsigned comparison", "c": "extern void f(void);\nvoid c_signed(s32 a, u32 b)\n{\n    if (a < 5)\n        f();\n    if (b < 5)\n        f();\n}", "note": "<code>x &lt; 5</code> becomes \"if x &gt; 4, skip the call\". Signed values jump with <code>bgt</code>/<code>bge</code>/<code>blt</code>/<code>ble</code>; unsigned ones with <code>bhi</code>/<code>bcs</code>/<code>bcc</code>/<code>bls</code>. The kind of jump tells you the variable's type.", "key": ["bgt", "bhi"], "asm": ["push {r4, lr}", "adds r4, r1, #0", "cmp r0, #4", "bgt.n \u2192 6", "bl f", "cmp r4, #4", "bhi.n \u2192 9", "bl f", "pop {r4}", "pop {r0}", "bx r0"]}, {"section": "Control flow", "name": "c_and", "title": "&& and ||", "c": "extern void f(void);\nvoid c_and(s32 a, s32 b)\n{\n    if (a == 1 && b == 2)\n        f();\n}", "note": "Each condition is its own compare-and-jump; the first one that decides skips the rest.", "key": ["cmp", "bne"], "asm": ["push {lr}", "cmp r0, #1", "bne.n \u2192 7", "cmp r1, #2", "bne.n \u2192 7", "bl f", "pop {r0}", "bx r0"]}, {"section": "Control flow", "name": "c_for", "title": "A for loop", "c": "extern void f(s32);\nvoid c_for(void)\n{\n    s32 i;\n    for (i = 0; i < 10; i++)\n        f(i);\n}", "note": "The counter lives in a register that survives calls (<code>r4</code>+). The test is at the bottom, with a jump back up: a backwards jump is a loop.", "key": ["adds", "cmp", "ble"], "asm": ["push {r4, lr}", "movs r4, #0", "adds r0, r4, #0", "bl f", "adds r4, #1", "cmp r4, #9", "ble.n \u2192 3", "pop {r4}", "pop {r0}", "bx r0"]}, {"section": "Control flow", "name": "c_while", "title": "A while loop", "c": "extern s32 g(void);\nvoid c_while(void)\n{\n    while (g() != 0)\n        ;\n}", "note": "", "key": ["bl", "cmp", "bne"], "asm": ["push {lr}", "bl g", "cmp r0, #0", "bne.n \u2192 2", "pop {r0}", "bx r0"]}, {"section": "Control flow", "name": "c_switch_small", "title": "A small switch", "c": "s32 c_switch_small(s32 x)\n{\n    switch (x) {\n    case 1: return 10;\n    case 5: return 20;\n    case 9: return 30;\n    }\n    return 0;\n}", "note": "Few, scattered cases become compares and jumps; agbcc may split them around the middle value (here 5) to need fewer compares.", "key": ["cmp", "beq", "bgt"], "asm": ["cmp r0, #5", "beq.n \u2192 13", "cmp r0, #5", "bgt.n \u2192 8", "cmp r0, #1", "beq.n \u2192 11", "b.n \u2192 17", "cmp r0, #9", "beq.n \u2192 15", "b.n \u2192 17", "movs r0, #10", "b.n \u2192 18", "movs r0, #20", "b.n \u2192 18", "movs r0, #30", "b.n \u2192 18", "movs r0, #0", "bx lr"]}, {"section": "Control flow", "name": "c_switch_table", "title": "A dense switch", "c": "extern void f(s32);\nvoid c_switch_table(s32 x)\n{\n    switch (x) {\n    case 0: f(10); break;\n    case 1: f(20); break;\n    case 2: f(30); break;\n    case 3: f(40); break;\n    case 4: f(50); break;\n    }\n}", "note": "Many consecutive cases become a <em>jump table</em>: a bounds check, index \u00d7 4 (<code>lsls #2</code>), a <code>.word</code> table of addresses and <code>mov pc, rX</code> to jump.", "key": ["lsls", "mov", ".word"], "asm": ["push {lr}", "cmp r0, #4", "bhi.n \u2192 29", "lsls r0, r0, #2", "ldr r1, [pc, #4]", "adds r0, r0, r1", "ldr r0, [r0, #0]", "mov pc, r0", ".word 0x00000014   ; = &.text", ".word 0x00000028   ; = &.text", ".word 0x00000030   ; = &.text", ".word 0x00000038   ; = &.text", ".word 0x00000040   ; = &.text", ".word 0x00000048   ; = &.text", "movs r0, #10", "bl f", "b.n \u2192 29", "movs r0, #20", "bl f", "b.n \u2192 29", "movs r0, #30", "bl f", "b.n \u2192 29", "movs r0, #40", "bl f", "b.n \u2192 29", "movs r0, #50", "bl f", "pop {r0}", "bx r0"]}, {"section": "Control flow", "name": "c_ternary", "title": "The ?: operator", "c": "s32 c_ternary(s32 a, s32 b)\n{\n    return a > b ? a : b;\n}", "note": "Same as an if/else: Thumb has no conditional move.", "key": ["cmp", "bge"], "asm": ["adds r2, r0, #0", "adds r0, r1, #0", "cmp r0, r2", "bge.n \u2192 6", "adds r0, r2, #0", "bx lr"]}, {"section": "Calls and registers", "name": "r_call", "title": "Calling a function", "c": "extern s32 g4(s32, s32, s32, s32);\ns32 r_call(s32 x)\n{\n    return g4(x, 1, 2, 3);\n}", "note": "Arguments go in <code>r0</code>\u2013<code>r3</code>, the call is <code>bl</code>, the result comes back in <code>r0</code>. <code>push {lr}</code>/<code>pop</code> save the return address because the function calls another.", "key": ["bl", "push", "pop"], "asm": ["push {lr}", "movs r1, #1", "movs r2, #2", "movs r3, #3", "bl g4", "pop {r1}", "bx r1"]}, {"section": "Calls and registers", "name": "r_five", "title": "A fifth argument", "c": "extern s32 g5(s32, s32, s32, s32, s32);\ns32 r_five(void)\n{\n    return g5(1, 2, 3, 4, 5);\n}", "note": "From the fifth argument on, they go on the stack: <code>str rX, [sp]</code> before the <code>bl</code>.", "key": ["str", "sub"], "asm": ["push {lr}", "sub sp, #4", "movs r0, #5", "str r0, [sp, #0]", "movs r0, #1", "movs r1, #2", "movs r2, #3", "movs r3, #4", "bl g5", "add sp, #4", "pop {r1}", "bx r1"]}, {"section": "Calls and registers", "name": "r_keep", "title": "A value that must survive a call", "c": "extern s32 g(void);\ns32 r_keep(s32 x)\n{\n    return g() + x;\n}", "note": "A call may overwrite <code>r0</code>\u2013<code>r3</code>, so <code>x</code> moves to <code>r4</code> (saved with <code>push</code> at the start). Copies between registers are <code>adds rX, rY, #0</code>.", "key": ["push", "adds"], "asm": ["push {r4, lr}", "adds r4, r0, #0", "bl g", "adds r0, r0, r4", "pop {r4}", "pop {r1}", "bx r1"]}, {"section": "Calls and registers", "name": "r_ptr", "title": "Calling through a function pointer", "c": "s32 r_ptr(s32 (*fn)(s32))\n{\n    return fn(7);\n}", "note": "agbcc calls a small helper, <code>_call_via_rX</code>, which does the actual <code>bx</code>.", "key": ["bl"], "asm": ["push {lr}", "adds r1, r0, #0", "movs r0, #7", "bl _call_via_r1", "pop {r1}", "bx r1"]}, {"section": "Calls and registers", "name": "r_spill", "title": "Too many values for the registers (spills)", "c": "extern s32 g(s32);\ns32 r_spill(s32 a, s32 b, s32 c, s32 d, s32 e, s32 f, s32 h, s32 i)\n{\n    s32 x = g(a), y = g(b), z = g(c), w = g(d);\n    s32 u = g(e), v = g(f), q = g(h), r = g(i);\n    return x + y + z + w + u + v + q + r + a + b + c + d;\n}", "note": "Values that must survive calls only have <code>r4</code>\u2013<code>r7</code> and <code>r8</code>\u2013<code>r10</code>. The rest live on the stack: <code>str rX, [sp, #N]</code> to save (spill) and <code>ldr rX, [sp, #N]</code> to bring back (reload). <code>sub sp</code> makes the room; <code>mov rX, r8</code> etc. move values to and from the high registers.", "key": ["str", "ldr", "sub", "mov"], "asm": ["push {r4, r5, r6, r7, lr}", "mov r7, sl", "mov r6, r9", "mov r5, r8", "push {r5, r6, r7}", "sub sp, #16", "str r0, [sp, #0]", "str r1, [sp, #4]", "str r2, [sp, #8]", "str r3, [sp, #12]", "ldr r5, [sp, #48]", "ldr r6, [sp, #52]", "bl g", "adds r4, r0, #0", "ldr r0, [sp, #4]", "bl g", "adds r7, r0, #0", "ldr r0, [sp, #8]", "bl g", "mov sl, r0", "ldr r0, [sp, #12]", "bl g", "mov r9, r0", "adds r0, r5, #0", "bl g", "mov r8, r0", "adds r0, r6, #0", "bl g", "adds r6, r0, #0", "ldr r0, [sp, #56]", "bl g", "adds r5, r0, #0", "ldr r0, [sp, #60]", "bl g", "adds r4, r4, r7", "add r4, sl", "add r4, r9", "add r4, r8", "adds r4, r4, r6", "adds r4, r4, r5", "adds r4, r4, r0", "ldr r0, [sp, #0]", "adds r4, r4, r0", "ldr r0, [sp, #4]", "adds r4, r4, r0", "ldr r0, [sp, #8]", "adds r4, r4, r0", "ldr r0, [sp, #12]", "adds r4, r4, r0", "adds r0, r4, #0", "add sp, #16", "pop {r3, r4, r5}", "mov r8, r3", "mov r9, r4", "mov sl, r5", "pop {r4, r5, r6, r7}", "pop {r1}", "bx r1"]}];
+const INSNS = [{"group": "Move", "id": "movs", "aliases": ["movs"], "summary": "Put a small constant in a register.", "forms": [["movs rd, #imm", "rd = imm, 0\u2013255"]], "flags": "N Z", "note": "Bigger constants come from a literal pool (<code>ldr rd, [pc, #N]</code>), or from <code>movs</code> + <code>lsls</code>/<code>negs</code>. Only r0\u2013r7.", "mn": "MOVe + Set flags", "ex": [["movs r0, #200", "", "r0 = 200 (0xC8); Z=0, N=0"]]}, {"group": "Move", "id": "mov", "aliases": ["mov"], "summary": "Copy between registers when one is r8 or higher.", "forms": [["mov rd, rs", "rd = rs; rd or rs is r8\u2013r15 (sl, fp, ip, sp, lr, pc)"]], "flags": "none", "note": "Moving a value into r8\u2013sl means a callee-saved low register ran out: agbcc parks values there (<code>mov sl, r5</code>) and brings them back with <code>mov r5, sl</code>. A copy between r0\u2013r7 shows as <code>adds rd, rs, #0</code> instead.", "mn": "MOVe", "ex": [["mov r8, r4", "r4 = 7", "r8 = 7 (r4 parked in a high register)"], ["mov r4, r8", "r8 = 7", "r4 = 7 (brought back)"]]}, {"group": "Move", "id": "mvns", "aliases": ["mvns"], "summary": "Bitwise NOT.", "forms": [["mvns rd, rs", "rd = ~rs"]], "flags": "N Z", "note": "C: <code>~x</code>.", "mn": "MoVe Not + Set flags", "ex": [["mvns r0, r1", "r1 = 0x0000000F", "r0 = 0xFFFFFFF0"]]}, {"group": "Move", "id": "negs", "aliases": ["negs"], "summary": "Negate.", "forms": [["negs rd, rs", "rd = 0 \u2212 rs"]], "flags": "N Z C V", "note": "C: <code>-x</code>, or the second half of a negative constant (<code>movs r0, #1; negs r0, r0</code> is \u22121).", "mn": "NEGate + Set flags", "ex": [["negs r0, r0", "r0 = 5", "r0 = \u22125 (0xFFFFFFFB)"], ["movs r0, #1<br>negs r0, r0", "", "r0 = \u22121 (0xFFFFFFFF)"]]}, {"group": "Arithmetic", "id": "adds", "aliases": ["adds"], "summary": "Add, setting flags.", "forms": [["adds rd, rs, rn", "rd = rs + rn"], ["adds rd, rs, #imm", "rd = rs + imm, 0\u20137"], ["adds rd, #imm", "rd = rd + imm, 0\u2013255"], ["adds rd, rs, #0", "copy rs to rd (r0\u2013r7)"]], "flags": "N Z C V", "note": "<code>adds rd, rs, #0</code> is how agbcc copies a register, e.g. right after a <code>bl</code> to keep the result: <code>adds r2, r0, #0</code>.", "mn": "ADD + Set flags", "ex": [["adds r0, r1, r2", "r1 = 10, r2 = 3", "r0 = 13"], ["adds r0, #0x40", "r0 = 0x02000000", "r0 = 0x02000040 (a field's address)"], ["adds r4, r0, #0", "r0 = 99 (a call's result)", "r4 = 99, kept past the next call"]]}, {"group": "Arithmetic", "id": "add", "aliases": ["add"], "summary": "Add without flags: high registers, sp and pc.", "forms": [["add rd, rs", "rd = rd + rs; either can be r8\u2013r15"], ["add rd, sp, #imm", "rd = address of a stack slot (imm: multiple of 4, \u22641020)"], ["add rd, pc, #imm", "rd = address near the code"], ["add sp, #imm", "free stack space (end of the function)"]], "flags": "none", "note": "<code>add rX, sp, #N</code> means C takes the address of a local (an array or struct on the stack).", "mn": "ADD", "ex": [["add r0, sp, #8", "sp = 0x03007E00", "r0 = 0x03007E08 (&amp;local)"], ["add sp, #-16", "sp = 0x03007E00", "sp = 0x03007DF0 (16 bytes for locals)"]]}, {"group": "Arithmetic", "id": "subs", "aliases": ["subs"], "summary": "Subtract, setting flags.", "forms": [["subs rd, rs, rn", "rd = rs \u2212 rn"], ["subs rd, rs, #imm", "rd = rs \u2212 imm, 0\u20137"], ["subs rd, #imm", "rd = rd \u2212 imm, 0\u2013255"]], "flags": "N Z C V", "note": "<code>subs r0, r6, #1</code> followed by a compare is often <code>x - 1 &lt;= N</code>: a range check like <code>x == 1 || x == 2</code> folded into one unsigned compare.", "mn": "SUBtract + Set flags", "ex": [["subs r0, r1, #1", "r1 = 0", "r0 = 0xFFFFFFFF (\u22121); N=1, C=0 (borrow)"], ["subs r0, #1<br>bne loop", "r0 = 3", "r0 = 2, Z=0: loops again"]]}, {"group": "Arithmetic", "id": "sub", "aliases": ["sub"], "summary": "Subtract from sp without flags.", "forms": [["sub sp, #imm", "reserve stack space (start of the function)"]], "flags": "none", "note": "The size tells how many bytes of locals and spill slots the function uses.", "mn": "SUBtract", "ex": [["sub sp, #12", "sp = 0x03007E00", "sp = 0x03007DF4"]]}, {"group": "Arithmetic", "id": "adcs", "aliases": ["adcs"], "summary": "Add with carry.", "forms": [["adcs rd, rs", "rd = rd + rs + C"]], "flags": "N Z C V", "note": "For 64-bit numbers (<code>u64</code>), which take two registers: one holds the low 32 bits, the other the high 32. <code>adds</code> adds the low halves; if that overflows, C = 1 (the \"carry the 1\" of school addition) and <code>adcs</code> adds it to the high halves.", "mn": "ADd with Carry + Set flags", "ex": [["adds r0, r2", "r0 = 0xFFFFFFFF, r2 = 1", "r0 = 0, C = 1: the sum (0x100000000) needs 33 bits; the 33rd is the carry"], ["adcs r1, r3", "r1 = 0, r3 = 0, C = 1", "r1 = 0 + 0 + 1 = 1. Together r1, r0 = 0x00000001 00000000: 0xFFFFFFFF + 1 done in 64 bits"]]}, {"group": "Arithmetic", "id": "sbcs", "aliases": ["sbcs"], "summary": "Subtract with carry.", "forms": [["sbcs rd, rs", "rd = rd \u2212 rs \u2212 not C"]], "flags": "N Z C V", "note": "The same for 64-bit subtraction: <code>subs</code> on the low halves, then <code>sbcs</code> takes 1 more from the high halves if the low ones had to borrow (C = 0).", "mn": "SuBtract with Carry + Set flags", "ex": [["subs r0, r2", "r0 = 0, r2 = 1", "r0 = 0xFFFFFFFF, C = 0: it had to borrow"], ["sbcs r1, r3", "r1 = 1, r3 = 0, C = 0", "r1 = 1 \u2212 0 \u2212 1 = 0. Together r1, r0 = 0x00000000 FFFFFFFF: 0x100000000 \u2212 1 done in 64 bits"]]}, {"group": "Arithmetic", "id": "muls", "aliases": ["muls"], "summary": "Multiply.", "forms": [["muls rd, rs", "rd = rd \u00d7 rs (low 32 bits)"]], "flags": "N Z", "note": "Only for two variables: agbcc turns multiplying by a constant into shifts and adds.", "mn": "MULtiply + Set flags", "ex": [["muls r0, r1", "r0 = 6, r1 = 7", "r0 = 42"]]}, {"group": "Logic", "id": "ands", "aliases": ["ands"], "summary": "Bitwise AND.", "forms": [["ands rd, rs", "rd = rd &amp; rs"]], "flags": "N Z", "note": "No immediate form: <code>x &amp; 2</code> needs the 2 in a register first (<code>movs r0, #2; ands r0, r1</code>). Then <code>cmp r0, #0</code> tests the bit.", "mn": "AND + Set flags", "ex": [["movs r1, #0xF<br>ands r0, r1", "r0 = 0x1234", "r0 = 0x4 (x &amp; 15)"]]}, {"group": "Logic", "id": "orrs", "aliases": ["orrs"], "summary": "Bitwise OR.", "forms": [["orrs rd, rs", "rd = rd | rs"]], "flags": "N Z", "note": "Setting flags in a field: load, <code>movs</code> the bit, <code>orrs</code>, store.", "mn": "logical OR (OR + R for Register) + Set flags", "ex": [["movs r1, #0x80<br>orrs r0, r1", "r0 = 0x05", "r0 = 0x85 (set bit 7)"]]}, {"group": "Logic", "id": "eors", "aliases": ["eors"], "summary": "Bitwise XOR.", "forms": [["eors rd, rs", "rd = rd ^ rs"]], "flags": "N Z", "note": "", "mn": "Exclusive OR + Set flags", "ex": [["eors r0, r1", "r0 = 0b1100, r1 = 0b1010", "r0 = 0b0110"]]}, {"group": "Logic", "id": "bics", "aliases": ["bics"], "summary": "Clear bits.", "forms": [["bics rd, rs", "rd = rd &amp; ~rs"]], "flags": "N Z", "note": "C: <code>x &amp;= ~MASK</code>.", "mn": "BIt Clear + Set flags", "ex": [["movs r1, #2<br>bics r0, r1", "r0 = 0b0111", "r0 = 0b0101 (clear bit 1)"]]}, {"group": "Logic", "id": "tst", "aliases": ["tst"], "summary": "Test bits without storing a result.", "forms": [["tst rn, rm", "flags of rn &amp; rm"]], "flags": "N Z", "note": "agbcc rarely emits it; it usually does <code>ands</code> + <code>cmp #0</code>.", "mn": "TeST", "ex": [["movs r1, #2<br>tst r0, r1<br>beq skip", "r0 = 0b0101", "r0 &amp; 2 = 0 \u2192 Z=1 \u2192 jumps (bit was clear)"]]}, {"group": "Shift", "id": "lsls", "aliases": ["lsls"], "summary": "Shift left.", "forms": [["lsls rd, rs, #imm", "rd = rs &lt;&lt; imm, 0\u201331"], ["lsls rd, rs", "rd = rd &lt;&lt; rs"]], "flags": "N Z C", "note": "Multiplying by a power of 2, indexing arrays (<code>lsls #2</code>: \u00d74 for a u32 array), and the first half of a truncation (<code>lsls #24</code>).", "mn": "Logical Shift Left + Set flags", "ex": [["lsls r0, r0, #2", "r0 = 5", "r0 = 20 (\u00d74, e.g. index \u2192 word offset)"], ["lsls r0, r0, #24", "r0 = 0x000001FE", "r0 = 0xFE000000 (keeps the low byte, on top)"]]}, {"group": "Shift", "id": "lsrs", "aliases": ["lsrs"], "summary": "Logical shift right (fills with 0).", "forms": [["lsrs rd, rs, #imm", "rd = rs &gt;&gt; imm, 1\u201332"], ["lsrs rd, rs", "rd = rd &gt;&gt; rs"]], "flags": "N Z C", "note": "After <code>lsls #24</code>: the value is a u8; after <code>lsls #16</code>: a u16. Also unsigned division by a power of 2.", "mn": "Logical Shift Right + Set flags", "ex": [["lsrs r0, r0, #24", "r0 = 0xFE000000", "r0 = 0xFE (254): u8 result"], ["lsrs r0, r0, #3", "r0 = 40", "r0 = 5 (\u00f78, unsigned)"]]}, {"group": "Shift", "id": "asrs", "aliases": ["asrs"], "summary": "Arithmetic shift right (keeps the sign).", "forms": [["asrs rd, rs, #imm", "rd = rs &gt;&gt; imm, 1\u201332"], ["asrs rd, rs", "rd = rd &gt;&gt; rs"]], "flags": "N Z C", "note": "After <code>lsls #24</code>: an s8; after <code>lsls #16</code>: an s16. Also signed division by a power of 2 (with a fix-up for negatives).", "mn": "Arithmetic Shift Right + Set flags", "ex": [["asrs r0, r0, #24", "r0 = 0xFE000000", "r0 = 0xFFFFFFFE (\u22122): s8 result"], ["asrs r0, r0, #1", "r0 = \u22127", "r0 = \u22124 (rounds down, not toward 0)"]]}, {"group": "Shift", "id": "rors", "aliases": ["rors"], "summary": "Rotate right.", "forms": [["rors rd, rs", "rd = rd rotated right by rs"]], "flags": "N Z C", "note": "", "mn": "ROtate Right + Set flags", "ex": [["rors r0, r1", "r0 = 0x00000001, r1 = 1", "r0 = 0x80000000"]]}, {"group": "Compare", "id": "cmp", "aliases": ["cmp"], "summary": "Compare: subtract and keep only the flags.", "forms": [["cmp rn, #imm", "flags of rn \u2212 imm, 0\u2013255"], ["cmp rn, rm", "flags of rn \u2212 rm (any registers)"]], "flags": "N Z C V", "note": "Always followed by a conditional branch; the branch tells whether the compare is signed (<code>bgt</code>, <code>blt</code>\u2026) or unsigned (<code>bhi</code>, <code>bcc</code>\u2026).", "mn": "CoMPare", "ex": [["cmp r0, #10<br>bgt big", "r0 = 12", "12 \u2212 10 = 2 \u2192 N=0, Z=0, V=0 \u2192 jumps"], ["cmp r0, r1<br>bcc less", "r0 = 1, r1 = 0xFFFFFFFF", "unsigned 1 &lt; 4294967295 \u2192 C=0 \u2192 jumps"]]}, {"group": "Compare", "id": "cmn", "aliases": ["cmn"], "summary": "Compare with the negative.", "forms": [["cmn rn, rm", "flags of rn + rm"]], "flags": "N Z C V", "note": "Comparing against a negative constant without negating it first.", "mn": "CoMpare Negative", "ex": [["cmn r0, r1", "r0 = 5, r1 = \u22125", "5 + (\u22125) = 0 \u2192 Z=1 (like cmp r0, #\u22125)"]]}, {"group": "Load and store", "id": "ldr", "aliases": ["ldr"], "summary": "Load 32 bits.", "forms": [["ldr rd, [rb, #imm]", "word at rb + imm (multiple of 4, \u2264124)"], ["ldr rd, [rb, ro]", "word at rb + ro"], ["ldr rd, [sp, #imm]", "a local or a spilled variable (\u22641020)"], ["ldr rd, [pc, #imm]", "a constant or address from the literal pool"]], "flags": "", "note": "<code>[sp, #N]</code> loads of the same N over and over are a variable that didn't fit in a register (spilled). <code>[pc, #N]</code> loads a <code>.word</code> after the function: a big constant or the address of a global.", "mn": "LoaD Register", "ex": [["ldr r0, [r1, #4]", "r1 = 0x02000100, word at 0x02000104 = 0x1234", "r0 = 0x1234 (s-&gt;field at +4)"], ["ldr r0, [pc, #8]<br>\u2026<br>.word 0x0203A000", "", "r0 = 0x0203A000 (a constant from the pool)"], ["ldr r0, [sp, #4]", "sp = 0x03007DF0", "r0 = the local at 0x03007DF4"]]}, {"group": "Load and store", "id": "ldrb", "aliases": ["ldrb"], "summary": "Load a byte, zero-extended.", "forms": [["ldrb rd, [rb, #imm]", "byte at rb + imm, 0\u201331"], ["ldrb rd, [rb, ro]", "byte at rb + ro"]], "flags": "", "note": "A u8 field or array element. The offset tells the field's position in the struct.", "mn": "LoaD Register Byte", "ex": [["ldrb r0, [r1, #3]", "byte at r1+3 = 0xFE", "r0 = 0x000000FE (254)"]]}, {"group": "Load and store", "id": "ldrh", "aliases": ["ldrh"], "summary": "Load a halfword, zero-extended.", "forms": [["ldrh rd, [rb, #imm]", "halfword at rb + imm (even, 0\u201362)"], ["ldrh rd, [rb, ro]", "at rb + ro"]], "flags": "", "note": "A u16 field.", "mn": "LoaD Register Halfword", "ex": [["ldrh r0, [r1, #2]", "halfword at r1+2 = 0xFFFE", "r0 = 0x0000FFFE (65534)"]]}, {"group": "Load and store", "id": "ldrsb", "aliases": ["ldrsb"], "summary": "Load a byte, sign-extended.", "forms": [["ldrsb rd, [rb, ro]", "byte at rb + ro; register offset only"]], "flags": "", "note": "There is no immediate form, so reading an s8 field needs the offset in a register first (<code>movs r1, #3; ldrsb r0, [r2, r1]</code>). Often agbcc does <code>ldrb</code> + <code>lsls #24</code> + <code>asrs #24</code> instead.", "mn": "LoaD Register Signed Byte", "ex": [["movs r0, #3<br>ldrsb r0, [r1, r0]", "byte at r1+3 = 0xFE", "r0 = 0xFFFFFFFE (\u22122)"]]}, {"group": "Load and store", "id": "ldrsh", "aliases": ["ldrsh"], "summary": "Load a halfword, sign-extended.", "forms": [["ldrsh rd, [rb, ro]", "halfword at rb + ro; register offset only"]], "flags": "", "note": "Same as <code>ldrsb</code>: an s16 with a constant offset needs <code>movs</code> first.", "mn": "LoaD Register Signed Halfword", "ex": [["movs r2, #2<br>ldrsh r0, [r1, r2]", "halfword at r1+2 = 0xFFFE", "r0 = 0xFFFFFFFE (\u22122)"]]}, {"group": "Load and store", "id": "str", "aliases": ["str"], "summary": "Store 32 bits.", "forms": [["str rd, [rb, #imm]", "word at rb + imm (multiple of 4, \u2264124)"], ["str rd, [rb, ro]", "at rb + ro"], ["str rd, [sp, #imm]", "a local or a spilled variable"]], "flags": "", "note": "A <code>str [sp, #N]</code> right before a call keeps a value the call would destroy; one at the start of the function spills an argument.", "mn": "STore Register", "ex": [["str r0, [r1, #8]", "r0 = 7, r1 = 0x02000100", "word at 0x02000108 = 7 (s-&gt;field = 7)"]]}, {"group": "Load and store", "id": "strb", "aliases": ["strb"], "summary": "Store a byte.", "forms": [["strb rd, [rb, #imm]", "byte at rb + imm, 0\u201331"], ["strb rd, [rb, ro]", "at rb + ro"]], "flags": "", "note": "Assigning a u8/s8 field.", "mn": "STore Register Byte", "ex": [["strb r0, [r1]", "r0 = 0x1234", "byte at r1 = 0x34 (only the low 8 bits)"]]}, {"group": "Load and store", "id": "strh", "aliases": ["strh"], "summary": "Store a halfword.", "forms": [["strh rd, [rb, #imm]", "at rb + imm (even, 0\u201362)"], ["strh rd, [rb, ro]", "at rb + ro"]], "flags": "", "note": "Assigning a u16/s16 field.", "mn": "STore Register Halfword", "ex": [["strh r0, [r1, #2]", "r0 = 0x12345678", "halfword at r1+2 = 0x5678"]]}, {"group": "Load and store", "id": "ldmia", "aliases": ["ldmia"], "summary": "Load several registers and advance the pointer.", "forms": [["ldmia rb!, {r0, r1, \u2026}", "load consecutive words from rb; rb += 4 \u00d7 count"]], "flags": "", "note": "Paired with <code>stmia</code>: a struct copy (<code>a = b</code> for structs).", "mn": "LoaD Multiple, Increment After", "ex": [["ldmia r1!, {r2, r3}", "r1 = 0x02000100", "r2 = word at 0x100, r3 = word at 0x104, r1 = 0x02000108"]]}, {"group": "Load and store", "id": "stmia", "aliases": ["stmia"], "summary": "Store several registers and advance the pointer.", "forms": [["stmia rb!, {r0, r1, \u2026}", "store consecutive words at rb; rb += 4 \u00d7 count"]], "flags": "", "note": "Struct copies, and zeroing several words in a row.", "mn": "STore Multiple, Increment After", "ex": [["stmia r0!, {r2, r3}", "r0 = 0x02000100, r2 = 1, r3 = 2", "words 1, 2 at 0x100, 0x104; r0 = 0x02000108 (struct copy)"]]}, {"group": "Stack", "id": "push", "aliases": ["push"], "summary": "Save registers on the stack.", "forms": [["push {r4, r5, \u2026, lr}", "store the registers; sp \u2212= 4 \u00d7 count"]], "flags": "", "note": "At the start of a function: the callee-saved registers it uses (r4\u2013r7) plus <code>lr</code> if it calls anything. Saving r8\u2013sl takes <code>mov</code> to a low register and another <code>push</code>.", "mn": "PUSH onto the stack", "ex": [["push {r4, r5, lr}", "sp = 0x03007E00", "sp = 0x03007DF4; r4, r5, lr saved there"]]}, {"group": "Stack", "id": "pop", "aliases": ["pop"], "summary": "Restore registers from the stack.", "forms": [["pop {r4, r5, \u2026}", "load the registers; sp += 4 \u00d7 count"], ["pop {r0}", "get the saved lr"]], "flags": "", "note": "agbcc returns with <code>pop {r0}; bx r0</code> (interworking), not <code>pop {pc}</code>.", "mn": "POP off the stack", "ex": [["pop {r4, r5}<br>pop {r0}<br>bx r0", "sp = 0x03007DF4", "r4, r5 restored; r0 = saved lr; return"]]}, {"group": "Branch", "id": "b", "aliases": ["b"], "summary": "Jump.", "forms": [["b label", "always jump (\u00b12 KB)"]], "flags": "", "note": "Loops jump back with it; an <code>else</code> or a <code>break</code> jumps over code with it.", "mn": "Branch", "ex": [["b .L5", "", "always continues at .L5"]]}, {"group": "Branch", "id": "bcond", "aliases": ["beq", "bne", "bhi", "bcs", "bcc", "bls", "bgt", "bge", "blt", "ble", "bmi", "bpl", "bvs", "bvc", "bhs", "blo"], "summary": "Jump if a condition holds.", "forms": [["beq label", "equal (Z=1)"], ["bne label", "not equal (Z=0)"], ["bhi label", "unsigned &gt; (C=1 and Z=0)"], ["bcs label", "unsigned &ge; (also <code>bhs</code>) (C=1)"], ["bcc label", "unsigned &lt; (also <code>blo</code>) (C=0)"], ["bls label", "unsigned &le; (C=0 or Z=1)"], ["bgt label", "signed &gt; (Z=0 and N=V)"], ["bge label", "signed &ge; (N=V)"], ["blt label", "signed &lt; (N&ne;V)"], ["ble label", "signed &le; (Z=1 or N&ne;V)"], ["bmi label", "negative (N=1)"], ["bpl label", "positive or zero (N=0)"], ["bvs label", "overflow (V=1)"], ["bvc label", "no overflow (V=0)"]], "flags": "", "note": "Range \u00b1256 bytes; farther targets get the inverted branch over a <code>b</code>. An <code>if (x == 3) {\u2026}</code> usually comes out as <code>cmp x, #3; bne</code> past the body: the condition is inverted.", "mn": "Branch + a condition (eq, ne, gt\u2026)", "ex": [["cmp r0, #0<br>beq .L3", "r0 = 0", "Z=1 \u2192 jumps to .L3"], ["cmp r0, #5<br>bls .L4", "r0 = 0xFFFFFFFF", "unsigned huge &gt; 5 \u2192 no jump (a switch's range check)"]]}, {"group": "Branch", "id": "bl", "aliases": ["bl"], "summary": "Call a function.", "forms": [["bl func", "lr = return address; jump to func (\u00b14 MB)"]], "flags": "", "note": "Arguments go in r0\u2013r3 (more on the stack), the result comes back in r0. r0\u2013r3 and ip are destroyed by the call; r4\u2013r7 and r8\u2013sl survive. A call through a pointer is <code>bl _call_via_rN</code>.", "mn": "Branch with Link", "ex": [["bl sub_08012345", "pc = 0x08000100", "lr = 0x08000105 (return address, +1 = Thumb); runs sub_08012345"]]}, {"group": "Branch", "id": "bx", "aliases": ["bx"], "summary": "Jump to an address in a register.", "forms": [["bx rm", "jump to rm; bit 0 picks Thumb (1) or ARM (0)"]], "flags": "", "note": "<code>bx r0</code> after <code>pop {r0}</code> is a return; <code>bx lr</code> returns from a leaf function.", "mn": "Branch and eXchange (instruction set)", "ex": [["bx lr", "lr = 0x08000105", "returns to 0x08000104 in Thumb (bit 0 = 1)"], ["ldr r1, [pc, #4]<br>bx r1", "r1 = a function pointer", "calls through the pointer (no return address set)"]]}, {"group": "Branch", "id": "swi", "aliases": ["swi"], "summary": "Call the BIOS.", "forms": [["swi #n", "BIOS function n (e.g. 6 = Div, 0xB = CpuSet)"]], "flags": "", "note": "Not emitted by agbcc for C operators; it comes from inline asm or libraries.", "mn": "SoftWare Interrupt", "ex": [["movs r0, #100<br>movs r1, #7<br>swi #6", "", "BIOS Div: r0 = 14, r1 = 2 (remainder)"]]}, {"group": "Data", "id": ".word", "aliases": [".word"], "summary": "A 32-bit value in the code.", "forms": [[".word value", "literal pool entry, read by ldr [pc, #N]"], [".word label", "an address: a global, a function, or a switch jump-table entry"]], "flags": "", "note": "After the function's last instruction (or after a <code>b</code>). A run of <code>.word</code>s pointing inside the function is a <code>switch</code> jump table.", "mn": "a WORD: 32 bits", "ex": [[".word 0x0203A000", "", "4 bytes of data after the function, read by <code>ldr rd, [pc, #N]</code>"]]}, {"group": "Data", "id": ".short", "aliases": [".short"], "summary": "16 bits of padding.", "forms": [[".short 0", "align the literal pool to 4 bytes"]], "flags": "", "note": "Its presence depends only on whether the code before it has an odd number of halfwords: a <code>.short</code> that only one side has means the code above differs in length by one instruction.", "mn": "a SHORT: 16 bits", "ex": [[".short 0", "", "2 bytes so the following <code>.word</code>s start at a multiple of 4"]]}, {"group": "Data", "id": "nop", "aliases": ["nop"], "summary": "Do nothing.", "forms": [["nop", "mov r8, r8"]], "flags": "", "note": "Padding.", "mn": "No OPeration", "ex": [["nop", "", "nothing; fills 2 bytes"]]}];
+const CONDS = [{"c": "eq", "mn": "EQual", "meaning": "equal", "flags": "Z=1"}, {"c": "ne", "mn": "Not Equal", "meaning": "not equal", "flags": "Z=0"}, {"c": "hi", "mn": "HIgher", "meaning": "unsigned &gt;", "flags": "C=1 and Z=0"}, {"c": "cs", "mn": "Carry Set", "meaning": "unsigned &ge; (also <code>bhs</code>)", "flags": "C=1"}, {"c": "cc", "mn": "Carry Clear", "meaning": "unsigned &lt; (also <code>blo</code>)", "flags": "C=0"}, {"c": "ls", "mn": "Lower or Same", "meaning": "unsigned &le;", "flags": "C=0 or Z=1"}, {"c": "gt", "mn": "Greater Than", "meaning": "signed &gt;", "flags": "Z=0 and N=V"}, {"c": "ge", "mn": "Greater or Equal", "meaning": "signed &ge;", "flags": "N=V"}, {"c": "lt", "mn": "Less Than", "meaning": "signed &lt;", "flags": "N&ne;V"}, {"c": "le", "mn": "Less or Equal", "meaning": "signed &le;", "flags": "Z=1 or N&ne;V"}, {"c": "mi", "mn": "MInus", "meaning": "negative", "flags": "N=1"}, {"c": "pl", "mn": "PLus", "meaning": "positive or zero", "flags": "N=0"}, {"c": "vs", "mn": "oVerflow Set", "meaning": "overflow", "flags": "V=1"}, {"c": "vc", "mn": "oVerflow Clear", "meaning": "no overflow", "flags": "V=0"}];
+const PIECES = [["\u2026s", "Set flags: the result also updates N Z C V, for a later branch", "adds, subs, movs, lsls"], ["ld\u2026 / st\u2026", "LoaD (memory \u2192 register) / STore (register \u2192 memory)", "ldr, str"], ["\u2026r", "Register: a whole 32-bit word", "ldr, str"], ["\u2026b / \u2026h", "Byte (8 bits) / Halfword (16 bits)", "ldrb, strh"], ["\u2026s b / \u2026s h", "Signed: the loaded value keeps its sign", "ldrsb, ldrsh"], ["\u2026m ia", "Multiple registers, Increment After each one", "ldmia, stmia"], ["b\u2026", "Branch; with a condition, only if it holds", "b, beq, bhi"], ["\u2026l", "Link: save the return address in lr (a call)", "bl"], ["\u2026x", "eXchange: may switch between Thumb and ARM", "bx"]];
 
 const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 const mnOf = l => l.split(/\s/)[0].replace(/\.n$/, '');
@@ -175,47 +261,109 @@ function hlA(line) {
     .replace(/(#-?(?:0x[0-9a-f]+|\d+))/g, '<span class="imm">$1</span>')
     .replace(/\b(bl)\b/, '$1')
     .replace(/\b([A-Za-z_][A-Za-z0-9_]*)$/, (s) => /^(r\d+|sl|sp|lr|pc|ip|fp)$/.test(s) ? s : '<span class="sym">' + s + '</span>');
-  return '<span class="mn">' + esc(mn) + '</span>' + rest + tail;
+  const i = insOf(mn.replace(/\.n$/, ''));
+  const head = i ? '<a class="mn" href="#ins/' + i.id + '" title="' + esc(i.mn) + '">' + esc(mn) + '</a>'
+              : '<span class="mn">' + esc(mn) + '</span>';
+  return head + rest + tail;
 }
 
-function block(cap, lines, keyset) {
+function block(cap, lines, keyset, first = 1) {
   const rows = lines.map((html, i) => {
     const key = keyset && keyset(i) ? ' key' : '';
-    return '<span class="ln' + key + '"><span class="n">' + (i + 1) + '</span>' + html + '</span>';
+    // The text gets its own span: loose text in a flex row loses its edge spaces.
+    return '<span class="ln' + key + '"><span class="n">' + (i + first) + '</span><span>' + html + '</span></span>';
   }).join('');
   return '<pre class="code"><span class="cap">' + cap + '</span>' + rows + '</pre>';
 }
 
-// Instruction index.
+// Instruction reference: which entry each printed mnemonic belongs to.
+const byAlias = {};
+INSNS.forEach(i => i.aliases.forEach(a => byAlias[a] = i));
+const insOf = mn => byAlias[mn] || null;
+// "MOVe + Set flags": capitals are the letters in the mnemonic.
+const expand = s => esc(s).replace(/[A-Z]+/g, '<b>$&</b>');
+
+// Mnemonic counts over the examples.
 const counts = {};
 DATA.forEach(d => {
   d.mns = new Set(d.asm.map(mnOf));
   d.mns.forEach(m => counts[m] = (counts[m] || 0) + 1);
 });
 const chipBox = document.getElementById('chips');
-let active = null;
+let active = null, view = 'p';
 Object.keys(counts).sort().forEach(m => {
   const b = document.createElement('button');
   b.type = 'button'; b.className = 'chip'; b.dataset.mn = m;
   b.setAttribute('aria-pressed', 'false');
   b.innerHTML = esc(m) + '<small>' + counts[m] + '</small>';
-  b.addEventListener('click', () => { active = active === m ? null : m; save(); render(); });
+  b.addEventListener('click', () => { location.hash = active === m ? '' : 'mn/' + m; });
   chipBox.appendChild(b);
 });
 
 const q = document.getElementById('q');
 q.addEventListener('input', () => { save(); render(); });
-document.getElementById('clear').addEventListener('click', () => { q.value = ''; active = null; save(); render(); });
+document.getElementById('clear').addEventListener('click', () => {
+  q.value = ''; save();
+  if (view === 'p' && active) location.hash = ''; else render();
+});
+function save() { try { localStorage.setItem('atlas', JSON.stringify({ q: q.value })); } catch (e) {} }
+try { q.value = JSON.parse(localStorage.getItem('atlas') || '{}').q || ''; } catch (e) {}
 
-function save() { try { localStorage.setItem('atlas', JSON.stringify({ q: q.value, active })); } catch (e) {} }
-try { const s = JSON.parse(localStorage.getItem('atlas') || '{}'); q.value = s.q || ''; active = s.active || null; } catch (e) {}
-if (/^#[a-z.]+$/.test(location.hash) && counts[location.hash.slice(1)]) active = location.hash.slice(1);
+// Hash routes: '' patterns, #mn/X patterns using X, #ex/NAME one example, #ins the reference,
+// #ins/ID one instruction. Old links (#negs) still filter.
+function route() {
+  const h = decodeURIComponent(location.hash.slice(1));
+  let target = null;
+  active = null;
+  if (h === 'calls') { view = 'i'; target = 'calls'; }
+  else if (h === 'ins' || h.startsWith('ins/')) {
+    view = 'i';
+    if (h.startsWith('ins/')) target = 'i-' + h.slice(4);
+  } else {
+    view = 'p';
+    if (h.startsWith('mn/') && counts[h.slice(3)]) active = h.slice(3);
+    else if (counts[h]) active = h;
+    else if (h.startsWith('ex/')) target = h.slice(3);
+  }
+  document.getElementById('view-p').hidden = view !== 'p';
+  document.getElementById('view-i').hidden = view !== 'i';
+  document.getElementById('tab-p').setAttribute('aria-current', view === 'p' ? 'page' : 'false');
+  document.getElementById('tab-i').setAttribute('aria-current', view === 'i' ? 'page' : 'false');
+  render();
+  // The hash isn't the element's id, so :target never applies; mark it by hand.
+  const el = target && document.getElementById(target);
+  document.querySelectorAll('.on').forEach(e => e.classList.remove('on'));
+  if (el) el.classList.add('on');
+  // Back/forward returns to where that entry was left; a new link goes to its target.
+  const y = history.state && history.state.y;
+  if (y != null) window.scrollTo(0, y);
+  else if (el) window.scrollTo(0, el.getBoundingClientRect().top + window.scrollY - barH() - 12);
+  else window.scrollTo(0, 0);
+}
+const bar = document.querySelector('.bar');
+const barH = () => bar.getBoundingClientRect().height;
+try { history.scrollRestoration = 'manual'; } catch (e) {}
+let saveT = 0;
+window.addEventListener('scroll', () => {
+  clearTimeout(saveT);
+  saveT = setTimeout(() => { try { history.replaceState({ y: window.scrollY }, ''); } catch (e) {} }, 100);
+});
+window.addEventListener('hashchange', route);
 
-function render() {
+const matches = (text, term) => !term || text.toLowerCase().includes(term);
+
+function render() { view === 'p' ? renderP() : renderI(); }
+
+function renderP() {
   const term = q.value.trim().toLowerCase();
   chipBox.querySelectorAll('.chip').forEach(c => c.setAttribute('aria-pressed', String(c.dataset.mn === active)));
+  const i = active && insOf(active);
+  document.getElementById('focus').innerHTML = active
+    ? '<code>' + esc(active) + '</code>' + (i ? ': ' + expand(i.mn) + '. ' + i.summary +
+      ' <a href="#ins/' + i.id + '">Reference →</a>' : '') + ' · <a href="#">Show all</a>'
+    : '';
   const shown = DATA.filter(d => (!active || d.mns.has(active)) &&
-    (!term || (d.title + ' ' + d.c + ' ' + d.note + ' ' + d.asm.join(' ') + ' ' + d.section).toLowerCase().includes(term)));
+    matches(d.title + ' ' + d.c + ' ' + d.note + ' ' + d.asm.join(' ') + ' ' + d.section, term));
   document.getElementById('count').textContent = shown.length + ' of ' + DATA.length + ' examples';
   const list = document.getElementById('list');
   if (!shown.length) { list.innerHTML = '<p class="empty">No example matches. Clear the filter to see them all.</p>'; return; }
@@ -232,7 +380,66 @@ function render() {
         '</div></article>';
     }).join('') + '</section>').join('');
 }
-render();
+
+document.getElementById('pieces').innerHTML = PIECES.map(([p, m, e]) =>
+  '<tr><td>' + esc(p) + '</td><td>' + esc(m) + '. <span class="dim">' + esc(e) + '</span></td></tr>').join('');
+document.querySelectorAll('.cxs').forEach(box => {
+  const d = DATA.find(d => d.name === box.dataset.ex);
+  if (!d) return;
+  box.innerHTML = '<p class="meta"><a href="#ex/' + d.name + '">' + esc(d.title) + '</a>' + (d.note ? ': ' + d.note : '') + '</p>' +
+    '<div class="pair">' + block('C', hlC(d.c), null) + block('asm', d.asm.map(hlA), i => /^(push|pop|bl|bx)\b/.test(d.asm[i])) + '</div>';
+});
+document.getElementById('toc').innerHTML = INSNS.map(i =>
+  '<a href="#ins/' + i.id + '">' + esc(i.id === 'bcond' ? 'b<cond>' : i.id) + '</a>').join('');
+
+// Collapsed by default: one line with the count, the excerpt and the links when opened.
+function seen(i, uses) {
+  if (!uses.length) return '<p class="meta">Not in the examples yet.</p>';
+  const d = uses[0];
+  const n = d.asm.findIndex(l => i.aliases.includes(mnOf(l)));
+  const from = Math.max(0, n - 1), to = Math.min(d.asm.length, n + 2);
+  const usedAs = i.aliases.filter(a => counts[a]);
+  return '<details class="seen"><summary>In real agbcc output · ' + uses.length + ' example' +
+    (uses.length > 1 ? 's' : '') + '</summary>' +
+    '<div class="pair">' + block('C · ' + esc(d.title), hlC(d.c), null) +
+    block('asm (excerpt)', d.asm.slice(from, to).map(hlA), k => k + from === n, from + 1) + '</div>' +
+    '<div class="uses">' + usedAs.map(a => '<a href="#mn/' + a + '">all with ' + esc(a) + '</a>').join('') +
+    uses.map(d => '<a href="#ex/' + d.name + '">' + esc(d.title) + '</a>').join('') + '</div></details>';
+}
+
+function insCard(i) {
+  const names = i.id === 'bcond' ? 'b&lt;cond&gt;' : esc(i.id);
+  const forms = i.id === 'bcond'
+    ? CONDS.map(c => '<tr><td>b' + c.c + '</td><td><span class="expand">' + expand(c.mn) + '</span> · ' +
+        c.meaning + ' <span class="dim">(' + c.flags + ')</span></td></tr>').join('')
+    : i.forms.map(([s, m]) => '<tr><td>' + esc(s) + '</td><td>' + esc(m) + '</td></tr>').join('');
+  const uses = DATA.filter(d => i.aliases.some(a => d.mns.has(a)));
+  const ex = i.ex.map(([a, b, r]) =>
+    '<div class="wrow"><code class="wasm">' + a.split('<br>').map(l => esc(l)).join('<br>') + '</code><div>' +
+    (b ? '<span class="dim">before</span> ' + b + '<br>' : '') +
+    '<span class="dim">after</span> ' + r + '</div></div>').join('');
+  return '<article class="ins" id="i-' + i.id + '"><h3>' + names +
+    '<span class="expand">' + expand(i.mn) + '</span></h3>' +
+    '<p class="sum">' + i.summary + (i.flags ? ' <span class="dim">Flags: ' + esc(i.flags) + '</span>' : '') + '</p>' +
+    '<div class="cols"><div class="wrapx"><table class="forms">' + forms + '</table></div>' +
+    '<div class="wex">' + ex + '</div></div>' +
+    (i.note ? '<p class="meta">' + i.note + '</p>' : '') +
+    seen(i, uses) + '</article>';
+}
+
+function renderI() {
+  const term = q.value.trim().toLowerCase();
+  const shown = INSNS.filter(i => matches(i.aliases.join(' ') + ' ' + i.mn + ' ' + i.summary + ' ' +
+    i.note + ' ' + i.forms.map(f => f.join(' ')).join(' ') + ' ' + i.group, term));
+  document.getElementById('count').textContent = shown.length + ' of ' + INSNS.length + ' instructions';
+  const byG = {};
+  shown.forEach(i => (byG[i.group] = byG[i.group] || []).push(i));
+  document.getElementById('ilist').innerHTML = shown.length
+    ? Object.entries(byG).map(([g, is]) => '<section><h2>' + esc(g) + '<span>' + is.length + '</span></h2>' +
+        is.map(insCard).join('') + '</section>').join('')
+    : '<p class="empty">No instruction matches.</p>';
+}
+route();
 </script>
 </body>
 </html>

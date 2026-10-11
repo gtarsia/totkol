@@ -3,8 +3,9 @@
 # Run with decomp-permuter's Python (it has pycparser); perm.sh pick calls it. The permuter works on
 # preprocessed C (no comments, macros expanded), so changes are matched to SRC ignoring spaces,
 # parentheses, braces and comments, with macros expanded. If any can't be matched cleanly, or
-# would drop a comment, nothing is patched and they're listed to apply by hand. An output whose
-# changes don't change the diff is skipped (perm.sh's --all shows it).
+# would drop a comment, nothing is patched and they're listed to apply by hand. An output that adds
+# logic differences (see ndiff.sh) is rejected; one whose changes don't change the diff is skipped
+# (perm.sh's --all shows it).
 import difflib, os, re, subprocess, sys, tempfile, time
 from pycparser import c_parser, c_generator
 
@@ -49,16 +50,40 @@ def dump(obj):
 open(f'{TMP}/target.txt', 'w').write('\n'.join(dump(f'{DIR}/target.o')) + '\n')
 
 
+def logic(lines):
+    """The listing with what isn't logic made equal, as ndiff.sh's logic count does: registers,
+    stack offsets, register copies, alignment padding and jump-table addresses."""
+    out = []
+    for i, l in enumerate(lines):
+        l = re.sub(r'\b(r\d+|sb|sl|fp|ip)\b', 'R', l)
+        l = re.sub(r'\[sp, #\d+\]', '[sp, #N]', l)
+        l = {'mov R, R': 'copy', 'adds R, R, #0': 'copy', '.short 0x0000': 'copy',
+             'adds R, R, R': 'add R, R'}.get(l, l)
+        if l.startswith('.word ') and i + 1 < len(lines) and lines[i + 1] == 'R_ARM_ABS32 .text':
+            l = '.word target'
+        out.append(l)
+    return out
+
+
+target = open(f'{TMP}/target.txt').read().split('\n')
+open(f'{TMP}/target.logic', 'w').write('\n'.join(logic(target)))
+
+
 def score(prefix, region):
-    """Instruction lines that differ from the original (as ndiff.sh counts them), or None if it
-    doesn't compile."""
+    """(instruction lines that differ from the original, of them logic only), as ndiff.sh counts
+    them, or None if it doesn't compile."""
     c, o = f'{TMP}/cand.c', f'{TMP}/cand.o'
     open(c, 'w').write('\n'.join(prefix + region) + '\n')
     if run(f'{DIR}/compile.sh', c, '-o', o).returncode:
         return None
-    open(f'{TMP}/new.txt', 'w').write('\n'.join(dump(o)) + '\n')
+    lines = dump(o)
+    open(f'{TMP}/new.txt', 'w').write('\n'.join(lines) + '\n')
     out = run('diff', f'{TMP}/target.txt', f'{TMP}/new.txt').stdout
-    return sum(1 for l in out.splitlines() if l[:1] in '<>')
+    total = sum(1 for l in out.splitlines() if l[:1] in '<>')
+    open(f'{TMP}/new.logic', 'w').write('\n'.join(logic(lines + [''])))
+    out = run('diff', f'{TMP}/target.logic', f'{TMP}/new.logic').stdout
+    lg = sum(1 for l in out.splitlines() if l[:1] in '<>' and l[2:] != 'copy')
+    return total, lg
 
 
 # Macros, to compare SRC with the expanded code and to put names back into accepted lines.
@@ -229,8 +254,13 @@ def with_changes(ops):
     return out
 
 
-current = score(prefix, A)
-s = score(prefix, with_changes(hunks))
+(current, current_logic), new = score(prefix, A), score(prefix, with_changes(hunks))
+s, s_logic = new if new else (None, None)
+if s_logic is not None and s_logic > current_logic:
+    # Its changes alter what the code does (or how): not something to patch into src.
+    print(f'\033[90mrejected: it adds logic differences ({current_logic} → {s_logic}), so it '
+          'changes what the code does\033[0m')
+    sys.exit()
 if not hunks or (s == current and not SHOW_ALL):
     print(f"\033[90mskipped: its changes don't change the diff ({current} lines; perm.sh's --all "
           'shows them)\033[0m')

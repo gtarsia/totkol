@@ -48,25 +48,36 @@ body {
   padding-inline: 16px; padding-block: 0 64px;
 }
 .wrap { max-width: 1120px; margin: 0 auto; }
-header { padding-block: 40px 20px; display: grid; gap: 10px; }
+header { padding-block: 20px 12px; display: grid; gap: 6px; }
 .eyebrow { font: 600 12px/1 var(--cond); letter-spacing: .14em; text-transform: uppercase; color: var(--accent); }
-h1 { font: 700 clamp(30px, 5vw, 46px)/1.05 var(--cond); margin: 0; text-wrap: balance; letter-spacing: -.01em; }
+h1 { font: 700 clamp(24px, 4vw, 34px)/1.05 var(--cond); margin: 0; text-wrap: balance; letter-spacing: -.01em; }
 .lede { max-width: 68ch; color: var(--muted); margin: 0; }
 .lede code, .note code, .tips code { font-family: var(--mono); font-size: .9em; background: var(--accent-soft); padding: 0 4px; border-radius: 3px; color: var(--ink); }
 
 .bar {
   position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg);
-  border-bottom: 1px solid var(--rule); padding-block: 12px; display: grid; gap: 10px;
+  border-bottom: 1px solid var(--rule); padding-block: 8px; display: flex; gap: 10px;
+  align-items: center; flex-wrap: wrap;
 }
-.search { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.tabs { display: flex; gap: 2px; background: var(--rule); padding: 2px; border-radius: 7px; }
+.tab {
+  font: 600 14px var(--cond); letter-spacing: .02em; border: 0; border-radius: 5px; padding: 7px 12px;
+  background: none; color: var(--muted); cursor: pointer; text-decoration: none;
+}
+.tab[aria-current="page"] { background: var(--surface); color: var(--ink); }
+.tab:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.search { display: flex; gap: 10px; align-items: center; flex: 1 1 320px; min-width: 0; }
 .search input {
-  flex: 1 1 260px; min-width: 0; font: 15px var(--sans); color: var(--ink); background: var(--surface);
-  border: 1px solid var(--rule); border-radius: 6px; padding: 9px 12px;
+  flex: 1 1 auto; min-width: 0; font: 15px var(--sans); color: var(--ink); background: var(--surface);
+  border: 1px solid var(--rule); border-radius: 6px; padding: 7px 10px;
 }
 .search input:focus-visible, .chip:focus-visible, .clear:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .count { font: 500 13px var(--cond); color: var(--muted); font-variant-numeric: tabular-nums; }
 .clear { font: 600 13px var(--cond); background: none; border: 1px solid var(--rule); color: var(--muted); border-radius: 6px; padding: 7px 10px; cursor: pointer; }
-.chips { display: flex; flex-wrap: wrap; gap: 6px; max-height: 92px; overflow-y: auto; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; }
+.focus { margin-top: 12px; padding: 10px 14px; background: var(--key-bg); border-radius: 6px; color: var(--ink); }
+.focus a { color: var(--key-ink); font-weight: 600; }
+.focus:empty { display: none; }
 .chips .label { font: 600 12px/26px var(--cond); color: var(--muted); letter-spacing: .06em; text-transform: uppercase; margin-right: 4px; }
 .chip {
   font: 13px/1 var(--mono); padding: 6px 8px; border-radius: 4px; border: 1px solid var(--rule);
@@ -83,6 +94,28 @@ h1 { font: 700 clamp(30px, 5vw, 46px)/1.05 var(--cond); margin: 0; text-wrap: ba
 .tip p { margin: 0; color: var(--muted); font-size: 14px; }
 
 section { margin-top: 36px; }
+.entry, .ins, #calls { scroll-margin-top: 72px; }
+.code a.mn { text-decoration: none; }
+.code a.mn:hover { text-decoration: underline; }
+.ins { background: var(--surface); border: 1px solid var(--rule); border-radius: 8px; padding: 12px 16px; margin-bottom: 10px; }
+.ins.on, .entry.on { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-soft); }
+.ins h3 { font: 600 22px/1.2 var(--mono); margin: 0; color: var(--a-mn); }
+.ins h3 small { font: 13px var(--mono); color: var(--muted); margin-left: 6px; }
+.expand { font: 15px var(--mono); margin: 4px 0 2px; color: var(--muted); }
+.expand b { color: var(--key-ink); background: var(--key-bg); padding: 0 1px; border-radius: 2px; font-weight: 600; }
+.sum { margin: 4px 0 6px; }
+table.forms { border-collapse: collapse; width: 100%; font-size: 14px; margin-bottom: 4px; }
+.forms td { border-top: 1px solid var(--rule); padding: 5px 8px 5px 0; vertical-align: top; }
+.forms td:first-child { font: 13px var(--mono); white-space: nowrap; color: var(--a-mn); width: 1%; padding-right: 18px; }
+.forms td code { font-family: var(--mono); font-size: .9em; }
+.wrapx { overflow-x: auto; }
+.meta { font-size: 14px; color: var(--muted); margin: 4px 0; }
+.meta code, .sum code, .forms code { font-family: var(--mono); font-size: .9em; background: var(--accent-soft); padding: 0 4px; border-radius: 3px; color: var(--ink); }
+.uses { font-size: 14px; margin-top: 8px; display: flex; flex-wrap: wrap; gap: 4px 12px; }
+.uses b { font: 600 13px var(--cond); color: var(--muted); letter-spacing: .06em; text-transform: uppercase; }
+.uses a, .meta a { color: var(--accent); }
+.toc { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; }
+.toc a { font: 13px/1 var(--mono); padding: 6px 8px; border-radius: 4px; border: 1px solid var(--rule); background: var(--surface); color: var(--a-mn); text-decoration: none; }
 h2 { font: 700 22px/1.2 var(--cond); margin: 0 0 12px; display: flex; align-items: baseline; gap: 10px; }
 h2 span { font: 500 13px var(--cond); color: var(--muted); }
 .entry { background: var(--surface); border: 1px solid var(--rule); border-radius: 8px; padding: 16px; margin-bottom: 14px; }
@@ -105,6 +138,16 @@ h2 span { font: 500 13px var(--cond); color: var(--muted); }
 footer { margin-top: 48px; color: var(--muted); font-size: 13px; border-top: 1px solid var(--rule); padding-top: 16px; }
 footer code { font-family: var(--mono); font-size: 12px; }
 @media (prefers-reduced-motion: no-preference) { .chip { transition: background .12s, border-color .12s; } }
+.ins h3 .expand { display: inline; font-size: 14px; font-weight: 400; margin-left: 12px; }
+.cols { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 0 20px; }
+@media (max-width: 760px) { .cols { grid-template-columns: minmax(0, 1fr); } }
+.wex { font-size: 13px; }
+.wrow { display: grid; grid-template-columns: max-content 1fr; gap: 0 12px; padding: 5px 0; border-top: 1px solid var(--rule); }
+.wasm { white-space: nowrap; font-family: var(--mono); }
+.cxs { margin-top: 12px; }
+.seen { margin-top: 6px; font-size: 14px; }
+.seen summary { cursor: pointer; color: var(--accent); font-size: 13px; }
+.seen .pair { margin-top: 8px; }
 </style>
 
 <div class="wrap">
@@ -115,22 +158,62 @@ footer code { font-family: var(--mono); font-size: 12px; }
   </header>
 
   <div class="bar">
+    <nav class="tabs" aria-label="Views">
+      <a class="tab" id="tab-p" href="#">Patterns</a>
+      <a class="tab" id="tab-i" href="#ins">Instructions</a>
+    </nav>
     <div class="search">
-      <input id="q" type="search" placeholder="Filter by text: switch, u8, global, spill…" aria-label="Filter examples">
+      <input id="q" type="search" placeholder="Filter: switch, u8, spill, ldrb…" aria-label="Filter">
       <button class="clear" id="clear" type="button">Clear</button>
       <span class="count" id="count"></span>
     </div>
+  </div>
+
+  <div id="view-p">
     <div class="chips" id="chips" role="group" aria-label="Filter by instruction"><span class="label">Instruction</span></div>
+    <div class="focus" id="focus"></div>
+    <div class="tips">
+      <div class="tip"><b>Conditions come out inverted</b><p>An <code>if</code> becomes "if NOT the condition, jump over the body".</p></div>
+      <div class="tip"><b><code>lsrs</code> vs <code>asrs</code></b><p>After <code>lsls #24</code>/<code>#16</code>: <code>lsrs</code> is a u8/u16, <code>asrs</code> an s8/s16.</p></div>
+      <div class="tip"><b>The jump tells the type</b><p><code>bgt</code>/<code>blt</code>… signed; <code>bhi</code>/<code>bcc</code>… unsigned.</p></div>
+      <div class="tip"><b>Registers</b><p><code>r0</code>–<code>r3</code> arguments and result; <code>r4</code>–<code>r7</code>, <code>r8</code>–<code>sl</code> survive calls. <a href="#calls">Calling convention →</a></p></div>
+    </div>
+    <main id="list"></main>
   </div>
 
-  <div class="tips">
-    <div class="tip"><b>Conditions come out inverted</b><p>An <code>if</code> becomes "if NOT the condition, jump over the body".</p></div>
-    <div class="tip"><b><code>lsrs</code> vs <code>asrs</code></b><p>After <code>lsls #24</code>/<code>#16</code>: <code>lsrs</code> is a u8/u16, <code>asrs</code> an s8/s16.</p></div>
-    <div class="tip"><b>The jump tells the type</b><p><code>bgt</code>/<code>blt</code>… signed; <code>bhi</code>/<code>bcc</code>… unsigned.</p></div>
-    <div class="tip"><b>Registers</b><p><code>r0</code>–<code>r3</code> arguments and result; <code>r4</code>–<code>r7</code>, <code>r8</code>–<code>sl</code> survive calls.</p></div>
+  <div id="view-i" hidden>
+    <section>
+      <h2>How the names are built</h2>
+      <div class="ins">
+        <p class="sum">Each mnemonic is a few letters taken from English words, plus pieces that repeat. Learn the pieces and most names read themselves: <code>ldrsb</code> = <b>L</b>oa<b>D</b> <b>R</b>egister <b>S</b>igned <b>B</b>yte.</p>
+        <div class="wrapx"><table class="forms" id="pieces"></table></div>
+        <p class="meta">Operands in the forms: <code>rd</code> = Destination register (gets the result), <code>rs</code> = Source register, <code>rn</code> = first operand or the base of an address, <code>rm</code> = second operand register, <code>#imm</code> = IMMediate (a constant inside the instruction).</p>
+        <p class="meta">Registers: <code>r0</code>–<code>r7</code> are the "low" ones, which almost every instruction can use; <code>r8</code>–<code>r12</code> only with <code>mov</code>, <code>add</code>, <code>cmp</code>. objdump names some by their role: <code>sl</code> = r10, <code>fp</code> = r11, <code>ip</code> = r12, <code>sp</code> = r13 (stack pointer), <code>lr</code> = r14 (link register: the return address), <code>pc</code> = r15 (program counter).</p>
+        <p class="meta">Flags, set by the <code>…s</code> instructions and <code>cmp</code>: <b>N</b> result Negative, <b>Z</b> result Zero, <b>C</b> Carry (unsigned overflow; after a compare, "no borrow"), <b>V</b> oVerflow (signed).</p>
+      </div>
+    </section>
+    <section id="calls">
+      <h2>Calling convention</h2>
+      <div class="ins">
+        <p class="sum">What every function agrees on, so any caller can call any callee. ARM publishes the rule (the Procedure Call Standard, APCS back then); what counts here is how agbcc applies it, set in <code>agbcc-src/gcc_arm/config/arm/thumb.h</code> (<code>CALL_USED_REGISTERS</code>, <code>FIXED_REGISTERS</code>, <code>FUNCTION_ARG_REGNO_P</code>, <code>FUNCTION_VALUE</code>). The game was built with the same compiler, so its functions follow it too: whatever is in <code>r0</code>–<code>r3</code> on entry is the arguments.</p>
+        <div class="wrapx"><table class="forms">
+          <tr><td>r0–r3</td><td>Arguments 1–4; the result comes back in <code>r0</code> (<code>r0</code>+<code>r1</code> for 64 bits). A call may overwrite them: <b>caller-saved</b>.</td></tr>
+          <tr><td>r4–r7</td><td>Survive calls: <b>callee-saved</b>. A function that uses them saves them first (<code>push {r4, lr}</code>) and restores them before returning.</td></tr>
+          <tr><td>r8–sl</td><td>Also callee-saved. agbcc only parks values there (<code>mov r8, r4</code>) when r4–r7 run out.</td></tr>
+          <tr><td>fp (r11)</td><td>Reserved; agbcc never hands it out.</td></tr>
+          <tr><td>ip (r12)</td><td>Scratch; a call may overwrite it.</td></tr>
+          <tr><td>sp, lr, pc</td><td>Stack pointer, return address (set by <code>bl</code>), program counter.</td></tr>
+          <tr><td>5th arg on</td><td>On the stack: the caller stores them at <code>[sp, #0]</code>, <code>[sp, #4]</code>… right before the <code>bl</code>.</td></tr>
+          <tr><td>big structs</td><td>A struct over 4 bytes isn't returned in <code>r0</code>: the caller passes a hidden pointer in <code>r0</code> and the callee writes the result there (<code>thumb_return_in_memory</code> in <code>thumb.c</code>).</td></tr>
+        </table></div>
+        <p class="meta">Why <code>pop {r1}; bx r1</code> and not <code>pop {pc}</code>: the saved <code>lr</code> comes back into a free scratch register and <code>bx</code> returns through it, so the caller may be ARM or Thumb (bit 0 of the address). Which scratch register depends on which one isn't holding the result.</p>
+        <div class="cxs" data-ex="r_keep"></div>
+        <div class="cxs" data-ex="r_five"></div>
+      </div>
+    </section>
+    <nav class="toc" id="toc" aria-label="Instructions"></nav>
+    <main id="ilist"></main>
   </div>
-
-  <main id="list"></main>
 
   <footer>
     Every listing is real output: <code>agbcc -mthumb-interwork -O2 -fhex-asm -fprologue-bugfix</code>, assembled and disassembled with <code>arm-none-eabi-objdump</code> (the same view <code>scripts/ndiff.sh</code> shows). Jump targets show as <code>→ N</code>, the line they land on. Highlighted lines are the ones the example is about.
@@ -139,6 +222,9 @@ footer code { font-family: var(--mono); font-size: 12px; }
 
 <script>
 const DATA = __DATA__;
+const INSNS = __INSNS__;
+const CONDS = __CONDS__;
+const PIECES = __PIECES__;
 
 const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 const mnOf = l => l.split(/\s/)[0].replace(/\.n$/, '');
@@ -168,47 +254,109 @@ function hlA(line) {
     .replace(/(#-?(?:0x[0-9a-f]+|\d+))/g, '<span class="imm">$1</span>')
     .replace(/\b(bl)\b/, '$1')
     .replace(/\b([A-Za-z_][A-Za-z0-9_]*)$/, (s) => /^(r\d+|sl|sp|lr|pc|ip|fp)$/.test(s) ? s : '<span class="sym">' + s + '</span>');
-  return '<span class="mn">' + esc(mn) + '</span>' + rest + tail;
+  const i = insOf(mn.replace(/\.n$/, ''));
+  const head = i ? '<a class="mn" href="#ins/' + i.id + '" title="' + esc(i.mn) + '">' + esc(mn) + '</a>'
+              : '<span class="mn">' + esc(mn) + '</span>';
+  return head + rest + tail;
 }
 
-function block(cap, lines, keyset) {
+function block(cap, lines, keyset, first = 1) {
   const rows = lines.map((html, i) => {
     const key = keyset && keyset(i) ? ' key' : '';
-    return '<span class="ln' + key + '"><span class="n">' + (i + 1) + '</span>' + html + '</span>';
+    // The text gets its own span: loose text in a flex row loses its edge spaces.
+    return '<span class="ln' + key + '"><span class="n">' + (i + first) + '</span><span>' + html + '</span></span>';
   }).join('');
   return '<pre class="code"><span class="cap">' + cap + '</span>' + rows + '</pre>';
 }
 
-// Instruction index.
+// Instruction reference: which entry each printed mnemonic belongs to.
+const byAlias = {};
+INSNS.forEach(i => i.aliases.forEach(a => byAlias[a] = i));
+const insOf = mn => byAlias[mn] || null;
+// "MOVe + Set flags": capitals are the letters in the mnemonic.
+const expand = s => esc(s).replace(/[A-Z]+/g, '<b>$&</b>');
+
+// Mnemonic counts over the examples.
 const counts = {};
 DATA.forEach(d => {
   d.mns = new Set(d.asm.map(mnOf));
   d.mns.forEach(m => counts[m] = (counts[m] || 0) + 1);
 });
 const chipBox = document.getElementById('chips');
-let active = null;
+let active = null, view = 'p';
 Object.keys(counts).sort().forEach(m => {
   const b = document.createElement('button');
   b.type = 'button'; b.className = 'chip'; b.dataset.mn = m;
   b.setAttribute('aria-pressed', 'false');
   b.innerHTML = esc(m) + '<small>' + counts[m] + '</small>';
-  b.addEventListener('click', () => { active = active === m ? null : m; save(); render(); });
+  b.addEventListener('click', () => { location.hash = active === m ? '' : 'mn/' + m; });
   chipBox.appendChild(b);
 });
 
 const q = document.getElementById('q');
 q.addEventListener('input', () => { save(); render(); });
-document.getElementById('clear').addEventListener('click', () => { q.value = ''; active = null; save(); render(); });
+document.getElementById('clear').addEventListener('click', () => {
+  q.value = ''; save();
+  if (view === 'p' && active) location.hash = ''; else render();
+});
+function save() { try { localStorage.setItem('atlas', JSON.stringify({ q: q.value })); } catch (e) {} }
+try { q.value = JSON.parse(localStorage.getItem('atlas') || '{}').q || ''; } catch (e) {}
 
-function save() { try { localStorage.setItem('atlas', JSON.stringify({ q: q.value, active })); } catch (e) {} }
-try { const s = JSON.parse(localStorage.getItem('atlas') || '{}'); q.value = s.q || ''; active = s.active || null; } catch (e) {}
-if (/^#[a-z.]+$/.test(location.hash) && counts[location.hash.slice(1)]) active = location.hash.slice(1);
+// Hash routes: '' patterns, #mn/X patterns using X, #ex/NAME one example, #ins the reference,
+// #ins/ID one instruction. Old links (#negs) still filter.
+function route() {
+  const h = decodeURIComponent(location.hash.slice(1));
+  let target = null;
+  active = null;
+  if (h === 'calls') { view = 'i'; target = 'calls'; }
+  else if (h === 'ins' || h.startsWith('ins/')) {
+    view = 'i';
+    if (h.startsWith('ins/')) target = 'i-' + h.slice(4);
+  } else {
+    view = 'p';
+    if (h.startsWith('mn/') && counts[h.slice(3)]) active = h.slice(3);
+    else if (counts[h]) active = h;
+    else if (h.startsWith('ex/')) target = h.slice(3);
+  }
+  document.getElementById('view-p').hidden = view !== 'p';
+  document.getElementById('view-i').hidden = view !== 'i';
+  document.getElementById('tab-p').setAttribute('aria-current', view === 'p' ? 'page' : 'false');
+  document.getElementById('tab-i').setAttribute('aria-current', view === 'i' ? 'page' : 'false');
+  render();
+  // The hash isn't the element's id, so :target never applies; mark it by hand.
+  const el = target && document.getElementById(target);
+  document.querySelectorAll('.on').forEach(e => e.classList.remove('on'));
+  if (el) el.classList.add('on');
+  // Back/forward returns to where that entry was left; a new link goes to its target.
+  const y = history.state && history.state.y;
+  if (y != null) window.scrollTo(0, y);
+  else if (el) window.scrollTo(0, el.getBoundingClientRect().top + window.scrollY - barH() - 12);
+  else window.scrollTo(0, 0);
+}
+const bar = document.querySelector('.bar');
+const barH = () => bar.getBoundingClientRect().height;
+try { history.scrollRestoration = 'manual'; } catch (e) {}
+let saveT = 0;
+window.addEventListener('scroll', () => {
+  clearTimeout(saveT);
+  saveT = setTimeout(() => { try { history.replaceState({ y: window.scrollY }, ''); } catch (e) {} }, 100);
+});
+window.addEventListener('hashchange', route);
 
-function render() {
+const matches = (text, term) => !term || text.toLowerCase().includes(term);
+
+function render() { view === 'p' ? renderP() : renderI(); }
+
+function renderP() {
   const term = q.value.trim().toLowerCase();
   chipBox.querySelectorAll('.chip').forEach(c => c.setAttribute('aria-pressed', String(c.dataset.mn === active)));
+  const i = active && insOf(active);
+  document.getElementById('focus').innerHTML = active
+    ? '<code>' + esc(active) + '</code>' + (i ? ': ' + expand(i.mn) + '. ' + i.summary +
+      ' <a href="#ins/' + i.id + '">Reference →</a>' : '') + ' · <a href="#">Show all</a>'
+    : '';
   const shown = DATA.filter(d => (!active || d.mns.has(active)) &&
-    (!term || (d.title + ' ' + d.c + ' ' + d.note + ' ' + d.asm.join(' ') + ' ' + d.section).toLowerCase().includes(term)));
+    matches(d.title + ' ' + d.c + ' ' + d.note + ' ' + d.asm.join(' ') + ' ' + d.section, term));
   document.getElementById('count').textContent = shown.length + ' of ' + DATA.length + ' examples';
   const list = document.getElementById('list');
   if (!shown.length) { list.innerHTML = '<p class="empty">No example matches. Clear the filter to see them all.</p>'; return; }
@@ -225,5 +373,64 @@ function render() {
         '</div></article>';
     }).join('') + '</section>').join('');
 }
-render();
+
+document.getElementById('pieces').innerHTML = PIECES.map(([p, m, e]) =>
+  '<tr><td>' + esc(p) + '</td><td>' + esc(m) + '. <span class="dim">' + esc(e) + '</span></td></tr>').join('');
+document.querySelectorAll('.cxs').forEach(box => {
+  const d = DATA.find(d => d.name === box.dataset.ex);
+  if (!d) return;
+  box.innerHTML = '<p class="meta"><a href="#ex/' + d.name + '">' + esc(d.title) + '</a>' + (d.note ? ': ' + d.note : '') + '</p>' +
+    '<div class="pair">' + block('C', hlC(d.c), null) + block('asm', d.asm.map(hlA), i => /^(push|pop|bl|bx)\b/.test(d.asm[i])) + '</div>';
+});
+document.getElementById('toc').innerHTML = INSNS.map(i =>
+  '<a href="#ins/' + i.id + '">' + esc(i.id === 'bcond' ? 'b<cond>' : i.id) + '</a>').join('');
+
+// Collapsed by default: one line with the count, the excerpt and the links when opened.
+function seen(i, uses) {
+  if (!uses.length) return '<p class="meta">Not in the examples yet.</p>';
+  const d = uses[0];
+  const n = d.asm.findIndex(l => i.aliases.includes(mnOf(l)));
+  const from = Math.max(0, n - 1), to = Math.min(d.asm.length, n + 2);
+  const usedAs = i.aliases.filter(a => counts[a]);
+  return '<details class="seen"><summary>In real agbcc output · ' + uses.length + ' example' +
+    (uses.length > 1 ? 's' : '') + '</summary>' +
+    '<div class="pair">' + block('C · ' + esc(d.title), hlC(d.c), null) +
+    block('asm (excerpt)', d.asm.slice(from, to).map(hlA), k => k + from === n, from + 1) + '</div>' +
+    '<div class="uses">' + usedAs.map(a => '<a href="#mn/' + a + '">all with ' + esc(a) + '</a>').join('') +
+    uses.map(d => '<a href="#ex/' + d.name + '">' + esc(d.title) + '</a>').join('') + '</div></details>';
+}
+
+function insCard(i) {
+  const names = i.id === 'bcond' ? 'b&lt;cond&gt;' : esc(i.id);
+  const forms = i.id === 'bcond'
+    ? CONDS.map(c => '<tr><td>b' + c.c + '</td><td><span class="expand">' + expand(c.mn) + '</span> · ' +
+        c.meaning + ' <span class="dim">(' + c.flags + ')</span></td></tr>').join('')
+    : i.forms.map(([s, m]) => '<tr><td>' + esc(s) + '</td><td>' + esc(m) + '</td></tr>').join('');
+  const uses = DATA.filter(d => i.aliases.some(a => d.mns.has(a)));
+  const ex = i.ex.map(([a, b, r]) =>
+    '<div class="wrow"><code class="wasm">' + a.split('<br>').map(l => esc(l)).join('<br>') + '</code><div>' +
+    (b ? '<span class="dim">before</span> ' + b + '<br>' : '') +
+    '<span class="dim">after</span> ' + r + '</div></div>').join('');
+  return '<article class="ins" id="i-' + i.id + '"><h3>' + names +
+    '<span class="expand">' + expand(i.mn) + '</span></h3>' +
+    '<p class="sum">' + i.summary + (i.flags ? ' <span class="dim">Flags: ' + esc(i.flags) + '</span>' : '') + '</p>' +
+    '<div class="cols"><div class="wrapx"><table class="forms">' + forms + '</table></div>' +
+    '<div class="wex">' + ex + '</div></div>' +
+    (i.note ? '<p class="meta">' + i.note + '</p>' : '') +
+    seen(i, uses) + '</article>';
+}
+
+function renderI() {
+  const term = q.value.trim().toLowerCase();
+  const shown = INSNS.filter(i => matches(i.aliases.join(' ') + ' ' + i.mn + ' ' + i.summary + ' ' +
+    i.note + ' ' + i.forms.map(f => f.join(' ')).join(' ') + ' ' + i.group, term));
+  document.getElementById('count').textContent = shown.length + ' of ' + INSNS.length + ' instructions';
+  const byG = {};
+  shown.forEach(i => (byG[i.group] = byG[i.group] || []).push(i));
+  document.getElementById('ilist').innerHTML = shown.length
+    ? Object.entries(byG).map(([g, is]) => '<section><h2>' + esc(g) + '<span>' + is.length + '</span></h2>' +
+        is.map(insCard).join('') + '</section>').join('')
+    : '<p class="empty">No instruction matches.</p>';
+}
+route();
 </script>

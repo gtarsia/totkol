@@ -115,6 +115,8 @@ show() {
 				if (hr) rn++
 				if (t == "~") t = "!"
 				else if (t == " " && O[ln] != N[rn] && !only) t = "~"
+				# A copy only one side has: logistics, not logic.
+				if ((t == "-" && l == "copy") || (t == "+" && r == "copy")) t = only ? " " : "~"
 				print t, hl ? ln : "", hr ? rn : "", hl ? O[ln] : "", hr ? N[rn] : ""
 			}
 			function flush(   i, n) {
@@ -181,14 +183,24 @@ ANNOT=1 dump $OUT/nm.o > $OUT/new.ann
 SRC=1 dump $OUT/nm.o > $OUT/newsrc.txt
 sed -n "s/^A\t//p" $OUT/newsrc.txt > $OUT/new.txt
 # Logic only: every register and stack offset made the same.
-logic() { sed -E 's/\b(r[0-9]+|sb|sl|fp|ip)\b/R/g; s/\[sp, #[0-9]+\]/[sp, #N]/g' $1; }
+# Copies between registers are logistics too: "mov rX, rY" and "adds rX, rY, #0" are the same copy
+# (agbcc picks one by whether high registers are involved), and so are "add rX, rY" and
+# "adds rX, rX, rY". A copy one side has and the other doesn't isn't counted as logic either.
+# Also not logic: addresses in a switch's jump table (a .word followed by a relocation to .text;
+# they move with the code, like branch targets) and alignment padding (.short 0x0000).
+logic() {
+	sed -E 's/\b(r[0-9]+|sb|sl|fp|ip)\b/R/g; s/\[sp, #[0-9]+\]/[sp, #N]/g
+		s/^(mov R, R|adds R, R, #0)$/copy/; s/^adds R, R, R$/add R, R/; s/^\.short 0x0000$/copy/' $1 |
+		awk 'NR > 1 { print ($0 == "R_ARM_ABS32 .text" && prev ~ /^\.word /) ? ".word target" : prev }
+			{ prev = $0 } END { if (NR) print prev }'
+}
 logic $OUT/orig.txt > $OUT/orig.logic
 logic $OUT/new.txt > $OUT/new.logic
 if diff -q $OUT/orig.txt $OUT/new.txt > /dev/null; then
 	echo "match ($(wc -l < $OUT/orig.txt) lines)"
 else
 	all=$(diff $OUT/orig.txt $OUT/new.txt | grep -c '^[<>]' || true)
-	logic=$(diff $OUT/orig.logic $OUT/new.logic | grep -c '^[<>]' || true)
+	logic=$(diff $OUT/orig.logic $OUT/new.logic | grep '^[<>]' | grep -vc '^[<>] copy$' || true)
 	summary="$all lines differ, $logic in logic only"
 	# Stack frame: its size, and whether both use the same slots (they may hold other values).
 	frame() { grep -m1 -o 'sub sp, #[0-9]*' $1 | grep -o '[0-9]*$' || echo 0; }
