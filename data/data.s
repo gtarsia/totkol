@@ -29753,11 +29753,11 @@ gDefaultOptions:: @ 0861D57C
 .if QOL
 	.byte 0x02 @ cursor speed high (repeat every frame; see gUnk_0815F894)
 	.byte 0x01 @ show messages all at once
-	.byte 0xFE @ flags; bit 0 (NAVI) off, needs the name entry fix in src/name_entry.c
+	.byte 0xFE @ flags; bit 0 (navigation messages) off, needs the name entry fix in src/name_entry.c
 .else
 	.byte 0x01 @ cursor speed normal
 	.byte 0x00 @ letter by letter
-	.byte 0xFF @ flags; bit 0 is NAVI
+	.byte 0xFF @ flags; bit 0 is navigation messages
 .endif
 	.incbin "baserom.gba", 0x61D580, 0x4
 

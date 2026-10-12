@@ -84,12 +84,12 @@ void sub_08147D44(void *);
     if (gUnk_03000820.flags & 0x80)                                     \
         gUnk_03000820.repeatTimer = gUnk_03000820.repeatInterval
 
-// Shows the help if NAVI is on; returns whether it did.
+// Shows the help if navigation messages are on; returns whether it did.
 static inline u8 NameHelp(void)
 {
     struct NameEntry *s = gUnk_0202DFF0;
 
-    // Bug: with NAVI off it stayed in NAME_3, ignoring every key. See BUGS.md.
+    // Bug: with navigation messages off it stayed in NAME_3, ignoring every key. See BUGS.md.
     s->state = QOL ? NAME_INPUT : NAME_3;
     if (!(gUnk_02000000[0x132F] & 1))
         return 0;
@@ -102,13 +102,13 @@ u16 sub_08147300(void)
 {
     struct NameEntry *s = gUnk_0202DFF0;
     void *cursor;
-    const u8 *navi;
+    const u8 *help;
     u16 key;
     u16 i, j, k;
 
     s->timer = (s->timer + 1) % 240;
     cursor = s->cursor;
-    navi = gUnk_0876379A;
+    help = gUnk_0876379A;
     switch (s->state) {
     case NAME_INIT:
         sub_08147A00();
@@ -208,7 +208,7 @@ u16 sub_08147300(void)
             gUnk_0202DFF0->state = NAME_DONE;
             break;
         case SELECT_BUTTON:
-            sub_08015D50(gUnk_0202DFF0->msg, gUnk_0202DFF0->unk32, navi, 9,
+            sub_08015D50(gUnk_0202DFF0->msg, gUnk_0202DFF0->unk32, help, 9,
                          1, -1, 2, 0, 0, 0x100, 0, 0, 8);
             sub_0801670C();
             gUnk_0202DFF0->state = NAME_MSG_WAIT;

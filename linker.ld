@@ -538,10 +538,10 @@ SECTIONS {
         src/battle_move.o(.text);
         . = 0x66D90 + (DEFINED(shift_test_pad) ? shift_test_pad : 0);
         asm/code_08066D90.o(.text);
-        src/navi_wait.o(.text);
+        src/tip_wait.o(.text);
         . = 0x6BC9C + (DEFINED(shift_test_pad) ? shift_test_pad : 0);
         asm/code_0806BC9C.o(.text);
-        src/navi.o(.text);
+        src/tip.o(.text);
         . = 0x6C298 + (DEFINED(shift_test_pad) ? shift_test_pad : 0);
         asm/code_0806C298.o(.text);
         src/battle_exp.o(.text);
