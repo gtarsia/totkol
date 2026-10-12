@@ -529,6 +529,9 @@ SECTIONS {
         asm/code_080063F4.o(.text);
         asm/multi_sio_asm.o(.text);
         asm/code.o(.text);
+        src/message_window.o(.text);
+        . = 0x17B24 + (DEFINED(shift_test_pad) ? shift_test_pad : 0);
+        asm/code_08017B24.o(.text);
         src/message.o(.text);
         . = 0x199E0 + (DEFINED(shift_test_pad) ? shift_test_pad : 0);
         asm/code_080199E0.o(.text);
