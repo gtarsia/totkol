@@ -1,7 +1,9 @@
-# Tab completion for scripts/{fdiff,score,ndiff,nsrc,perm,why}.sh, run from the repo root.
+# Tab completion for scripts/{fdiff,score,ndiff,nsrc,perm,why}.sh and report.py, run from the repo
+# root.
 # In ~/.zshrc, after compinit: source ~/git/lodis-qol/scripts/completion.zsh
 _lodis_scripts() {
 	local cmd=${words[1]:t}
+	[[ $cmd = report.py ]] && { _lodis_report; return }
 	if [[ $PREFIX = -* ]]; then
 		case $cmd in
 		ndiff.sh) compadd -- --logic --context --nvim --qol -h ;;
@@ -30,4 +32,30 @@ _lodis_scripts() {
 		_describe 'callee (FROM/TO)' calls
 	fi
 }
-compdef _lodis_scripts {,scripts/,./scripts/}{fdiff,score,ndiff,nsrc,perm,why}.sh
+# report.py takes its options anywhere, so NAME and FUNC are the 1st and 2nd words that aren't.
+_lodis_report() {
+	case ${words[CURRENT-1]} in
+	--vs)
+		local -a refs=(${(f)"$(git for-each-ref --format='%(refname:short)' refs/heads refs/tags 2>/dev/null)"})
+		_describe 'git revision' refs
+		return ;;
+	-o) _files -g '*.html'; return ;;
+	esac
+	if [[ $PREFIX = -* ]]; then
+		compadd -- --vs --qol --matching -o -D -h
+		return
+	fi
+	local i n=0 name
+	for (( i = 2; i < CURRENT; i++ )); do
+		[[ ${words[i]} = -* ]] && { [[ ${words[i]} = (--vs|-o) ]] && (( i++ )); continue }
+		(( n++ )); (( n == 1 )) && name=${words[i]}
+	done
+	if (( n == 0 )); then
+		local -a names=(src/*.c(N:t:r))
+		_describe 'file in src/' names
+	elif (( n == 1 )); then
+		local -a funcs=(${(f)"$(grep -oP '^[A-Za-z_][\w \*]*?\b\K\w+(?=\()' src/$name.c 2>/dev/null | sort -u)"})
+		_describe 'function' funcs
+	fi
+}
+compdef _lodis_scripts {,scripts/,./scripts/}{fdiff,score,ndiff,nsrc,perm,why}.sh {,scripts/,./scripts/}report.py

@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reporte __TITLE__</title>
+<style>
+:root {
+  --bg: #fbfbf8; --panel: #f1f0ea; --text: #24292f; --faint: #9a9a92; --line: #e0ded5;
+  --head: #8a5a00; --op: #0a7a4b; --ctl: #a12a6f; --reg: #6a3fc0; --hard: #b2361f;
+  --num: #1f5fbf; --mem: #b05c00; --lab: #0b7285; --src-bg: #fff6d6; --hl: #ffe08a;
+  --badge-bg: #ece5fb; --add: #e3f5e1; --del: #fbe4e1; --chg: #fff1cc; --add-t: #1a7f37;
+  --del-t: #c0392b; --chg-t: #9a6700;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #16171a; --panel: #1e2024; --text: #d8dae0; --faint: #6c707a; --line: #2c2f35;
+    --head: #e3b45b; --op: #5fd39a; --ctl: #f07ac0; --reg: #b9a0ff; --hard: #ff8a70;
+    --num: #7fb2ff; --mem: #ffb067; --lab: #5fd0e0; --src-bg: #2a2716; --hl: #5a4a10;
+    --badge-bg: #2e2747; --add: #15301c; --del: #3a1a17; --chg: #352c10; --add-t: #6fdc8c;
+    --del-t: #ff8a80; --chg-t: #f0c14b;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #16171a; --panel: #1e2024; --text: #d8dae0; --faint: #6c707a; --line: #2c2f35;
+  --head: #e3b45b; --op: #5fd39a; --ctl: #f07ac0; --reg: #b9a0ff; --hard: #ff8a70;
+  --num: #7fb2ff; --mem: #ffb067; --lab: #5fd0e0; --src-bg: #2a2716; --hl: #5a4a10;
+  --badge-bg: #2e2747; --add: #15301c; --del: #3a1a17; --chg: #352c10; --add-t: #6fdc8c;
+  --del-t: #ff8a80; --chg-t: #f0c14b;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text);
+  font: 14px/1.45 system-ui, sans-serif; }
+code, pre, .mono { font-family: ui-monospace, "JetBrains Mono", Menlo, monospace; font-size: 13px; }
+header { position: sticky; top: 0; z-index: 2; background: var(--panel);
+  border-bottom: 1px solid var(--line); padding: 8px 16px; display: flex; flex-wrap: wrap;
+  gap: 6px 14px; align-items: center; }
+header h1 { font-size: 15px; margin: 0; }
+header .meta { color: var(--faint); font-size: 12px; }
+select, button, label { font: inherit; font-size: 13px; }
+.tabs { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
+.tabs .g { color: var(--faint); font-size: 11px; text-transform: uppercase; margin: 0 2px 0 8px; }
+.tabs button { border: 1px solid var(--line); background: var(--bg); color: var(--text);
+  border-radius: 6px; padding: 2px 8px; cursor: pointer; }
+.tabs button.on { background: var(--head); color: var(--bg); border-color: var(--head); }
+.opts { display: flex; gap: 10px; flex-wrap: wrap; }
+.wrap { display: grid; grid-template-columns: 260px 1fr; min-height: calc(100vh - var(--hdr, 50px)); }
+aside { border-right: 1px solid var(--line); padding: 12px; font-size: 13px; position: sticky;
+  top: var(--hdr, 50px); align-self: start; max-height: calc(100vh - var(--hdr, 50px)); overflow: auto; }
+aside h2 { font-size: 12px; text-transform: uppercase; letter-spacing: .05em;
+  color: var(--faint); margin: 12px 0 4px; }
+aside a { color: var(--text); text-decoration: none; display: block; padding: 1px 0; }
+aside a:hover { color: var(--head); }
+.var { cursor: pointer; display: flex; justify-content: space-between; gap: 8px;
+  font: 13px ui-monospace, monospace; padding: 2px 6px; border-radius: 4px; }
+.var:hover { background: var(--panel); }
+.var .w { color: var(--faint); }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 6px;
+  padding: 8px 10px; margin-bottom: 8px; line-height: 1.45; }
+.card .t { font-size: 11px; text-transform: uppercase; letter-spacing: .04em; color: var(--faint); }
+.card .v { font: 600 14px ui-monospace, monospace; margin: 2px 0 4px; }
+.card p { margin: 4px 0 0; }
+.empty { color: var(--faint); line-height: 1.45; }
+.btns { display: flex; gap: 6px; flex-wrap: wrap; }
+.btns a { display: inline-block; border: 1px solid var(--line); border-radius: 4px; padding: 2px 8px;
+  background: var(--bg); font-size: 12px; }
+.btns a:hover { border-color: var(--head); }
+main { padding: 8px 16px 64px; min-width: 0; }
+.intro { font-family: system-ui, sans-serif; color: var(--faint); font-size: 13px; margin: 4px 0 10px;
+  max-width: 70ch; }
+.row { white-space: pre; overflow-x: auto; padding: 1px 0; }
+.src { background: var(--src-bg); margin: 10px -8px 2px; padding: 3px 8px; border-radius: 4px; }
+.ln { color: var(--faint); display: inline-block; min-width: 3.5em; user-select: none; }
+.code .row.out { opacity: .45; }
+.code .row.fn .ln { color: var(--head); }
+.insn { padding-left: 1em; }
+.insn .uid { font-weight: 700; }
+.insn .pn, .nil, .icode { color: var(--faint); }
+.note { color: var(--faint); padding-left: 1em; font-style: italic; }
+.hide-det .note, .hide-det .pn, .hide-det .rn, .hide-det .bar { display: none; }
+.rn, .dim { color: var(--faint); }
+.lbl { color: var(--lab); font-weight: 700; }
+.kw { color: var(--ctl); font-weight: 600; }
+.insn .ln { min-width: 3em; }
+.key { font-family: system-ui, sans-serif; color: var(--faint); font-size: 12px; margin: 0 0 8px; }
+.key code { color: var(--text); }
+.head { color: var(--head); font-weight: 700; margin-top: 14px; }
+.bb { color: var(--head); margin-top: 8px; }
+.idx { color: var(--lab); }
+.op { color: var(--op); } .ctl { color: var(--ctl); font-weight: 600; }
+.mode { color: var(--faint); }
+.r { color: var(--reg); cursor: pointer; } .hr { color: var(--hard); font-weight: 600; }
+.n { color: var(--num); } .m { color: var(--mem); } .str { color: var(--op); }
+.sym { color: var(--lab); }
+a.lab { color: var(--lab); }
+.badge { background: var(--badge-bg); color: var(--reg); border-radius: 4px; padding: 0 3px;
+  margin-left: 2px; font-size: 12px; }
+.hl { background: var(--hl); border-radius: 3px; }
+.target { outline: 2px solid var(--lab); border-radius: 3px; }
+.help { color: var(--faint); font-size: 12px; font-family: system-ui, sans-serif; }
+.d-add { background: var(--add); } .d-chg { background: var(--chg); }
+.d-old { background: var(--del); opacity: .8; padding-left: 1em; }
+.d-tag { font-family: system-ui, sans-serif; font-size: 11px; border-radius: 4px; padding: 0 4px;
+  margin-right: 6px; }
+.d-tag.add { color: var(--add-t); border: 1px solid var(--add-t); }
+.d-tag.chg { color: var(--chg-t); border: 1px solid var(--chg-t); }
+.d-tag.del { color: var(--del-t); border: 1px solid var(--del-t); }
+details.gone { margin: 6px 0 12px; }
+details.gone summary { cursor: pointer; color: var(--del-t); font-family: system-ui, sans-serif; }
+table { border-collapse: collapse; margin: 6px 0 18px; }
+th { text-align: left; font: 600 12px system-ui, sans-serif; color: var(--faint);
+  border-bottom: 1px solid var(--line); padding: 3px 10px 3px 0; position: sticky;
+  top: var(--hdr, 50px); background: var(--bg); }
+td { padding: 2px 10px 2px 0; vertical-align: top; white-space: pre; }
+tr.click { cursor: pointer; } tr.click:hover td { background: var(--panel); }
+td.num, th.num { text-align: right; }
+td.zero { color: var(--faint); }
+h3 { font: 600 14px system-ui, sans-serif; margin: 18px 0 2px; color: var(--head); }
+/* Comparison */
+.cmp { border-collapse: collapse; width: 100%; }
+.cmp td { padding: 0 8px 0 0; }
+.cmp td.mk { width: 1.2em; font-weight: 700; text-align: center; }
+.cmp td.no { color: var(--faint); text-align: right; width: 3em; user-select: none; }
+.cmp td.lt { border-right: 1px solid var(--line); }
+.cmp tr.m-del { background: var(--del); } .cmp tr.m-add { background: var(--add); }
+.cmp tr.m-bang { background: var(--del); } .cmp tr.m-tilde { background: var(--chg); }
+.cmp tr.m-del .mk, .cmp tr.m-bang .mk { color: var(--del-t); }
+.cmp tr.m-add .mk { color: var(--add-t); } .cmp tr.m-tilde .mk { color: var(--chg-t); }
+.cmp tr.c td { background: var(--src-bg); padding-top: 4px; }
+.cmp tr.gap td { color: var(--faint); text-align: center; }
+.sum { font-family: system-ui, sans-serif; margin: 4px 0 10px; }
+.sum b.ok { color: var(--add-t); } .sum b.bad { color: var(--del-t); }
+.legend span { margin-right: 12px; }
+.slot { cursor: pointer; text-decoration: underline dotted; }
+@media (max-width: 760px) {
+  .wrap { grid-template-columns: 1fr; }
+  aside { position: static; max-height: none; border-right: 0; border-bottom: 1px solid var(--line); }
+}
+</style>
+</head>
+<body>
+<header>
+  <h1><span id="file"></span></h1>
+  <select id="func" aria-label="Función"></select>
+  <div class="tabs" id="tabs"></div>
+  <div class="opts" id="opts"></div>
+  <span class="meta" id="flags"></span>
+</header>
+<div class="wrap">
+  <aside>
+    <h2>Elegido</h2>
+    <div id="pick"></div>
+    <h2 id="toc-h">En esta pasada</h2>
+    <div id="toc"></div>
+    <h2>Dónde termina cada variable</h2>
+    <div id="vars"></div>
+  </aside>
+  <main id="main" class="mono"></main>
+</div>
+<script id="data" type="application/json">__DATA__</script>
+<script>
+const D = JSON.parse(document.getElementById('data').textContent);
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;'}[c]));
+const CTL = new Set(['set', 'call', 'if_then_else', 'parallel', 'use', 'clobber', 'pc', 'cc0',
+  'return', 'addr_vec', 'addr_diff_vec', 'unspec', 'unspec_volatile', 'asm_operands']);
+const HEADS = /^(;; (?!Register \d|\d+ (conflicts|preferences)|Insn is not)|BB data|GCSE pass|SET hash table|Expression hash table|CPROP of|PRE GCSE|GCSE of|Loop |\d+ registers?|Registers to be allocated)/;
+// What each view is, in one or two lines (shown above it).
+const INTRO = {
+  c: 'El C tal como está en src/. Las líneas de la función van numeradas en color.',
+  i: 'El C después de cc -E y preproc: macros expandidas, #if resueltos. Es lo que recibe agbcc.',
+  rtl: 'Lo primero que genera el compilador: tu C traducido casi literal, paso por paso.',
+  jump: 'Optimiza saltos: borra saltos a saltos y código muerto.',
+  cse: 'Common subexpression elimination dentro de cada bloque: reusa valores ya calculados.',
+  addressof: 'Saca de memoria las variables cuya dirección ya no hace falta.',
+  gcse: 'Busca cuentas repetidas en toda la función y las calcula una sola vez (ver análisis).',
+  loop: 'Optimizaciones de bucles: saca invariantes fuera del bucle.',
+  cse2: 'Segunda pasada de CSE.',
+  flow: 'Análisis de vida: qué reg está vivo dónde. Agrega REG_DEAD y similares.',
+  combine: 'Junta instrucciones vecinas en una sola cuando se puede.',
+  regmove: 'Reordena copias para ahorrar movimientos de registros.',
+  lreg: 'Reparte registros del procesador a los valores que viven poco.',
+  greg: 'Reparte el resto: cada valor termina en un registro del procesador o en la pila.',
+  jump2: 'Última limpieza de saltos, ya con registros físicos.',
+  mach: 'Pasadas finales dependientes de la máquina.',
+  asm: 'Tu asm, desensamblado del .o, con la línea de C de cada tramo.',
+  cmp: 'Lado a lado, alineado por lógica (registros y offsets ignorados al alinear).',
+  ana: 'De dónde sale cada cosa: variable → pseudo → registro o slot, y las expresiones de PRE.',
+};
+let state = {func: null, view: 'rtl', reg: null, det: false, raw: false, delta: true,
+  side: null, only: false};
+try { Object.assign(state, JSON.parse(localStorage.getItem('report') || '{}')); } catch (e) {}
+function save() { try { localStorage.setItem('report', JSON.stringify(state)); } catch (e) {} }
+
+function regNames(func) {
+  // reg number -> first variable name; later regs with a used name get "_2", "_3"….
+  const m = {}, count = {};
+  for (const [, name, , where] of (D.names[func] || [])) {
+    const r = /^reg (\d+)$/.exec(where);
+    if (r && !(r[1] in m)) m[r[1]] = name;
+  }
+  for (const r in m) {
+    const n = m[r];
+    count[n] = (count[n] || 0) + 1;
+    if (count[n] > 1) m[r] = n + '_' + count[n];
+  }
+  return m;
+}
+const homeOf = r => (D.homes[state.func] || {})[r];
+
+const TOK = /("[^"]*")|\((reg)((?:\/\w+)*)(:\w+)? (\d+)(?: (\w+))?\)|\((const_int) (-?\d+)\)|\((label_ref|code_label)((?:\/\w+)*)(:\w+)? (\d+)|\(nil\)|\{[^}]*\}|\((\w+)((?:\/\w+)*)(:\w+)?/g;
+
+function regSpan(n, names) {
+  const nm = names[n] ? '<span class="badge">' + esc(names[n]) + '</span>' : '';
+  return '<span class="r" data-r="' + n + '">' + n + '</span>' + nm;
+}
+
+function color(text, names) {
+  let out = '', last = 0, m;
+  TOK.lastIndex = 0;
+  while ((m = TOK.exec(text))) {
+    out += esc(text.slice(last, m.index));
+    last = TOK.lastIndex;
+    if (m[1]) out += '<span class="str">' + esc(m[1]) + '</span>';
+    else if (m[2]) {
+      const flags = esc(m[3] || ''), mode = m[4] ? '<span class="mode">' + m[4] + '</span>' : '';
+      if (m[6]) out += '(reg' + flags + mode + ' ' + m[5] + ' <span class="hr">' + m[6] + '</span>)';
+      else out += '(reg' + flags + mode + ' ' + regSpan(m[5], names) + ')';
+    } else if (m[7]) out += '(const_int <span class="n">' + m[8] + '</span>)';
+    else if (m[9]) out += '(<span class="lab">' + m[9] + '</span>' + esc(m[10] || '') +
+      (m[11] ? '<span class="mode">' + m[11] + '</span>' : '') +
+      ' <a class="lab" href="#u' + m[12] + '">' + m[12] + '</a>';
+    else if (m[0] === '(nil)') out += '<span class="nil">(nil)</span>';
+    else if (m[0][0] === '{') out += '<span class="icode">' + esc(m[0]) + '</span>';
+    else {
+      const code = m[13], cls = code === 'mem' ? 'm' : CTL.has(code) ? 'ctl' : 'op';
+      out += '(<span class="' + cls + '">' + code + '</span>' + esc(m[14] || '') +
+        (m[15] ? '<span class="mode">' + m[15] + '</span>' : '');
+    }
+  }
+  return out + esc(text.slice(last));
+}
+
+function plain(text, names) {
+  // Pass log lines ("... reaching reg is 699"): "reg N" and "insn N" are links.
+  return esc(text)
+    .replace(/\breg (is )?(\d+)\b/g, (s, is, n) => 'reg ' + (is || '') + regSpan(n, names))
+    .replace(/\binsn (\d+)\b/g, (s, n) => 'insn <a class="lab" href="#u' + n + '">' + n + '</a>');
+}
+
+function asmColor(t, side) {
+  // "lsls r1, r1, #24 <sym> → 12"; [sp, #N] is clickable (see slotInfo).
+  return esc(t).replace(/\[sp, #(\d+)\]/g, '\u0001$1\u0002')
+    .replace(/^(\S+)/, '<span class="op">$1</span>')
+    .replace(/\b(r\d+|sb|sl|fp|ip|sp|lr|pc)\b/g, '<span class="hr">$1</span>')
+    .replace(/#(-?\w+)/g, '<span class="n">#$1</span>')
+    .replace(/&lt;([^&]*)&gt;/g, '<span class="sym">&lt;$1&gt;</span>')
+    .replace(/→ (\S+)/, '<span class="lab">→ $1</span>')
+    .replace(/\u0001(\d+)\u0002/g, (m, n) => '<span class="slot" data-off="' + n + '" data-side="' +
+      esc(side || '') + '" title="sp+' + n + '">[sp, #' + n + ']</span>');
+}
+
+function slotInfo(side, off) {
+  // What lives at sp+off on one side, and why there: {pseudo, html}.
+  const I = side ? (D.info || {})[side] : {names: D.names, homes: D.homes, gcse: D.gcse};
+  if (!I) return {html: '<p class="empty">Sin datos: el original es asm. Para verlos, generá el ' +
+    'reporte con <code>--vs master</code>.</p>'};
+  const homes = I.homes[state.func] || {}, w = 'sp+' + off;
+  const r = Object.keys(homes).find(k => homes[k] === w);
+  if (!r) return {html: '<p class="empty">Nada guardado ahí.</p>'};
+  const vars = (I.names[state.func] || []).filter(v => v[3] === 'reg ' + r).map(v => v[1]);
+  if (vars.length) return {pseudo: r, html: '<div class="v">' + esc(vars[0]) + '</div><p>Una variable tuya.</p>'};
+  const g = (I.gcse || {})[state.func], rows = g ? g.rows : [];
+  const k = rows.findIndex(e => e.reg === r);
+  if (k < 0) return {pseudo: r, html: '<div class="v">t' + r + '</div><p>Un valor temporal.</p>'};
+  const e = rows[k], first = Math.min(...rows.map(x => +(homes[x.reg] || 'sp+1e9').slice(3)));
+  const ord = n => n + 'ª';
+  return {pseudo: r, html: '<div class="v">t' + r + ' = ' +
+    ex(parseRtl(e.expr), {names: regNames(state.func), cc: null}).h + '</div>' +
+    '<p>gcse juntó esta cuenta. En su tabla de ' + g.size + ' casilleros cae en el <b>' + e.hash +
+    '</b>: es la <b>' + ord(k + 1) + ' de ' + rows.length + '</b>.</p>' +
+    '<p>Van a la pila en ese orden desde sp+' + first + ', así que cae en <b>sp+' + off + '</b>.</p>'};
+}
+
+function pickSlot(el) {
+  // Sidebar: what lives in the clicked slot and why. In vs, both cells of the row.
+  mark(null);
+  const tr = el.closest('tr');
+  const cells = tr ? [...tr.querySelectorAll('.slot')] : [el];
+  const other = D.sides.includes(state.side) ? state.side : D.sides[0];
+  let h = '', mine = null;
+  for (const c of cells) {
+    const side = c.dataset.side, off = c.dataset.off;
+    const info = slotInfo(side ? (other in D.info ? other : 'none') : '', off);
+    if (!side) mine = [off, info.pseudo];
+    h += '<div class="card"><div class="t">' + esc(side ? other : 'tuyo') + ' · sp+' + off + '</div>' +
+      info.html + '</div>';
+  }
+  h += '<div class="btns">';
+  if (mine && mine[1]) {
+    for (const e of document.querySelectorAll('main .slot[data-off="' + mine[0] + '"][data-side=""]'))
+      e.classList.add('hl');
+    h += '<a href="#" id="see">ver t' + mine[1] + ' en gcse</a>';
+  }
+  $('pick').innerHTML = h + '<a href="#" id="clear">limpiar</a></div>';
+  if ($('see')) $('see').onclick = e => { e.preventDefault(); setView('gcse'); mark(mine[1]); };
+  $('clear').onclick = e => { e.preventDefault(); mark(null); };
+}
+
+function insnHtml(text, names) {
+  // "(insn 73 71 76 ..." -> uid bold, prev/next faint.
+  const m = /^\((\S+) (\d+) (\d+) (\d+)/.exec(text);
+  if (!m) return color(text, names);
+  return '(<span class="ctl">' + esc(m[1]) + '</span> <span class="uid">' + m[2] +
+    '</span><span class="pn"> ' + m[3] + ' ' + m[4] + '</span>' + color(text.slice(m[0].length), names);
+}
+
+
+// ------------------------------------------------------------------ RTL as C
+
+// RTL is printed as Lisp: "(set (reg 210) (ashift (reg 48) (const_int 24)))". These turn it
+// into "t210 = uy << 24". parseRtl builds a tree {c: code, m: mode, a: args}.
+function parseRtl(text) {
+  const toks = text.match(/"[^"]*"|\{[^}]*\}|[()\[\]]|[^\s()\[\]"{}]+/g) || [];
+  let i = 0;
+  function node() {
+    const t = toks[i++];
+    if (t === '(' || t === '[') {
+      const close = t === '(' ? ')' : ']';
+      let n = {c: '[]', m: '', a: []};
+      if (t === '(') {
+        const m = /^([^/:]+)((?:\/[^/:]+)*)(?::(\w+))?$/.exec(toks[i++] || '') || [];
+        n = {c: m[1] || '?', m: m[3] || '', a: []};
+      }
+      while (i < toks.length && toks[i] !== close) n.a.push(node());
+      i++;
+      return n;
+    }
+    return t;
+  }
+  return node();
+}
+
+const TY = {QI: 'u8', HI: 'u16', SI: 'u32', DI: 'u64'};
+const STY = {QI: 's8', HI: 's16', SI: 's32', DI: 's64'};
+const BIN = {plus: ['+', 12], minus: ['-', 12], mult: ['*', 13], div: ['/', 13], udiv: ['/', 13],
+  mod: ['%', 13], umod: ['%', 13], and: ['&', 8], ior: ['|', 6], xor: ['^', 7], ashift: ['<<', 11],
+  ashiftrt: ['>>', 11], lshiftrt: ['>>', 11], eq: ['==', 9], ne: ['!=', 9], lt: ['<', 10],
+  le: ['<=', 10], gt: ['>', 10], ge: ['>=', 10], ltu: ['<', 10], leu: ['<=', 10], gtu: ['>', 10],
+  geu: ['>=', 10]};
+// Unsigned ops: the left operand gets a (u32) cast, as C would need.
+const UNS = new Set(['udiv', 'umod', 'lshiftrt', 'ltu', 'leu', 'gtu', 'geu']);
+const NOT = {eq: 'ne', ne: 'eq', lt: 'ge', ge: 'lt', le: 'gt', gt: 'le', ltu: 'geu', geu: 'ltu',
+  leu: 'gtu', gtu: 'leu'};
+const isN = (n, c) => n && typeof n === 'object' && n.c === c;
+const par = (x, p) => x.p < p ? '(' + x.h + ')' : x.h;
+// Leaf text of a node; symbol_ref's name comes as ("name").
+const leaf = n => typeof n === 'object' ? (n.a.length ? leaf(n.a[0]) : n.c) : String(n);
+const lab = u => '<a class="lab" href="#u' + esc(u) + '">L' + esc(u) + '</a>';
+
+function ex(n, X) {
+  // Expression -> {h: html, p: precedence}.
+  if (typeof n !== 'object') return {h: esc(String(n).replace(/^"|"$/g, '')), p: 20};
+  const c = n.c, a = n.a;
+  if (c === 'reg') {
+    if (a.length > 1) return {h: '<span class="hr">' + esc(a[1]) + '</span>', p: 20};
+    return {h: '<span class="r" data-r="' + a[0] + '" title="reg ' + a[0] + '">' +
+      esc(X.names[a[0]] || 't' + a[0]) + '</span>', p: 20};
+  }
+  if (c === 'const_int') {
+    const v = +a[0], s = Math.abs(v) >= 256 ? (v < 0 ? '-' : '') + '0x' + Math.abs(v).toString(16) : String(v);
+    return {h: '<span class="n">' + s + '</span>', p: 20};
+  }
+  if (c === 'symbol_ref') return {h: '<span class="sym">' + esc(leaf(a[0]).replace(/"/g, '')) + '</span>', p: 20};
+  if (c === 'label_ref') return {h: lab(a[0]), p: 20};
+  if (c === 'const') return ex(a[0], X);
+  if (c === 'nil') return {h: '', p: 20};
+  if (c === 'set') return {h: ex(a[0], X).h + ' = ' + ex(a[1], X).h, p: 1};
+  if (c === '[]') return {h: a.map(x => ex(x, X).h).join(', '), p: 20};
+  if (c === 'mem') return {h: '*(' + (TY[n.m] || n.m) + ' *)' + par(ex(a[0], X), 15), p: 14};
+  if (c === 'zero_extend' || c === 'sign_extend') {
+    const from = typeof a[0] === 'object' ? a[0].m : '';
+    return {h: '(' + ((c === 'zero_extend' ? TY : STY)[from] || from) + ')' + par(ex(a[0], X), 14), p: 14};
+  }
+  if (c === 'truncate') return {h: '(' + (TY[n.m] || n.m) + ')' + par(ex(a[0], X), 14), p: 14};
+  if (c === 'subreg') {
+    const inner = typeof a[0] === 'object' ? a[0].m : '', size = m => ({QI: 1, HI: 2, SI: 4, DI: 8}[m] || 0);
+    const x = ex(a[0], X);
+    if (size(n.m) >= size(inner)) return x;  // the same value seen in a wider mode
+    if (+a[1]) return {h: '(' + TY[n.m] + ')' + '(' + x.h + ' >> ' + 8 * size(n.m) * +a[1] + ')', p: 14};
+    return {h: '(' + (TY[n.m] || n.m) + ')' + par(x, 14), p: 14};
+  }
+  if (c === 'neg' || c === 'not') return {h: (c === 'neg' ? '-' : '~') + par(ex(a[0], X), 14), p: 14};
+  if (BIN[c]) {
+    let l = a[0], r = a[1];
+    if (isN(l, 'cc0') && X.cc) [l, r] = X.cc;  // "cc0 > 0" means "the compared a > b"
+    const [op, p] = BIN[c];
+    let lh = par(ex(l, X), p);
+    if (UNS.has(c)) lh = '(u32)' + par(ex(l, X), 14);
+    return {h: lh + ' ' + op + ' ' + par(ex(r, X), p + 1), p};
+  }
+  if (c === 'if_then_else')
+    return {h: par(ex(a[0], X), 4) + ' ? ' + par(ex(a[1], X), 4) + ' : ' + par(ex(a[2], X), 3), p: 3};
+  if (c === 'call') {
+    const f = isN(a[0], 'mem') ? a[0].a[0] : a[0];
+    return {h: (isN(f, 'symbol_ref') ? ex(f, X).h : '(*' + ex(f, X).h + ')') + '()', p: 15};
+  }
+  if (c === 'compare') return {h: 'compare(' + ex(a[0], X).h + ', ' + ex(a[1], X).h + ')', p: 15};
+  if (c === 'cc0') return {h: 'cc', p: 20};
+  if (c === 'pc') return {h: 'pc', p: 20};
+  return {h: esc(c) + '(' + a.map(x => ex(x, X).h).join(', ') + ')', p: 15};
+}
+
+function st(n, X) {
+  // Statement (an insn's pattern) -> html.
+  if (typeof n !== 'object') return esc(String(n));
+  const c = n.c, a = n.a;
+  if (c === 'set') {
+    const [d, s] = a;
+    if (isN(d, 'pc')) {
+      if (isN(s, 'label_ref')) return '<span class="kw">goto</span> ' + lab(s.a[0]);
+      if (isN(s, 'if_then_else')) {
+        let [cond, t, e] = s.a;
+        if (isN(t, 'pc') && NOT[cond.c]) { cond = {...cond, c: NOT[cond.c]}; t = e; }
+        return '<span class="kw">if</span> (' + ex(cond, X).h + ') <span class="kw">goto</span> ' +
+          (isN(t, 'label_ref') ? lab(t.a[0]) : ex(t, X).h);
+      }
+      return '<span class="kw">goto</span> *' + ex(s, X).h;
+    }
+    if (isN(d, 'cc0')) {
+      // Thumb compares set the condition codes; the jump after uses them.
+      X.cc = isN(s, 'compare') ? s.a : [s, '0'];
+      return '<span class="dim">compara</span> ' + ex(X.cc[0], X).h + ' <span class="dim">con</span> ' + ex(X.cc[1], X).h;
+    }
+    return ex(d, X).h + ' = ' + ex(s, X).h;
+  }
+  if (c === 'parallel') return (a[0].a || []).map(x => st(x, X)).join('; ');
+  if (c === 'clobber' || c === 'use') return '<span class="dim">' + (c === 'use' ? 'usa' : 'pisa') + ' ' + ex(a[0], X).h + '</span>';
+  if (c === 'return') return '<span class="kw">return</span>';
+  if (c === 'addr_vec' || c === 'addr_diff_vec') {
+    const v = c === 'addr_vec' ? a[0] : a[1];
+    return '<span class="kw">tabla</span> ' + (v.a || []).map(x => ex(x, X).h).join(', ');
+  }
+  if (c === 'asm_input') return 'asm(' + esc(a[0]) + ')';
+  return ex(n, X).h;
+}
+
+const RN = {REG_DEAD: 'último uso de', REG_UNUSED: 'no se usa', REG_EQUAL: 'vale', REG_EQUIV: 'vale siempre',
+  REG_LABEL: 'usa', REG_INC: 'incrementa', REG_NONNEG: 'nunca negativo:'};
+
+function insnC(text, X) {
+  // "(insn 651 650 652 (set ...) 39 {ashlsi3} (nil) (expr_list:REG_DEAD ...))" -> uid + statement.
+  const n = parseRtl(text);
+  if (typeof n !== 'object') return esc(text);
+  const uid = n.a[0], gut = '<span class="ln" title="insn ' + esc(uid) + '">' + esc(uid) + '</span>';
+  if (n.c === 'code_label') return gut + '<span class="lbl">L' + esc(uid) + ':</span>';
+  if (n.c === 'barrier') return gut + '<span class="dim">(barrera: no se llega acá de arriba)</span>';
+  if (!/insn$/.test(n.c)) return gut + color(text, X.names);
+  let h = gut + st(n.a[3], X);
+  // REG_NOTES: hints the pass leaves on the insn.
+  const notes = [];
+  for (const x of n.a.slice(4)) {
+    for (let k = x; isN(k, 'expr_list') || isN(k, 'insn_list'); k = k.a[1])
+      if (/^REG_/.test(k.m)) notes.push((RN[k.m] || k.m.slice(4).toLowerCase()) + ' ' + (isN(k, 'insn_list') ? 'insn ' + esc(k.a[0]) : ex(k.a[0], X).h));
+  }
+  if (notes.length) h += '<span class="rn">   // ' + notes.join(' · ') + '</span>';
+  return h;
+}
+
+const KEY = '<p class="key"><code>uy</code> variable · <code>t210</code> valor temporal sin nombre · ' +
+  '<code>r0</code>…<code>sp</code> registros del procesador · <code>*(u8 *)p</code> leer 8 bits en p · ' +
+  '<code>L12</code> etiqueta · columna gris: número de insn</p>';
+
+// An insn's text without its uid/prev/next, to tell whether a pass changed it.
+const body = t => t.replace(/^\((\S+) \d+ \d+ \d+/, '($1').replace(/\s+/g, ' ');
+
+function srcRow(file, line) {
+  const own = file === D.src, text = own ? (D.source[line - 1] || '') : '';
+  return '<div class="row src" data-line="' + line + '"><span class="ln">' +
+    (own ? line : esc(file) + ':' + line) + '</span>' + esc(text.trim()) + '</div>';
+}
+
+// ------------------------------------------------------------------ views
+
+function viewCode(lines) {
+  // lines: [[number, text]]; the function's lines in color, the rest faded.
+  const [a, b] = D.range[state.func] || [0, 0];
+  let h = '<div class="code">';
+  for (const [n, t] of lines) {
+    const fn = n >= a && n <= b;
+    h += '<div class="row ' + (fn ? 'fn' : 'out') + '" data-line="' + n + '"' +
+      (n === a ? ' id="fstart"' : '') + '><span class="ln">' + n + '</span>' + esc(t) + '</div>';
+  }
+  return h + '</div>';
+}
+
+function viewPass(toc) {
+  const pass = state.view, func = state.func, names = regNames(func);
+  const items = (D.dumps[pass] || {})[func] || [];
+  const k = D.passes.indexOf(pass);
+  // What changed since the previous pass that dumped this function.
+  let prev = null;
+  for (let j = k - 1; j >= 0 && !prev; j--) prev = (D.dumps[D.passes[j]] || {})[func] ? D.passes[j] : null;
+  const before = {};
+  if (state.delta && prev)
+    for (const it of D.dumps[prev][func]) if (it[0] === 'i') before[it[2]] = it[3];
+  const seen = new Set();
+  const X = {names, cc: null};
+  const show = t => state.raw ? insnHtml(t, names) : insnC(t, X);
+  const showOld = t => state.raw ? insnHtml(t, names) : insnC(t, {names, cc: X.cc});
+  let h = state.raw ? '' : KEY, hid = 0, nAdd = 0, nChg = 0;
+  for (const it of items) {
+    if (it[0] === 'l') h += srcRow(it[1], it[2]);
+    else if (it[0] === 'n') h += '<div class="row note">' + esc(it[1]) + '</div>';
+    else if (it[0] === 'i') {
+      let cls = '', tag = '', old = '';
+      seen.add(it[2]);
+      if (state.delta && prev) {
+        if (!(it[2] in before)) { cls = ' d-add'; tag = '<span class="d-tag add">nueva</span>'; nAdd++; }
+        else if (body(before[it[2]]) !== body(it[3])) {
+          cls = ' d-chg'; tag = '<span class="d-tag chg">cambió</span>'; nChg++;
+          old = '<div class="row d-old">' + '<span class="d-tag del">antes</span>' +
+            showOld(before[it[2]]) + '</div>';
+        }
+      }
+      const bar = it[1] === 'barrier' ? ' bar' : '';
+      h += old + '<div class="row insn' + cls + bar + '" id="u' + it[2] + '">' + tag + show(it[3]) + '</div>';
+    } else if (it[0] === 'x')
+      h += '<div class="row">' + (state.raw ? color(it[1], names) : '  ' + ex(parseRtl(it[1]), X).h) + '</div>';
+    else {
+      const t = it[1];
+      if (/^Index \d+ \(hash value \d+\)/.test(t)) h += '<div class="row idx">' + esc(t) + '</div>';
+      else if (/^;; (Start|End) of basic block|^Basic block \d+/.test(t))
+        h += '<div class="row bb">' + plain(t, names) + '</div>';
+      else if (t && HEADS.test(t)) {
+        toc.push([hid, t]);
+        h += '<div class="row head" id="h' + hid++ + '">' + esc(t) + '</div>';
+      } else h += '<div class="row">' + plain(t, names) + '</div>';
+    }
+  }
+  if (!items.length) return '<p class="help">Esta pasada no tiene volcado para esta función.</p>';
+  let top = '';
+  if (state.delta && prev) {
+    const gone = Object.keys(before).filter(u => !seen.has(u));
+    top = '<p class="help">Comparado con <b>' + prev + '</b>: ' + nAdd + ' insns nuevas, ' + nChg +
+      ' cambiadas, ' + gone.length + ' borradas.</p>';
+    if (gone.length)
+      top += '<details class="gone"><summary>Borradas en esta pasada (' + gone.length + ')</summary>' +
+        gone.map(u => '<div class="row d-old">' + showOld(before[u]) + '</div>').join('') + '</details>';
+  }
+  return top + h;
+}
+
+function viewAsm() {
+  const ins = D.asm[state.func] || [];
+  const at = {};
+  ins.forEach((x, i) => at[x[0]] = i + 1);
+  let h = '', line = -1;
+  ins.forEach((x, i) => {
+    if (x[4] && x[4] !== line) h += srcRow(D.src, x[4]);
+    if (x[4]) line = x[4];
+    let t = x[1] + (x[3] ? ' <' + x[3] + '>' : '') + (x[2] ? ' → ' + (at[x[2]] || '?') : '');
+    h += '<div class="row insn" id="a' + (i + 1) + '"><span class="ln">' + (i + 1) + '</span>' + asmColor(t) + '</div>';
+  });
+  return h || '<p class="help">Sin asm para esta función.</p>';
+}
+
+const MK = {' ': '', '~': 'm-tilde', '!': 'm-bang', '-': 'm-del', '+': 'm-add'};
+
+function viewCmp() {
+  const side = D.sides.includes(state.side) ? state.side : D.sides[0];
+  const c = D.cmp[side][state.func];
+  const s = c.summary;
+  let h = '<div class="sum">';
+  if (!s.differ) h += '<b class="ok">Igual</b> (' + s.left + ' líneas).';
+  else h += '<b class="bad">' + s.differ + ' líneas difieren</b>, ' + s.logic + ' en lógica' +
+    ' · ' + side + ' ' + s.left + ', tuyo ' + s.right + '.';
+  h += '<br><span class="help">frame: ' + s.frame[0] + ' vs ' + s.frame[1] + ' bytes · slots usados: ' +
+    s.slots[0] + ' vs ' + s.slots[1] + (s.same_slots ? ', los mismos' : ', distintos') + '</span></div>';
+  h += '<p class="help legend"><span><b>!</b> el código difiere</span><span><b>~</b> sólo registros u offsets</span>' +
+    '<span><b>-</b> sólo en ' + esc(side) + '</span><span><b>+</b> sólo en el tuyo</span></p>';
+  // Rows to show: all, or only changes with 2 rows around.
+  const rows = c.rows, keep = new Set();
+  rows.forEach((r, i) => { if (!state.only || r[0] !== ' ') for (let k = i - 2; k <= i + 2; k++) keep.add(k); });
+  h += '<table class="cmp"><tbody>';
+  let line = -1, gap = false;
+  rows.forEach((r, i) => {
+    if (!keep.has(i)) { if (!gap) h += '<tr class="gap"><td colspan="6">⋯</td></tr>'; gap = true; return; }
+    gap = false;
+    if (r[5] && r[5] !== line) {
+      h += '<tr class="c"><td></td><td></td><td class="lt"></td><td class="no">' + r[5] + '</td><td colspan="2">' +
+        esc((D.source[r[5] - 1] || '').trim()) + '</td></tr>';
+      line = r[5];
+    }
+    h += '<tr class="' + MK[r[0]] + '"><td class="mk">' + esc(r[0]) + '</td><td class="no">' + r[1] +
+      '</td><td class="lt">' + asmColor(r[3], side) + '</td><td class="no">' + r[2] + '</td><td>' + asmColor(r[4]) + '</td></tr>';
+  });
+  return h + '</tbody></table>';
+}
+
+// After lreg/greg, pseudos are replaced by hard regs, so counting stops at lreg.
+const USE_PASSES = D.passes.slice(0, D.passes.indexOf('lreg') + 1 || undefined);
+
+function countUses(func, r) {
+  // How many times (reg N) appears in each pass.
+  const re = new RegExp('\\(reg(?:/\\w+)*(?::\\w+)? ' + r + '\\)', 'g');
+  return USE_PASSES.map(p => {
+    let n = 0;
+    for (const it of ((D.dumps[p] || {})[func] || []))
+      if (it[0] === 'i') n += (it[3].match(re) || []).length;
+    return n;
+  });
+}
+
+function viewAna() {
+  const func = state.func, names = regNames(func), homes = D.homes[func] || {};
+  const vars = D.names[func] || [];
+  let h = '<h3>Variables</h3><p class="help">Del compilador parcheado (agbcc_names): qué pseudo recibió cada ' +
+    'variable y dónde terminó tras greg. Usos = veces que aparece (reg N) en cada pasada. Clic: marcar.</p>';
+  h += '<table><thead><tr><th>variable</th><th>línea</th><th>pseudo</th><th>lugar final</th>' +
+    USE_PASSES.map(p => '<th class="num">' + p + '</th>').join('') + '</tr></thead><tbody>';
+  for (const [d, name, line, where] of vars) {
+    const r = (/^reg (\d+)$/.exec(where) || [])[1];
+    const uses = r ? countUses(func, r) : [];
+    h += '<tr class="click"' + (r ? ' data-r="' + r + '"' : '') + '><td>' + '  '.repeat(d - 1) + esc(name) +
+      '</td><td>' + line + '</td><td>' + (r ? '<span class="r">' + r + '</span>' : esc(where)) + '</td><td>' +
+      esc(r ? homes[r] || 'eliminado' : '') + '</td>' +
+      uses.map(n => '<td class="num' + (n ? '' : ' zero') + '">' + n + '</td>').join('') + '</tr>';
+  }
+  h += '</tbody></table>';
+
+  const g = D.gcse[func];
+  if (g && g.rows.length) {
+    h += '<h3>Expresiones de PRE</h3><p class="help">Tabla de ' + g.size + ' buckets. PRE numera sus pseudos ' +
+      'recorriendo los buckets en orden de hash, y reload les da slots en orden de pseudo.</p>';
+    h += '<table><thead><tr><th class="num">hash</th><th class="num">expr</th><th>expresión</th><th>pseudo</th>' +
+      '<th>lugar</th><th>redundantes</th><th>insertadas</th></tr></thead><tbody>';
+    const link = us => us.map(u => '<a class="lab" data-pass="gcse" href="#u' + u + '">' + u + '</a>').join(' ');
+    for (const e of g.rows)
+      h += '<tr><td class="num">' + e.hash + '</td><td class="num">' + e.index + '</td><td>' + ex(parseRtl(e.expr), {names}).h +
+        '</td><td>' + regSpan(e.reg, names) + '</td><td>' + esc(homes[e.reg] || '') + '</td><td>' + link(e.redundant) +
+        '</td><td>' + link(e.inserted) + '</td></tr>';
+    h += '</tbody></table>';
+  }
+
+  // Stack slots by offset: which pseudo lives in each.
+  const slots = Object.entries(homes).filter(([, w]) => /^sp\+/.test(w))
+    .sort((a, b) => +a[1].slice(3) - +b[1].slice(3));
+  const pre = {};
+  if (g) for (const e of g.rows) pre[e.reg] = e.expr;
+  h += '<h3>Slots de pila</h3><p class="help">Qué valor vive en cada lugar de la pila. sp+160 en el asm es ' +
+    '[sp, #160].</p>';
+  h += slots.length ? '<table><thead><tr><th>slot</th><th>pseudo</th><th>qué es</th></tr></thead><tbody>' +
+    slots.map(([r, w]) => '<tr><td>' + esc(w) + '</td><td>' + regSpan(r, names) + '</td><td>' +
+      (names[r] ? esc(names[r]) : pre[r] ? 't' + r + ' = ' + ex(parseRtl(pre[r]), {names, cc: null}).h +
+        ' <span class="help">(gcse)</span>' : '<span class="help">temporal</span>') +
+      '</td></tr>').join('') + '</tbody></table>' : '<p class="help">Ninguno.</p>';
+
+  // Every pseudo's home, grouped by hard reg.
+  const by = {};
+  for (const [r, w] of Object.entries(homes)) if (!/^sp\+/.test(w)) (by[w] = by[w] || []).push(r);
+  h += '<h3>Registros físicos</h3><p class="help">Qué pseudos comparten cada registro (lreg + greg).</p>' +
+    '<table><tbody>' + Object.keys(by).sort((a, b) => a.localeCompare(b, 'en', {numeric: true}))
+    .map(w => '<tr><td class="hr">' + esc(w) + '</td><td style="white-space:normal">' +
+      by[w].map(r => regSpan(r, names)).join(' ') + '</td></tr>').join('') + '</tbody></table>';
+  return h;
+}
+
+// ------------------------------------------------------------------ shell
+
+function render(keepScroll) {
+  const v = state.view, toc = [];
+  let h;
+  if (v === 'c') h = viewCode(D.source.map((t, i) => [i + 1, t]));
+  else if (v === 'i') h = viewCode(D.pre);
+  else if (v === 'asm') h = viewAsm();
+  else if (v === 'cmp') h = viewCmp();
+  else if (v === 'ana') h = viewAna();
+  else h = viewPass(toc);
+  $('main').innerHTML = '<p class="intro">' + esc(INTRO[v] || '') + '</p>' + h;
+  $('toc').innerHTML = toc.length ? toc.map(([i, t]) =>
+    '<a href="#h' + i + '" title="' + esc(t) + '">' + esc(tocName(t)) + '</a>').join('')
+    : '';
+  $('toc-h').hidden = !toc.length;
+  for (const b of $('tabs').querySelectorAll('button')) b.classList.toggle('on', b.dataset.v === v);
+  renderOpts();
+  mark(state.reg || null);
+  if (!keepScroll && (v === 'c' || v === 'i')) {
+    const e = $('fstart');
+    if (e) e.scrollIntoView({block: 'start'}), window.scrollBy(0, -hdr() - 30);
+  }
+}
+
+function renderOpts() {
+  const v = state.view, box = (k, label) =>
+    '<label><input type="checkbox" data-o="' + k + '"' + (state[k] ? ' checked' : '') + '> ' + label + '</label>';
+  let h = '';
+  if (D.passes.includes(v)) h = box('delta', 'Δ pasada anterior') + box('det', 'detalles') + box('raw', 'RTL original (Lisp)');
+  if (v === 'cmp') {
+    h = box('only', 'sólo cambios');
+    if (D.sides.length > 1)
+      h += '<select id="side">' + D.sides.map(s => '<option' + (s === state.side ? ' selected' : '') + '>' +
+        esc(s) + '</option>').join('') + '</select>';
+  }
+  $('opts').innerHTML = h;
+  document.body.classList.toggle('hide-det', !state.det);
+}
+
+function renderVars() {
+  // One row per variable: its name as in the passes, and where it ends up.
+  const names = regNames(state.func), seen = new Set();
+  const rows = [];
+  for (const [, , line, where] of D.names[state.func] || []) {
+    const r = /^reg (\d+)$/.exec(where);
+    if (!r || seen.has(r[1])) continue;
+    seen.add(r[1]);
+    rows.push('<div class="var" data-r="' + r[1] + '" title="línea ' + line + '"><span>' + esc(names[r[1]]) +
+      '</span><span class="w">' + esc(homeOf(r[1]) || 'desaparece') + '</span></div>');
+  }
+  $('vars').innerHTML = rows.join('') || '<p class="empty">—</p>';
+}
+
+// The compiler's section titles, in plain words for the index.
+const TOC_NAMES = [
+  [/^BB data/, 'Bloques de código'],
+  [/^GCSE pass (\d+)/, 'Vuelta $1 de gcse'],
+  [/^SET hash table \((\d+)/, 'Tabla de asignaciones'],
+  [/^Expression hash table \((\d+) buckets, (\d+)/, 'Tabla de cuentas ($1 casilleros)'],
+  [/^CPROP of .*pass (\d+)/, 'Copias propagadas (vuelta $1)'],
+  [/^PRE GCSE of .*pass (\d+)/, 'Cuentas que juntó (vuelta $1)'],
+  [/^GCSE of/, 'Resumen'],
+  [/^Registers to be allocated/, 'Orden de reparto'],
+  [/^;; (\d+) regs to allocate/, '$1 valores para repartir'],
+  [/^;; Function/, 'Función'],
+  [/^(\d+) registers?/, 'Cantidad de valores'],
+  [/^Loop /, 'Bucle'],
+  [/^;; Register dispositions/, 'Dónde quedó cada valor'],
+  [/^;; Hard regs used/, 'Registros usados'],
+];
+function tocName(t) {
+  for (const [re, name] of TOC_NAMES) {
+    const m = re.exec(t);
+    if (m) return name.replace(/\$(\d)/g, (x, k) => m[k]);
+  }
+  return t.length > 40 ? t.slice(0, 40) + '…' : t;
+}
+
+function mark(r) {
+  for (const e of document.querySelectorAll('.hl')) e.classList.remove('hl');
+  state.reg = r; save();
+  if (!r) {
+    $('pick').innerHTML = '<p class="empty">Hacé clic en una variable, un <span class="r">t12</span> ' +
+      'o un <span class="slot">[sp, #N]</span> del asm.</p>';
+    return;
+  }
+  const uses = document.querySelectorAll('main .r[data-r="' + r + '"]');
+  for (const e of uses) e.classList.add('hl');
+  const nm = regNames(state.func)[r], home = homeOf(r);
+  $('pick').innerHTML = '<div class="card"><div class="t">' + (nm ? 'variable' : 'valor temporal') + '</div>' +
+    '<div class="v">' + esc(nm || 't' + r) + '</div>' +
+    '<p>Termina en <b>' + esc(home || 'ningún lado (se eliminó)') + '</b>.</p>' +
+    '<p>' + uses.length + ' usos en esta vista.</p></div>' +
+    '<div class="btns"><a href="#" id="next">siguiente ↓</a><a href="#" id="clear">limpiar</a></div>';
+  let k = -1;
+  $('next').onclick = e => { e.preventDefault(); if (!uses.length) return;
+    k = (k + 1) % uses.length; uses[k].scrollIntoView({block: 'center'}); };
+  $('clear').onclick = e => { e.preventDefault(); mark(null); };
+}
+
+function hdr() { return document.querySelector('header').offsetHeight; }
+function fitHeader() { document.documentElement.style.setProperty('--hdr', hdr() + 'px'); }
+addEventListener('resize', fitHeader);
+
+function topLine() {
+  for (const e of document.querySelectorAll('main .src, main .code .row'))
+    if (e.getBoundingClientRect().top > hdr()) return e.dataset.line;
+  return null;
+}
+
+function setView(v) {
+  // Moving between passes keeps the same C line at the top.
+  const line = D.passes.includes(state.view) && D.passes.includes(v) ? topLine() : null;
+  state.view = v; save(); render(!!line);
+  if (line) {
+    const e = document.querySelector('main .src[data-line="' + line + '"]');
+    if (e) e.scrollIntoView({block: 'start'}), window.scrollBy(0, -hdr() - 6);
+  } else if (v !== 'c' && v !== 'i') scrollTo(0, 0);
+  fitHeader();
+}
+
+function goto(sel) {
+  for (const t of document.querySelectorAll('.target')) t.classList.remove('target');
+  const t = document.querySelector(sel);
+  if (t) { t.classList.add('target'); t.scrollIntoView({block: 'center'}); }
+}
+
+$('file').textContent = D.src;
+$('flags').textContent = D.flags;
+for (const f of D.funcs) $('func').add(new Option(f, f));
+const GROUPS = [['fuente', [['c', 'C'], ['i', '.i']]], ['pasadas', D.passes.map(p => [p, p])],
+  ['salida', [['asm', 'asm'], ['cmp', 'vs ' + D.sides[0]], ['ana', 'análisis']]]];
+for (const [g, vs] of GROUPS) {
+  const s = document.createElement('span');
+  s.className = 'g'; s.textContent = g; $('tabs').appendChild(s);
+  for (const [v, label] of vs) {
+    const b = document.createElement('button');
+    b.textContent = label; b.dataset.v = v; b.onclick = () => setView(v);
+    $('tabs').appendChild(b);
+  }
+}
+// "report.html?view=gcse&func=BuildReachMap" opens straight there.
+const q = new URLSearchParams(location.search);
+if (q.get('view')) state.view = q.get('view');
+if (q.get('func')) state.func = q.get('func');
+else if (D.start && !q.get('view')) state.func = D.start;
+if (!D.funcs.includes(state.func)) state.func = D.funcs[D.funcs.length - 1];
+if (!INTRO[state.view] && !D.passes.includes(state.view)) state.view = 'rtl';
+$('func').value = state.func;
+$('func').onchange = () => { state.func = $('func').value; state.reg = null; save(); renderVars(); render(); };
+document.addEventListener('change', e => {
+  const o = e.target.dataset && e.target.dataset.o;
+  if (o) { state[o] = e.target.checked; save(); render(true); }
+  if (e.target.id === 'side') { state.side = e.target.value; save(); render(true); }
+});
+document.addEventListener('click', e => {
+  const a = e.target.closest('a.lab');
+  if (a) {
+    e.preventDefault();
+    if (a.dataset.pass && state.view !== a.dataset.pass) setView(a.dataset.pass);
+    goto(a.getAttribute('href'));
+    return;
+  }
+  const sl = e.target.closest('.slot');
+  if (sl) { pickSlot(sl); return; }
+  const r = e.target.closest('[data-r]');
+  if (r) mark(r.dataset.r === state.reg ? null : r.dataset.r);
+});
+fitHeader();
+renderVars();
+render();
+</script>
+</body>
+</html>
