@@ -1,6 +1,6 @@
 #!/bin/bash
 # Compares the code agbcc makes from src/NAME.c with the original assembly of the same functions.
-# Usage: scripts/fdiff.sh NAME ORIG.s  (ORIG.s: the functions cut from asm/, with the usual header)
+# Usage: bin/diff-asm NAME ORIG.s  (ORIG.s: the functions cut from asm/, with the usual header)
 # Prints a side-by-side diff of the instructions; exits 0 when they match.
 [[ $1 = -h || $1 = --help || $# -lt 2 ]] && { sed -n '2,/^[^#]/s/^# \{0,1\}//p' "$0"; exit 0; }
 set -e

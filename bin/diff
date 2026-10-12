@@ -1,7 +1,9 @@
 #!/bin/bash
 # Compares FUNC as built from its NONMATCHING C in src/NAME.c with the original asm the ROM uses,
 # with the C lines of the new version above their instructions.
-# Usage: scripts/ndiff.sh NAME FUNC [FROM [TO]]
+# Usage: bin/diff [NAME [FUNC [FROM [TO]]]]
+# Without FUNC, lists the NONMATCHING functions (all, or only src/NAME.c's) and how far each is
+# from matching.
 # FROM and TO are regexes on instructions (e.g. ReachTileCost): only the part from the first
 # FROM to the next TO is compared, on each side; calls show as "R_ARM_THM_CALL NAME". Branch
 # targets aren't compared; they show as "→ N", the line they land on. In a terminal, shows the
@@ -31,7 +33,17 @@ while [ $# -gt 0 ]; do
 	shift
 done
 set -- "${args[@]}"
-[ $# -lt 2 ] && usage
+if [ $# -lt 2 ]; then
+	# One line per NONMATCHING function: each is asm/non_matching/NAME/FUNC.inc.
+	opts=(); [ "$QOL" = 1 ] && opts+=(--qol)
+	for inc in asm/non_matching/${1:-*}/*.inc; do
+		[ -e "$inc" ] || { echo "no NONMATCHING functions${1:+ in src/$1.c}" >&2; exit 2; }
+		name=${inc#asm/non_matching/} name=${name%%/*} func=$(basename $inc .inc)
+		out=$("$0" "${opts[@]}" $name $func 2>&1 | tail -2 | tr '\n' ' ')
+		printf '%-16s %-16s %s\n' $name $func "${out% }"
+	done
+	exit 0
+fi
 set -e
 NAME=$1 FUNC=$2 FROM=$3 TO=$4
 OUT=build/fdiff
@@ -126,7 +138,7 @@ dump() {
 				}
 			}'
 }
-# Side by side, highlighted like nsrc.sh, with the C lines of the new version above their
+# Side by side, highlighted like show, with the C lines of the new version above their
 # instructions. Marks: ~ changed, - only in orig, + only in new.
 # CONTEXT (from --context) shows only the changes and N lines around them.
 show() {

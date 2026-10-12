@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 """Compile src/NAME.c like the Makefile does and write an HTML report of the whole pipeline.
 
-Usage: scripts/report.py NAME [FUNC] [-DNAME ...] [--vs REV ...] [--qol] [-o OUT.html]
+Usage: bin/report NAME [FUNC] [-DNAME ...] [--vs REV ...] [--qol] [-o OUT.html]
 
 Views, per function: the C, the preprocessed C, each RTL pass (with the C lines, variable names
 on pseudos and what each pass changed), the asm, a side-by-side comparison with the original
-(build/totkol/src/NAME.o, as scripts/ndiff.sh does) or with the C at git revision REV, and an
+(build/totkol/src/NAME.o, as bin/diff does) or with the C at git revision REV, and an
 analysis page (variable -> pseudo -> hard reg or stack slot, PRE expressions, stack slots).
 The original is asm, so its stack slot data comes from master's C when that gives the same
 asm. NONMATCHING is defined unless --matching is given. Run it from the repo root; it needs
@@ -220,7 +220,7 @@ def objdump(obj):
 
 
 def logic(t, reloc):
-    """An instruction with registers and stack/pc offsets made the same (ndiff.sh's rules)."""
+    """An instruction with registers and stack/pc offsets made the same (diff's rules)."""
     t = re.sub(r'\b(r\d+|sb|sl|fp|ip)\b', 'R', t)
     t = re.sub(r'\[(sp|pc), #\d+\]', r'[\1, #N]', t)
     if re.fullmatch(r'movs? R, R|adds R, R, #0|\.short 0x0000', t):

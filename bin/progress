@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Prints how much of the game's code is in C, from totkol.map (run make first).
-Usage: scripts/progress.py [--md]    --md: one line for README.md
+Usage: bin/progress [--md]    --md: one line for README.md
 Counts the game's code only: not crt0, the m4a sound driver, flash, multiboot or libgcc/libc.
 Each object's size goes up to the next object, so a QOL build gives the same numbers.
 """

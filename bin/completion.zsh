@@ -1,38 +1,46 @@
-# Tab completion for scripts/{fdiff,score,ndiff,nsrc,perm,why}.sh and report.py, run from the repo
+# Tab completion for bin/{diff-asm,score,diff,show,perm,why} and report, run from the repo
 # root.
-# In ~/.zshrc, after compinit: source ~/git/lodis-qol/scripts/completion.zsh
+# In ~/.zshrc, after compinit: source ~/git/lodis-qol/bin/completion.zsh
 _lodis_scripts() {
 	local cmd=${words[1]:t}
-	[[ $cmd = report.py ]] && { _lodis_report; return }
+	[[ $cmd = report ]] && { _lodis_report; return }
 	if [[ $PREFIX = -* ]]; then
 		case $cmd in
-		ndiff.sh) compadd -- --logic --context --nvim --qol -h ;;
-		why.sh) compadd -- --orig -v -h ;;
-		perm.sh) compadd -- --no-vars --keep-types --all --context -j --permuter -h ;;
+		diff) compadd -- --logic --context --nvim --qol -h ;;
+		why) compadd -- --orig -v -h ;;
+		perm) compadd -- --no-vars --keep-types --all --context -j --permuter -h ;;
 		*) compadd -- -h ;;
 		esac
 		return
 	fi
-	if (( CURRENT == 2 )); then
+	if [[ $cmd = diff ]] && (( CURRENT <= 3 )); then
+		# Only the NONMATCHING ones: asm/non_matching/NAME/FUNC.inc.
+		local -a list
+		if (( CURRENT == 2 )); then
+			list=(asm/non_matching/*(/N:t)); _describe 'file with NONMATCHING functions' list
+		else
+			list=(asm/non_matching/${words[2]}/*.inc(N:t:r)); _describe 'NONMATCHING function' list
+		fi
+	elif (( CURRENT == 2 )); then
 		local -a names=(src/*.c(N:t:r))
 		_describe 'file in src/' names
-	elif [[ $cmd = (fdiff|score).sh ]]; then
+	elif [[ $cmd = (diff-asm|score) ]]; then
 		(( CURRENT == 3 )) && _files -g '*.s'
 	elif (( CURRENT == 3 )); then
 		# Functions defined in src/NAME.c.
 		local -a funcs=(${(f)"$(grep -oP '^[A-Za-z_][\w \*]*?\b\K\w+(?=\()' src/${words[2]}.c 2>/dev/null | sort -u)"})
 		_describe 'function' funcs
-	elif [[ $cmd = why.sh ]]; then
+	elif [[ $cmd = why ]]; then
 		(( CURRENT == 5 )) && compadd orig
-	elif [[ $cmd = perm.sh ]]; then
+	elif [[ $cmd = perm ]]; then
 		(( CURRENT == 4 )) && compadd search continue best pick
-	elif [[ $cmd = ndiff.sh ]] && (( CURRENT <= 5 )); then
+	elif [[ $cmd = diff ]] && (( CURRENT <= 5 )); then
 		# FROM/TO: functions the original calls.
 		local -a calls=(${(f)"$(grep -ohP '\bbl \K\w+' asm/non_matching/${words[2]}/${words[3]}.inc 2>/dev/null | sort -u)"})
 		_describe 'callee (FROM/TO)' calls
 	fi
 }
-# report.py takes its options anywhere, so NAME and FUNC are the 1st and 2nd words that aren't.
+# report takes its options anywhere, so NAME and FUNC are the 1st and 2nd words that aren't.
 _lodis_report() {
 	case ${words[CURRENT-1]} in
 	--vs)
@@ -58,4 +66,4 @@ _lodis_report() {
 		_describe 'function' funcs
 	fi
 }
-compdef _lodis_scripts {,scripts/,./scripts/}{fdiff,score,ndiff,nsrc,perm,why}.sh {,scripts/,./scripts/}report.py
+compdef _lodis_scripts {,bin/,./bin/}{diff-asm,score,diff,show,perm,why,report}

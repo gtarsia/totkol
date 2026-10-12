@@ -2,15 +2,15 @@
 # Checks that code and data can move: links a ROM with everything after crt0 shifted by PAD
 # bytes, plays both ROMs headless with the same keys (new game up to the first battle) and
 # compares screenshots. Any raw ROM address left in the data shows up as a difference.
-# Usage: scripts/shift_test.sh [PAD] [FRAMES] [STEP]  (run from the repo root after `make`)
-# With DUMP=FRAME, also dumps RAM from FRAME on; compare with scripts/ram_diff.py.
+# Usage: bin/shift-test [PAD] [FRAMES] [STEP]  (run from the repo root after `make`)
+# With DUMP=FRAME, also dumps RAM from FRAME on; compare with bin/ram_diff.py.
 set -e
 PAD=${1:-0x100}
 FRAMES=${2:-40000}
 STEP=${3:-400}
 OUT=build/shift_test
 mkdir -p $OUT
-gcc -O2 -o $OUT/boot scripts/boot.c -lmgba -lpng
+gcc -O2 -o $OUT/boot bin/boot.c -lmgba -lpng
 
 # Link the shifted ROM from the objects of the last build.
 (cd build/totkol && arm-none-eabi-ld --defsym shift_test_pad=$PAD -T ../../linker.ld \
@@ -18,7 +18,7 @@ gcc -O2 -o $OUT/boot scripts/boot.c -lmgba -lpng
 tools/gbafix/gbafix $OUT/shifted.elf -t"TACTICSOGRE" -cATOE -mEB -r0 --silent
 arm-none-eabi-objcopy -O binary --gap-fill 0 --pad-to 0x8800000 $OUT/shifted.elf $OUT/shifted.gba
 
-python3 scripts/inputs.py $FRAMES > $OUT/inputs.txt
+python3 bin/inputs.py $FRAMES > $OUT/inputs.txt
 
 for rom in baserom shifted; do
 	src=baserom.gba; [ $rom = shifted ] && src=$OUT/shifted.gba

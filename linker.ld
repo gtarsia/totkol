@@ -516,7 +516,7 @@ SECTIONS {
        C values can make agbcc emit more or less code. Growing fails the link. */
     rom : ALIGN(4) {
         asm/crt0.o(.text);
-        /* scripts/shift_test.sh moves everything after crt0 by this many bytes. */
+        /* bin/shift-test moves everything after crt0 by this many bytes. */
         . += DEFINED(shift_test_pad) ? shift_test_pad : 0;
         asm/code_08000254.o(.text); /* -O0 */
         asm/code_080008EC.o(.text);

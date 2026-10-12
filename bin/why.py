@@ -1,6 +1,6 @@
 # why.py FUNC LINE [orig]: why an instruction of FUNC's NONMATCHING build uses the registers it
-# does, from agbcc's own notes (why.sh builds them in build/why). LINE is a line number from
-# ndiff.sh: of the new side, or of the original side with "orig".
+# does, from agbcc's own notes (why builds them in build/why). LINE is a line number from
+# diff: of the new side, or of the original side with "orig".
 #
 # agbcc works with numbered values ("pseudos") and then gives each one a register:
 # - values that live inside one block (no jumps in between) are given one by local-alloc, in
@@ -26,7 +26,7 @@ def lines(path):
     return open(path).read().splitlines()
 
 
-# The rows ndiff.sh shows: (original line, new line), either can be None.
+# The rows diff shows: (original line, new line), either can be None.
 orig, new = lines(f'{F}/orig.txt'), lines(f'{F}/new.txt')
 out = subprocess.run(['diff', '--old-line-format=<\n', '--new-line-format=>\n',
                       '--unchanged-line-format==\n', f'{F}/orig.txt', f'{F}/new.txt'],
@@ -55,7 +55,7 @@ print(f'{BOLD}line {LINE}{END}  original: {orig[ol - 1] if ol else DIM + "(none)
 if nl is None:
     sys.exit(f'{DIM}only the original has this instruction; pick a line yours has{END}')
 
-# New line -> address (same filter as ndiff.sh, with addresses kept) -> agbcc insn number.
+# New line -> address (same filter as diff, with addresses kept) -> agbcc insn number.
 obj = []
 for l in subprocess.run(['arm-none-eabi-objdump', '-d', '-r', '--no-show-raw-insn',
                          f'--disassemble={FUNC}', f'{W}/w.o'], capture_output=True,
@@ -64,7 +64,7 @@ for l in subprocess.run(['arm-none-eabi-objdump', '-d', '-r', '--no-show-raw-ins
     if m:
         obj.append(int(m.group(1), 16))
 if len(obj) != len(new):
-    sys.exit('build/why is out of date with ndiff.sh; run why.sh again')
+    sys.exit('build/why is out of date with diff; run why again')
 addr = obj[nl - 1]
 uid = pattern = None
 for l in lines(f'{W}/list.txt'):
@@ -244,7 +244,7 @@ elif o_op == n_op and len(o_args) == len(n_args):
                       and fields(orig[pairs[ln] - 1]) != fields(new[ln - 1])), None)
         if first and first != nl:
             say(f'The first of those copies that differs from the original is at {BOLD}line '
-                f'{first}{END} of yours: start there (scripts/why.sh {os.environ["NAME"]} {FUNC} '
+                f'{first}{END} of yours: start there (bin/why {os.environ["NAME"]} {FUNC} '
                 f'{first}).')
         elif first == nl:
             say('It is the first copy that differs, so the cause is here: the value it copies, or '

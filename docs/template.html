@@ -359,7 +359,7 @@ table.seentab { border-collapse: collapse; width: 100%; font-size: 14px; backgro
       register choice (<code>RLD insn N reload R -&gt; rX</code>). Same asm as
       <code>tools/agbcc</code>. Any other decision can be logged the same way: one
       <code>fprintf</code> where the pass decides.</p></div>
-    <div><b><code>scripts/why.sh</code></b>
+    <div><b><code>bin/why</code></b>
       <p>Explains a line's registers from agbcc's own notes.</p></div>
   </div>
 </section>
@@ -561,7 +561,7 @@ table.seentab { border-collapse: collapse; width: 100%; font-size: 14px; backgro
         <code>[sp, #N]</code> loaded into r1, then r2, then r0.</dd>
       <dt>If</dt><dd>The rotation is off by one with identical asm before it: see
         <a href="#pass/jump2">jump2</a>.</dd>
-      <dt>Tools</dt><dd><code>RLDBG=1</code>, <code>scripts/why.sh</code></dd>
+      <dt>Tools</dt><dd><code>RLDBG=1</code>, <code>bin/why</code></dd>
     </dl>
   </article>
 </section>
@@ -665,7 +665,7 @@ table.seentab { border-collapse: collapse; width: 100%; font-size: 14px; backgro
   </div>
 
   <footer>
-    Every Patterns and Instructions listing is real output: <code>agbcc -mthumb-interwork -O2 -fhex-asm -fprologue-bugfix</code>, assembled and disassembled with <code>arm-none-eabi-objdump</code> (the same view <code>scripts/ndiff.sh</code> shows). Jump targets show as <code>→ N</code>, the line they land on. Highlighted lines are the ones the example is about. The Passes sketches are hand-written; add a row to "Seen in this repo" whenever a match teaches something new.
+    Every Patterns and Instructions listing is real output: <code>agbcc -mthumb-interwork -O2 -fhex-asm -fprologue-bugfix</code>, assembled and disassembled with <code>arm-none-eabi-objdump</code> (the same view <code>bin/diff</code> shows). Jump targets show as <code>→ N</code>, the line they land on. Highlighted lines are the ones the example is about. The Passes sketches are hand-written; add a row to "Seen in this repo" whenever a match teaches something new.
   </footer>
 </div>
 
@@ -804,7 +804,7 @@ const matches = (text, term) => !term || text.toLowerCase().includes(term);
 
 function render() { view === 'p' ? renderP() : view === 'i' ? renderI() : renderX(); }
 
-// Pass examples: the same f built two ways, side by side like scripts/ndiff.sh. Rows come lined
+// Pass examples: the same f built two ways, side by side like bin/diff. Rows come lined
 // up from build.py; an empty cell is a line the other side doesn't have.
 // Marks: ~ only registers differ, ! the code differs, - only left, + only right.
 // A "~" row is only a consequence of another register choice: it stays quiet, and only the

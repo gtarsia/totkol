@@ -1,9 +1,9 @@
-# ram_diff.py A B PAD: memory dumps of scripts/shift_test.sh runs (DUMP set), compared frame by
+# ram_diff.py A B PAD: memory dumps of bin/shift-test runs (DUMP set), compared frame by
 # frame. Prints the words that differ beyond the expected +PAD on ROM pointers, skipping the
 # stack and the bytes past the copied IRQ handler; stops at the first frame with differences.
 import glob, os, struct, sys
 A, B, PAD = sys.argv[1], sys.argv[2], int(sys.argv[3], 0)
-# Regions in the order scripts/boot.c dumps them.
+# Regions in the order bin/boot.c dumps them.
 REGIONS = [(0x02000000, 0x40000), (0x03000000, 0x8000), (0x05000000, 0x400),
            (0x06000000, 0x18000), (0x07000000, 0x400)]
 IGNORE = [(0x03007000, 0x03008000), (0x03001268, 0x03001270)]

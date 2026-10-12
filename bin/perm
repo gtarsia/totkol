@@ -2,15 +2,15 @@
 # Runs decomp-permuter on FUNC's NONMATCHING C in src/NAME.c: it changes the C at random, keeps
 # the versions that get closer to the original and writes them to build/perm/FUNC/output-SCORE-N.
 # Lower score is better; 0 is a match. Each better score sends a desktop notification (notify-send).
-# Usage: scripts/perm.sh NAME FUNC            search; each time it finds something better, it
+# Usage: bin/perm NAME FUNC            search; each time it finds something better, it
 #                                             pauses and shows it as in pick. If you accept
 #                                             changes, it starts over from your new C; if not,
 #                                             it carries on. q at its question, or Ctrl+C,
 #                                             stops it.
-#        scripts/perm.sh NAME FUNC search     just search (Ctrl+C stops it)
-#        scripts/perm.sh NAME FUNC continue   search starting from the best output so far
-#        scripts/perm.sh NAME FUNC best       show how the best output differs from your C
-#        scripts/perm.sh NAME FUNC pick       show the best output's changes, all together, with
+#        bin/perm NAME FUNC search     just search (Ctrl+C stops it)
+#        bin/perm NAME FUNC continue   search starting from the best output so far
+#        bin/perm NAME FUNC best       show how the best output differs from your C
+#        bin/perm NAME FUNC pick       show the best output's changes, all together, with
 #                                             their effect on the diff; if you accept, patch them
 #                                             into src
 # Options, anywhere on the line:
@@ -65,14 +65,14 @@ notify() {
 pick() {
 	cc -E -dM -I tools/agbcc -I tools/agbcc/include -iquote include -nostdinc -DREVISION=0 \
 		-DENGLISH -DQOL=0 -DNONMATCHING src/$NAME.c > $D/macros.h
-	PICK_ALL=$PICK_ALL $PY scripts/perm_pick.py src/$NAME.c $FUNC $D $1 "$style"
+	PICK_ALL=$PICK_ALL $PY bin/perm_pick.py src/$NAME.c $FUNC $D $1 "$style"
 }
 
-# Prepares $D for the permuter. Base: the C as ndiff.sh compiles it, without line markers (with
+# Prepares $D for the permuter. Base: the C as diff compiles it, without line markers (with
 # "continue", the best output instead). Target: the original asm.
 setup() {
 	mkdir -p $D
-	scripts/ndiff.sh $NAME $FUNC > /dev/null || true
+	bin/diff $NAME $FUNC > /dev/null || true
 	tools/preproc/preproc build/fdiff/nm.i charmap.txt | grep -v '^#' > $D/base.c.new
 	local mine=$D/base.c
 	[ -f $D/yours.base.c ] && mine=$D/yours.base.c
@@ -144,8 +144,8 @@ best)
 	echo "best: $best"
 	mine=$D/base.c
 	[ -f $D/yours.base.c ] && mine=$D/yours.base.c
-	$PY scripts/perm_diff.py $mine $D/yours.c $FUNC
-	$PY scripts/perm_diff.py $best/source.c $D/permuter.c $FUNC
+	$PY bin/perm_diff.py $mine $D/yours.c $FUNC
+	$PY bin/perm_diff.py $best/source.c $D/permuter.c $FUNC
 	# Same style as src/ for both, so only real changes show (no braces on one-line ifs, etc.).
 	clang-format -i --style="$style" $D/yours.c $D/permuter.c
 	CONTEXT=$CONTEXT SBS_WS=ignore sbs $D/yours.c $D/permuter.c

@@ -68,7 +68,7 @@ def asm_of(stem, fname, src, extra=[]):
 for s in S:
     s['asm'] = asm_of(s['name'], s['name'], s['c'])
 # Passes: each example is the same function built two ways (other C or a pass turned off).
-# Side by side like scripts/ndiff.sh: rows lined up on the logic (registers, stack offsets, jump
+# Side by side like bin/diff: rows lined up on the logic (registers, stack offsets, jump
 # targets and copies ignored). Marks: ' ' same, '~' only registers or offsets differ, '!' the code
 # differs, '-' only on the left, '+' only on the right. A row is (mark, nA, nB, textA, textB).
 def asm_logic(l):

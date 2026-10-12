@@ -7,7 +7,7 @@ game. If a mod's code is still in asm, leave the idea as a comment next to it un
 in C. Mods change values only and never shift code or data.
 
 List each mod in `QOL.md`, and each bug of the original game in `BUGS.md`. After moving code to
-C, update the progress line in `README.md` with `scripts/progress.py --md`.
+C, update the progress line in `README.md` with `bin/progress --md`.
 
 ## Verify the ROM after every commit
 
@@ -29,20 +29,21 @@ uncommitted first.
 - To move functions to C: split the `.s` file so they leave a gap, write them in
   `src/NAME.c`, and put its object in `linker.ld` in the gap. After it, add the line that
   puts the next object back at its address (`. = 0x... + (DEFINED(shift_test_pad) ...)`).
-  Check it with `scripts/fdiff.sh NAME ORIG.s`
-  (ORIG.s holds the cut asm with the usual header); `scripts/score.sh` prints only the count
+  Check it with `bin/diff-asm NAME ORIG.s`
+  (ORIG.s holds the cut asm with the usual header); `bin/score` prints only the count
   of lines that differ. If it doesn't match yet, keep the asm as a NAKED fallback, like
   `src/battle_reach.c`; put the C under `#ifdef NONMATCHING` and compare it with
-  `scripts/ndiff.sh NAME FUNC [FROM [TO]]` (FROM/TO: regexes, e.g. a callee, to compare a part).
-  `scripts/nsrc.sh NAME FUNC` shows that build with its C lines over their instructions.
-  ndiff.sh's count also gives the logic-only differences (registers and stack offsets ignored);
+  `bin/diff NAME FUNC [FROM [TO]]` (FROM/TO: regexes, e.g. a callee, to compare a part);
+  `bin/diff [NAME]` lists the NONMATCHING functions and how far each is.
+  `bin/show NAME FUNC` shows that build with its C lines over their instructions.
+  diff's count also gives the logic-only differences (registers and stack offsets ignored);
   `--logic` marks only those. Match the logic first (that count at 0), then registers and stack:
   the total alone misleads, since C that does something different can line up registers better.
-  `scripts/perm.sh NAME FUNC` runs decomp-permuter on it and offers each better result for
+  `bin/perm NAME FUNC` runs decomp-permuter on it and offers each better result for
   patching into src (`... pick` does it for the best one so far).
-  `scripts/why.sh NAME FUNC LINE [--orig]` explains why a line of that diff uses its registers,
+  `bin/why NAME FUNC LINE [--orig]` explains why a line of that diff uses its registers,
   from agbcc's own notes (its values, their priority, reload's round-robin).
-  These scripts print their usage with `-h`; `scripts/completion.zsh` adds zsh tab completion.
+  These scripts print their usage with `-h`; `bin/completion.zsh` adds zsh tab completion.
 - `docs/index.html` (built by `docs/build.py`): C→asm patterns, the Thumb instructions and the
   agbcc passes with examples. Written for Guido; the tips below are the short version.
 - Matching tips (agbcc; source in `~/git/agbcc-src/gcc`, pass order in `toplev.c:2562`):
@@ -70,28 +71,28 @@ uncommitted first.
 
 - Disassemble the built ELF by address:
   `arm-none-eabi-objdump -d -M force-thumb --start-address=A --stop-address=B totkol.elf`
-- `scripts/funcs.py FROM TO` (or `NAMES...`): each asm function with its address, size, file,
+- `bin/funcs FROM TO` (or `NAMES...`): each asm function with its address, size, file,
   callers (<-) and callees (->). Use it to scope a group of functions before reading asm.
 - Read a function's asm: `awk '/thumb_func_start NAME/,/thumb_func_start /' asm/FILE.s`
 - In the QOL build, labels must match their address (see above). If they don't, every
   address-based tool lies.
 
-## Headless tools (libmgba, `gcc -O2 -o OUT scripts/X.c -lmgba [-lpng]`)
+## Headless tools (libmgba, `gcc -O2 -o OUT bin/X.c -lmgba [-lpng]`)
 
 All take ROM SAV INPUTS. SAV is a copy that gets written; a fresh one is
 `head -c 65536 /dev/zero | tr '\0' '\377' > x.sav`. INPUTS holds "frame keymask" lines from
-`python3 scripts/inputs.py N`: a new game that reaches the first battle by frame ~30000.
+`python3 bin/inputs.py N`: a new game that reaches the first battle by frame ~30000.
 `build/mv/in90.txt` holds 90000 frames.
 
-- `build/mv/phases ROM SAV INPUTS N` (`scripts/phases.c`): prints each battle phase/state
+- `build/mv/phases ROM SAV INPUTS N` (`bin/phases.c`): prints each battle phase/state
   change. To time a mod, run it on the original and the mod ROM and compare the frames spent
   per state.
-- `build/dlg/boot ROM SAV INPUTS N STEP OUTDIR` (`scripts/boot.c`): a PNG every STEP frames;
+- `build/dlg/boot ROM SAV INPUTS N STEP OUTDIR` (`bin/boot.c`): a PNG every STEP frames;
   with DUMP=FRAME, also RAM. To look at a stretch, `montage` the PNGs into one sheet.
-- `build/shift_test/watch ROM SAV INPUTS FROM TO ADDR` (`scripts/watch.c`): prints PC and
+- `build/shift_test/watch ROM SAV INPUTS FROM TO ADDR` (`bin/watch.c`): prints PC and
   registers on every write to the word at ADDR. BREAK=ADDR prints registers when the PC
   reaches ADDR; use the function's address + 4 (pipeline).
-- `scripts/shift_test.sh` and `scripts/lockstep.sh`: check that code and data can move.
+- `bin/shift-test` and `bin/lockstep`: check that code and data can move.
   Parked: they aren't needed while mods don't shift anything.
 - Run mGBA only headless, and kill only your own instances.
 

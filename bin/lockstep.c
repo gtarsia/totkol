@@ -1,7 +1,7 @@
 // lockstep BASE SHIFTED INPUTS FRAMES PAD: plays the original ROM and a ROM linked with everything
 // after crt0 moved by PAD, side by side with the same keys (INPUTS: "frame keymask" lines).
 //
-// SHIFTED must hold a copy of the original ROM in the gap left by the move (scripts/lockstep.sh
+// SHIFTED must hold a copy of the original ROM in the gap left by the move (bin/lockstep
 // builds it), so a raw ROM address left in the data still reads the right bytes. Two kinds of bugs
 // then show up separately:
 // - stale pointers: any read of, or jump into, the old copy is logged with the code that did it;

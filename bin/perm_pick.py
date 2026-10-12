@@ -1,11 +1,11 @@
 # perm_pick.py SRC FUNC DIR BEST STYLE: shows all the changes in the permuter's output BEST at once
 # with their effect on the diff and, if accepted, patches them into the NONMATCHING block of SRC.
-# Run with decomp-permuter's Python (it has pycparser); perm.sh pick calls it. The permuter works on
+# Run with decomp-permuter's Python (it has pycparser); perm pick calls it. The permuter works on
 # preprocessed C (no comments, macros expanded), so changes are matched to SRC ignoring spaces,
 # parentheses, braces and comments, with macros expanded. If any can't be matched cleanly, or
 # would drop a comment, nothing is patched and they're listed to apply by hand. An output that adds
-# logic differences (see ndiff.sh) is rejected; one whose changes don't change the diff is skipped
-# (perm.sh's --all shows it).
+# logic differences (see diff) is rejected; one whose changes don't change the diff is skipped
+# (perm's --all shows it).
 import difflib, os, re, subprocess, sys, tempfile, time
 from pycparser import c_parser, c_generator
 
@@ -30,7 +30,7 @@ def region_start(lines):
                 if l.startswith(('inline static', 'static inline')) or f' {FUNC}(' in l)
 
 
-# Instructions of FUNC in an object, as ndiff.sh compares them.
+# Instructions of FUNC in an object, as diff compares them.
 def dump(obj):
     out = run('arm-none-eabi-objdump', '-d', '-r', '--no-show-raw-insn', f'--disassemble={FUNC}',
               obj).stdout
@@ -51,7 +51,7 @@ open(f'{TMP}/target.txt', 'w').write('\n'.join(dump(f'{DIR}/target.o')) + '\n')
 
 
 def logic(lines):
-    """The listing with what isn't logic made equal, as ndiff.sh's logic count does: registers,
+    """The listing with what isn't logic made equal, as diff's logic count does: registers,
     stack offsets, register copies, alignment padding and jump-table addresses."""
     out = []
     for i, l in enumerate(lines):
@@ -70,7 +70,7 @@ open(f'{TMP}/target.logic', 'w').write('\n'.join(logic(target)))
 
 
 def score(prefix, region):
-    """(instruction lines that differ from the original, of them logic only), as ndiff.sh counts
+    """(instruction lines that differ from the original, of them logic only), as diff counts
     them, or None if it doesn't compile."""
     c, o = f'{TMP}/cand.c', f'{TMP}/cand.o'
     open(c, 'w').write('\n'.join(prefix + region) + '\n')
@@ -209,7 +209,7 @@ def key():
 
 
 def compiles(lines):
-    """Whether SRC with these lines compiles the way ndiff.sh builds it."""
+    """Whether SRC with these lines compiles the way diff builds it."""
     c = f'{TMP}/{os.path.basename(SRC)}'
     open(c, 'w').write('\n'.join(lines))
     cpp = run('cc', '-E', '-I', 'tools/agbcc', '-I', 'tools/agbcc/include', '-iquote', 'include',
@@ -262,7 +262,7 @@ if s_logic is not None and s_logic > current_logic:
           'changes what the code does\033[0m')
     sys.exit()
 if not hunks or (s == current and not SHOW_ALL):
-    print(f"\033[90mskipped: its changes don't change the diff ({current} lines; perm.sh's --all "
+    print(f"\033[90mskipped: its changes don't change the diff ({current} lines; perm's --all "
           'shows them)\033[0m')
     sys.exit()
 if s is None:
@@ -292,7 +292,7 @@ while ans not in ('y', 'n', 'q'):
     ans = key()
 print(ans + '\n')
 if ans == 'q':
-    sys.exit(3)  # perm.sh stops searching
+    sys.exit(3)  # perm stops searching
 if ans != 'y':
     sys.exit()
 patched = list(block)
@@ -316,4 +316,4 @@ open(backup, 'w').write('\n'.join(src))
 src[b0:b1] = patched
 open(SRC, 'w').write('\n'.join(src))
 print(f'patched {len(hunks)} change(s) into {SRC} (previous version: {backup})')
-print(f'differing lines now: {s}; check with scripts/ndiff.sh')
+print(f'differing lines now: {s}; check with bin/diff')
