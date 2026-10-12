@@ -6,6 +6,9 @@ Mods go only in C, behind QOL: `(QOL ? mod : original)`. Asm and data stay as in
 game. If a mod's code is still in asm, leave the idea as a comment next to it until that code is
 in C. Mods change values only and never shift code or data.
 
+List each mod in `QOL.md`, and each bug of the original game in `BUGS.md`. After moving code to
+C, update the progress line in `README.md` with `scripts/progress.py --md`.
+
 ## Verify the ROM after every commit
 
 After each commit, check the committed tree, not the working tree. Stash anything left

@@ -11,7 +11,11 @@ struct UnitInfo {
     u8 x;               // tile
     u8 y;
     u8 facing;
+    u8 flags;           // UNIT_*
 };
+
+#define UNIT_GUEST  0x02    // guess: an ally the game controls
+#define UNIT_ENEMY  0x80    // guess
 
 // A unit on the battle map (array at *gUnk_0202A238, 0xD0 bytes each).
 struct BattleUnit {

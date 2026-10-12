@@ -84,7 +84,9 @@ u32 sub_0808B394(struct ExpWork *w)
             goto next;
         if (*(u16 *)((u8 *)unit->field0 + 0x40) == 0)
             goto next;
-        if ((gUnk_02000000[0x132F] & 8) && w->exp[w->index] != 0) {
+        // QOL: only the player's units, not guests or enemies.
+        if ((gUnk_02000000[0x132F] & 8) && w->exp[w->index] != 0
+         && !(QOL && (unit->info->flags & (UNIT_GUEST | UNIT_ENEMY)))) {
             gUnk_03000FA0.x = unit->info->x;
             gUnk_03000FA0.y = unit->info->y;
             gUnk_03000FA0.mode = 4;
