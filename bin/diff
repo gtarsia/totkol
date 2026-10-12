@@ -34,10 +34,12 @@ while [ $# -gt 0 ]; do
 done
 set -- "${args[@]}"
 if [ $# -lt 2 ]; then
-	# One line per NONMATCHING function: each is asm/non_matching/NAME/FUNC.inc.
+	# One line per NONMATCHING function: the asm/non_matching/NAME/FUNC.inc that src/NAME.c
+	# still includes as its NAKED fallback.
 	opts=(); [ "$QOL" = 1 ] && opts+=(--qol)
-	for inc in asm/non_matching/${1:-*}/*.inc; do
-		[ -e "$inc" ] || { echo "no NONMATCHING functions${1:+ in src/$1.c}" >&2; exit 2; }
+	incs=$(grep -ohE 'asm/non_matching/[^/]+/[^/"]+\.inc' src/${1:-*}.c 2>/dev/null | sort -u)
+	[ -n "$incs" ] || { echo "no NONMATCHING functions${1:+ in src/$1.c}" >&2; exit 2; }
+	for inc in $incs; do
 		name=${inc#asm/non_matching/} name=${name%%/*} func=$(basename $inc .inc)
 		out=$("$0" "${opts[@]}" $name $func 2>&1 | tail -2 | tr '\n' ' ')
 		printf '%-16s %-16s %s\n' $name $func "${out% }"

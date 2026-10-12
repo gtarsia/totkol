@@ -14,12 +14,14 @@ _lodis_scripts() {
 		return
 	fi
 	if [[ $cmd = diff ]] && (( CURRENT <= 3 )); then
-		# Only the NONMATCHING ones: asm/non_matching/NAME/FUNC.inc.
+		# Only the NONMATCHING ones: the asm/non_matching/NAME/FUNC.inc that src/NAME.c includes.
 		local -a list
 		if (( CURRENT == 2 )); then
-			list=(asm/non_matching/*(/N:t)); _describe 'file with NONMATCHING functions' list
+			list=(${(f)"$(grep -lE 'asm/non_matching/' src/*.c 2>/dev/null)"}); list=(${list:t:r})
+			_describe 'file with NONMATCHING functions' list
 		else
-			list=(asm/non_matching/${words[2]}/*.inc(N:t:r)); _describe 'NONMATCHING function' list
+			list=(${(f)"$(grep -ohP 'asm/non_matching/[^/]+/\K[^/"]+(?=\.inc)' src/${words[2]}.c 2>/dev/null)"})
+			_describe 'NONMATCHING function' list
 		fi
 	elif (( CURRENT == 2 )); then
 		local -a names=(src/*.c(N:t:r))
