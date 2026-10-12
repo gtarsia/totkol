@@ -6,196 +6,168 @@
 <title>Reporte __TITLE__</title>
 <style>
 :root {
-  --bg: #fbfbf8; --panel: #f1f0ea; --text: #24292f; --faint: #9a9a92; --line: #e0ded5;
+  --bg: #fbfbf8; --panel: #f1f0ea; --text: #24292f; --faint: #8a8a82; --line: #e0ded5;
   --head: #8a5a00; --op: #0a7a4b; --ctl: #a12a6f; --reg: #6a3fc0; --hard: #b2361f;
   --num: #1f5fbf; --mem: #b05c00; --lab: #0b7285; --src-bg: #fff6d6; --hl: #ffe08a;
-  --badge-bg: #ece5fb; --add: #e3f5e1; --del: #fbe4e1; --chg: #fff1cc; --add-t: #1a7f37;
-  --del-t: #c0392b; --chg-t: #9a6700;
+  --add: #e3f5e1; --del: #fbe4e1; --chg: #e3edff; --add-t: #1a7f37;
+  --del-t: #c0392b; --chg-t: #1f5fbf; --sel: #1f5fbf;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg: #16171a; --panel: #1e2024; --text: #d8dae0; --faint: #6c707a; --line: #2c2f35;
+    --bg: #16171a; --panel: #1e2024; --text: #d8dae0; --faint: #7c808a; --line: #2c2f35;
     --head: #e3b45b; --op: #5fd39a; --ctl: #f07ac0; --reg: #b9a0ff; --hard: #ff8a70;
     --num: #7fb2ff; --mem: #ffb067; --lab: #5fd0e0; --src-bg: #2a2716; --hl: #5a4a10;
-    --badge-bg: #2e2747; --add: #15301c; --del: #3a1a17; --chg: #352c10; --add-t: #6fdc8c;
-    --del-t: #ff8a80; --chg-t: #f0c14b;
+    --add: #15301c; --del: #3a1a17; --chg: #16263f; --add-t: #6fdc8c;
+    --del-t: #ff8a80; --chg-t: #7fb2ff; --sel: #7fb2ff;
   }
 }
 :root[data-theme="dark"] {
-  --bg: #16171a; --panel: #1e2024; --text: #d8dae0; --faint: #6c707a; --line: #2c2f35;
+  --bg: #16171a; --panel: #1e2024; --text: #d8dae0; --faint: #7c808a; --line: #2c2f35;
   --head: #e3b45b; --op: #5fd39a; --ctl: #f07ac0; --reg: #b9a0ff; --hard: #ff8a70;
   --num: #7fb2ff; --mem: #ffb067; --lab: #5fd0e0; --src-bg: #2a2716; --hl: #5a4a10;
-  --badge-bg: #2e2747; --add: #15301c; --del: #3a1a17; --chg: #352c10; --add-t: #6fdc8c;
-  --del-t: #ff8a80; --chg-t: #f0c14b;
+  --add: #15301c; --del: #3a1a17; --chg: #16263f; --add-t: #6fdc8c;
+  --del-t: #ff8a80; --chg-t: #7fb2ff; --sel: #7fb2ff;
 }
 * { box-sizing: border-box; }
 body { margin: 0; background: var(--bg); color: var(--text);
-  font: 14px/1.45 system-ui, sans-serif; }
-code, pre, .mono { font-family: ui-monospace, "JetBrains Mono", Menlo, monospace; font-size: 13px; }
+  font: 14px/1.4 system-ui, sans-serif; }
+code, .mono { font-family: ui-monospace, "JetBrains Mono", Menlo, monospace; font-size: 13px; }
 header { position: sticky; top: 0; z-index: 2; background: var(--panel);
-  border-bottom: 1px solid var(--line); padding: 8px 16px; display: flex; flex-wrap: wrap;
-  gap: 6px 14px; align-items: center; }
-header h1 { font-size: 15px; margin: 0; }
-header .meta { color: var(--faint); font-size: 12px; }
+  border-bottom: 1px solid var(--line); padding: 5px 12px; display: flex;
+  gap: 10px; align-items: center; white-space: nowrap; overflow-x: auto; }
+header b { font-size: 14px; }
 select, button, label { font: inherit; font-size: 13px; }
-.tabs { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
-.tabs .g { color: var(--faint); font-size: 11px; text-transform: uppercase; margin: 0 2px 0 8px; }
-.tabs button { border: 1px solid var(--line); background: var(--bg); color: var(--text);
-  border-radius: 6px; padding: 2px 8px; cursor: pointer; }
+.tabs { display: flex; gap: 2px; }
+.tabs button, .nav button { border: 1px solid var(--line); background: var(--bg);
+  color: var(--text); border-radius: 5px; padding: 1px 10px; cursor: pointer; }
 .tabs button.on { background: var(--head); color: var(--bg); border-color: var(--head); }
-.opts { display: flex; gap: 10px; flex-wrap: wrap; }
-.wrap { display: grid; grid-template-columns: 260px 1fr; min-height: calc(100vh - var(--hdr, 50px)); }
-aside { border-right: 1px solid var(--line); padding: 12px; font-size: 13px; position: sticky;
-  top: var(--hdr, 50px); align-self: start; max-height: calc(100vh - var(--hdr, 50px)); overflow: auto; }
-aside h2 { font-size: 12px; text-transform: uppercase; letter-spacing: .05em;
+.nav { display: flex; gap: 6px; align-items: center; }
+.nav button { padding: 1px 6px; }
+.wrap { display: grid; grid-template-columns: minmax(0, 1fr) 380px; }
+main { padding: 4px 12px 48px; min-width: 0; }
+aside { border-left: 1px solid var(--line); background: var(--panel); padding: 10px 12px;
+  position: sticky; top: var(--hdr, 36px); align-self: start;
+  height: calc(100vh - var(--hdr, 36px)); overflow: auto; }
+aside h2 { font-size: 15px; margin: 0 0 6px; }
+aside h3 { font-size: 12px; text-transform: uppercase; letter-spacing: .04em;
   color: var(--faint); margin: 12px 0 4px; }
-aside a { color: var(--text); text-decoration: none; display: block; padding: 1px 0; }
-aside a:hover { color: var(--head); }
-.var { cursor: pointer; display: flex; justify-content: space-between; gap: 8px;
-  font: 13px ui-monospace, monospace; padding: 2px 6px; border-radius: 4px; }
-.var:hover { background: var(--panel); }
-.var .w { color: var(--faint); }
-.card { background: var(--panel); border: 1px solid var(--line); border-radius: 6px;
-  padding: 8px 10px; margin-bottom: 8px; line-height: 1.45; }
-.card .t { font-size: 11px; text-transform: uppercase; letter-spacing: .04em; color: var(--faint); }
-.card .v { font: 600 14px ui-monospace, monospace; margin: 2px 0 4px; }
-.card p { margin: 4px 0 0; }
-.empty { color: var(--faint); line-height: 1.45; }
-.btns { display: flex; gap: 6px; flex-wrap: wrap; }
-.btns a { display: inline-block; border: 1px solid var(--line); border-radius: 4px; padding: 2px 8px;
-  background: var(--bg); font-size: 12px; }
-.btns a:hover { border-color: var(--head); }
-main { padding: 8px 16px 64px; min-width: 0; }
-.intro { font-family: system-ui, sans-serif; color: var(--faint); font-size: 13px; margin: 4px 0 10px;
-  max-width: 70ch; }
-.row { white-space: pre; overflow-x: auto; padding: 1px 0; }
-.src { background: var(--src-bg); margin: 10px -8px 2px; padding: 3px 8px; border-radius: 4px; }
-.ln { color: var(--faint); display: inline-block; min-width: 3.5em; user-select: none; }
-.code .row.out { opacity: .45; }
+aside p { margin: 4px 0; }
+aside .x { float: right; color: var(--faint); cursor: pointer; text-decoration: none; }
+aside .code { background: var(--bg); border: 1px solid var(--line); border-radius: 4px;
+  padding: 3px 6px; margin: 4px 0; white-space: pre-wrap; }
+.steps { margin: 4px 0; padding-left: 20px; }
+.steps li { margin: 3px 0; }
+.box { border-left: 3px solid var(--line); padding: 2px 0 2px 8px; margin: 8px 0; }
+.box.mine { border-color: var(--sel); }
+.box.fix { border-color: var(--add-t); }
+.box .t { font-weight: 600; }
+.faint, .empty { color: var(--faint); }
+a.act { color: var(--lab); cursor: pointer; }
+.row { white-space: pre; padding: 0 4px; border-radius: 3px; }
+.row.src { background: var(--src-bg); margin-top: 3px; }
+.ln { color: var(--faint); display: inline-block; min-width: 3.2em; user-select: none; }
+.code .row.out { opacity: .4; }
+.code .row.fn { cursor: pointer; }
 .code .row.fn .ln { color: var(--head); }
-.insn { padding-left: 1em; }
-.insn .uid { font-weight: 700; }
-.insn .pn, .nil, .icode { color: var(--faint); }
-.note { color: var(--faint); padding-left: 1em; font-style: italic; }
-.hide-det .note, .hide-det .pn, .hide-det .rn, .hide-det .bar { display: none; }
+.insn { cursor: pointer; }
+.insn:hover, .code .row.fn:hover { background: var(--panel); }
+.sel, .cmp tr.sel td { outline: 2px solid var(--sel); outline-offset: -2px; }
+.d-add { background: var(--add); } .d-chg { background: var(--chg); }
 .rn, .dim { color: var(--faint); }
 .lbl { color: var(--lab); font-weight: 700; }
 .kw { color: var(--ctl); font-weight: 600; }
-.insn .ln { min-width: 3em; }
-.key { font-family: system-ui, sans-serif; color: var(--faint); font-size: 12px; margin: 0 0 8px; }
-.key code { color: var(--text); }
-.head { color: var(--head); font-weight: 700; margin-top: 14px; }
-.bb { color: var(--head); margin-top: 8px; }
-.idx { color: var(--lab); }
-.op { color: var(--op); } .ctl { color: var(--ctl); font-weight: 600; }
-.mode { color: var(--faint); }
+.op { color: var(--op); }
 .r { color: var(--reg); cursor: pointer; } .hr { color: var(--hard); font-weight: 600; }
-.n { color: var(--num); } .m { color: var(--mem); } .str { color: var(--op); }
-.sym { color: var(--lab); }
+.n { color: var(--num); } .sym { color: var(--lab); }
 a.lab { color: var(--lab); }
-.badge { background: var(--badge-bg); color: var(--reg); border-radius: 4px; padding: 0 3px;
-  margin-left: 2px; font-size: 12px; }
 .hl { background: var(--hl); border-radius: 3px; }
-.target { outline: 2px solid var(--lab); border-radius: 3px; }
-.help { color: var(--faint); font-size: 12px; font-family: system-ui, sans-serif; }
-.d-add { background: var(--add); } .d-chg { background: var(--chg); }
-.d-old { background: var(--del); opacity: .8; padding-left: 1em; }
-.d-tag { font-family: system-ui, sans-serif; font-size: 11px; border-radius: 4px; padding: 0 4px;
-  margin-right: 6px; }
-.d-tag.add { color: var(--add-t); border: 1px solid var(--add-t); }
-.d-tag.chg { color: var(--chg-t); border: 1px solid var(--chg-t); }
-.d-tag.del { color: var(--del-t); border: 1px solid var(--del-t); }
-details.gone { margin: 6px 0 12px; }
-details.gone summary { cursor: pointer; color: var(--del-t); font-family: system-ui, sans-serif; }
-table { border-collapse: collapse; margin: 6px 0 18px; }
-th { text-align: left; font: 600 12px system-ui, sans-serif; color: var(--faint);
-  border-bottom: 1px solid var(--line); padding: 3px 10px 3px 0; position: sticky;
-  top: var(--hdr, 50px); background: var(--bg); }
-td { padding: 2px 10px 2px 0; vertical-align: top; white-space: pre; }
-tr.click { cursor: pointer; } tr.click:hover td { background: var(--panel); }
-td.num, th.num { text-align: right; }
-td.zero { color: var(--faint); }
-h3 { font: 600 14px system-ui, sans-serif; margin: 18px 0 2px; color: var(--head); }
-/* Comparison */
-.cmp { border-collapse: collapse; width: 100%; }
-.cmp td { padding: 0 8px 0 0; }
-.cmp td.mk { width: 1.2em; font-weight: 700; text-align: center; }
-.cmp td.no { color: var(--faint); text-align: right; width: 3em; user-select: none; }
-.cmp td.lt { border-right: 1px solid var(--line); }
-.cmp tr.m-del { background: var(--del); } .cmp tr.m-add { background: var(--add); }
-.cmp tr.m-bang { background: var(--del); } .cmp tr.m-tilde { background: var(--chg); }
-.cmp tr.m-del .mk, .cmp tr.m-bang .mk { color: var(--del-t); }
-.cmp tr.m-add .mk { color: var(--add-t); } .cmp tr.m-tilde .mk { color: var(--chg-t); }
-.cmp tr.c td { background: var(--src-bg); padding-top: 4px; }
-.cmp tr.gap td { color: var(--faint); text-align: center; }
-.sum { font-family: system-ui, sans-serif; margin: 4px 0 10px; }
-.sum b.ok { color: var(--add-t); } .sum b.bad { color: var(--del-t); }
-.legend span { margin-right: 12px; }
+.target { outline: 2px solid var(--lab); }
 .slot { cursor: pointer; text-decoration: underline dotted; }
-@media (max-width: 760px) {
+/* Everything clickable reacts on hover. */
+.r:hover, .slot:hover { background: var(--hl); border-radius: 3px; }
+a.lab:hover, a.act:hover { text-decoration: underline; }
+aside .x:hover { color: var(--text); }
+.tabs button:hover, .nav button:hover { border-color: var(--head); }
+.tabs button.on:hover { filter: brightness(1.1); }
+summary, label { cursor: pointer; } summary:hover, label:hover { color: var(--text); }
+select { cursor: pointer; } select:hover { border-color: var(--head); }
+table { border-collapse: collapse; }
+.cmp { width: 100%; }
+.cmp td { padding: 0 6px 0 0; white-space: pre; }
+.cmp tr { cursor: pointer; }
+.cmp tr:hover td { background: var(--panel); }
+.cmp td.mk { width: 1.2em; font-weight: 700; text-align: center; }
+.cmp td.no { color: var(--faint); text-align: right; width: 2.6em; user-select: none; }
+.cmp td.lt { border-right: 1px solid var(--line); }
+.cmp th { text-align: left; font: 600 12px system-ui, sans-serif; color: var(--faint);
+  padding: 2px 6px 2px 0; position: sticky; top: var(--hdr, 36px); background: var(--bg); }
+.cmp tr.m-bang td, .cmp tr.m-del td { background: var(--del); }
+.cmp tr.m-add td { background: var(--add); } .cmp tr.m-tilde td { background: var(--chg); }
+.cmp tr.m-bang .mk, .cmp tr.m-del .mk { color: var(--del-t); }
+.cmp tr.m-add .mk { color: var(--add-t); } .cmp tr.m-tilde .mk { color: var(--chg-t); }
+.cmp tr.c td { background: var(--src-bg); }
+.cmp tr.gap td { color: var(--faint); text-align: center; cursor: default; }
+.pre td { padding: 1px 8px 1px 0; white-space: nowrap; }
+.pre tr { cursor: pointer; } .pre tr:hover td { background: var(--bg); }
+.tab td, .tab th { padding: 1px 12px 1px 0; white-space: nowrap; text-align: left; }
+.tab th { font: 600 12px system-ui, sans-serif; color: var(--faint); position: sticky;
+  top: var(--hdr, 36px); background: var(--bg); }
+.tab .num { text-align: right; color: var(--faint); }
+.tab tr[data-x] { cursor: pointer; } .tab tr[data-x]:hover td { background: var(--panel); }
+.tab tr.gap td { color: var(--faint); font-style: italic; font-size: 12px; }
+.pre-on, .tab tr.pre-on td { background: var(--chg); }
+.ok { color: var(--add-t); } .bad { color: var(--del-t); }
+@media (max-width: 860px) {
   .wrap { grid-template-columns: 1fr; }
-  aside { position: static; max-height: none; border-right: 0; border-bottom: 1px solid var(--line); }
+  aside { position: static; height: auto; border-left: 0; border-top: 1px solid var(--line); }
 }
 </style>
 </head>
 <body>
 <header>
-  <h1><span id="file"></span></h1>
+  <b id="file"></b>
   <select id="func" aria-label="Función"></select>
   <div class="tabs" id="tabs"></div>
-  <div class="opts" id="opts"></div>
-  <span class="meta" id="flags"></span>
+  <div class="nav" id="nav"></div>
 </header>
 <div class="wrap">
-  <aside>
-    <h2>Elegido</h2>
-    <div id="pick"></div>
-    <h2 id="toc-h">En esta pasada</h2>
-    <div id="toc"></div>
-    <h2>Dónde termina cada variable</h2>
-    <div id="vars"></div>
-  </aside>
   <main id="main" class="mono"></main>
+  <aside id="side"></aside>
 </div>
 <script id="data" type="application/json">__DATA__</script>
 <script>
 const D = JSON.parse(document.getElementById('data').textContent);
 const $ = id => document.getElementById(id);
 const esc = s => String(s).replace(/[&<>"]/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;'}[c]));
-const CTL = new Set(['set', 'call', 'if_then_else', 'parallel', 'use', 'clobber', 'pc', 'cc0',
-  'return', 'addr_vec', 'addr_diff_vec', 'unspec', 'unspec_volatile', 'asm_operands']);
-const HEADS = /^(;; (?!Register \d|\d+ (conflicts|preferences)|Insn is not)|BB data|GCSE pass|SET hash table|Expression hash table|CPROP of|PRE GCSE|GCSE of|Loop |\d+ registers?|Registers to be allocated)/;
-// What each view is, in one or two lines (shown above it).
+// What each pass does, in a line.
 const INTRO = {
-  c: 'El C tal como está en src/. Las líneas de la función van numeradas en color.',
-  i: 'El C después de cc -E y preproc: macros expandidas, #if resueltos. Es lo que recibe agbcc.',
-  rtl: 'Lo primero que genera el compilador: tu C traducido casi literal, paso por paso.',
+  rtl: 'Lo primero que genera el compilador: tu C traducido casi literal.',
   jump: 'Optimiza saltos: borra saltos a saltos y código muerto.',
-  cse: 'Common subexpression elimination dentro de cada bloque: reusa valores ya calculados.',
+  cse: 'Reusa cuentas ya hechas dentro de cada bloque.',
   addressof: 'Saca de memoria las variables cuya dirección ya no hace falta.',
-  gcse: 'Busca cuentas repetidas en toda la función y las calcula una sola vez (ver análisis).',
-  loop: 'Optimizaciones de bucles: saca invariantes fuera del bucle.',
-  cse2: 'Segunda pasada de CSE.',
-  flow: 'Análisis de vida: qué reg está vivo dónde. Agrega REG_DEAD y similares.',
+  gcse: 'Busca cuentas repetidas en toda la función y las hace una sola vez, ' +
+    'guardadas en un pseudo nuevo (tN).',
+  loop: 'Saca fuera de los bucles lo que no cambia adentro.',
+  cse2: 'Segunda vuelta de cse.',
+  flow: 'Calcula qué valor está vivo en cada punto.',
   combine: 'Junta instrucciones vecinas en una sola cuando se puede.',
-  regmove: 'Reordena copias para ahorrar movimientos de registros.',
-  lreg: 'Reparte registros del procesador a los valores que viven poco.',
-  greg: 'Reparte el resto: cada valor termina en un registro del procesador o en la pila.',
-  jump2: 'Última limpieza de saltos, ya con registros físicos.',
-  mach: 'Pasadas finales dependientes de la máquina.',
-  asm: 'Tu asm, desensamblado del .o, con la línea de C de cada tramo.',
-  cmp: 'Lado a lado, alineado por lógica (registros y offsets ignorados al alinear).',
-  ana: 'De dónde sale cada cosa: variable → pseudo → registro o slot, y las expresiones de PRE.',
+  regmove: 'Reordena copias para ahorrar movimientos.',
+  lreg: 'Da registros del procesador a los valores que viven poco.',
+  greg: 'Reparte el resto: cada valor va a un registro o a la pila.',
+  jump2: 'Última limpieza de saltos, ya con registros reales.',
+  mach: 'Pasadas finales propias de la máquina.',
 };
-let state = {func: null, view: 'rtl', reg: null, det: false, raw: false, delta: true,
-  side: null, only: false};
-try { Object.assign(state, JSON.parse(localStorage.getItem('report') || '{}')); } catch (e) {}
-function save() { try { localStorage.setItem('report', JSON.stringify(state)); } catch (e) {} }
+let state = {func: null, view: 'cmp', pass: 'gcse', side: null, only: false, table: false};
+try { Object.assign(state, JSON.parse(localStorage.getItem('report2') || '{}')); } catch (e) {}
+function save() {
+  try { localStorage.setItem('report2', JSON.stringify(state)); } catch (e) {}
+}
+let sel = null;  // what the panel explains: {kind, ...}
 
-function regNames(func) {
+function regNames(func, I) {
   // reg number -> first variable name; later regs with a used name get "_2", "_3"….
   const m = {}, count = {};
-  for (const [, name, , where] of (D.names[func] || [])) {
+  for (const [, name, , where] of ((I || D).names[func] || [])) {
     const r = /^reg (\d+)$/.exec(where);
     if (r && !(r[1] in m)) m[r[1]] = name;
   }
@@ -207,114 +179,20 @@ function regNames(func) {
   return m;
 }
 const homeOf = r => (D.homes[state.func] || {})[r];
-
-const TOK = /("[^"]*")|\((reg)((?:\/\w+)*)(:\w+)? (\d+)(?: (\w+))?\)|\((const_int) (-?\d+)\)|\((label_ref|code_label)((?:\/\w+)*)(:\w+)? (\d+)|\(nil\)|\{[^}]*\}|\((\w+)((?:\/\w+)*)(:\w+)?/g;
-
-function regSpan(n, names) {
-  const nm = names[n] ? '<span class="badge">' + esc(names[n]) + '</span>' : '';
-  return '<span class="r" data-r="' + n + '">' + n + '</span>' + nm;
-}
-
-function color(text, names) {
-  let out = '', last = 0, m;
-  TOK.lastIndex = 0;
-  while ((m = TOK.exec(text))) {
-    out += esc(text.slice(last, m.index));
-    last = TOK.lastIndex;
-    if (m[1]) out += '<span class="str">' + esc(m[1]) + '</span>';
-    else if (m[2]) {
-      const flags = esc(m[3] || ''), mode = m[4] ? '<span class="mode">' + m[4] + '</span>' : '';
-      if (m[6]) out += '(reg' + flags + mode + ' ' + m[5] + ' <span class="hr">' + m[6] + '</span>)';
-      else out += '(reg' + flags + mode + ' ' + regSpan(m[5], names) + ')';
-    } else if (m[7]) out += '(const_int <span class="n">' + m[8] + '</span>)';
-    else if (m[9]) out += '(<span class="lab">' + m[9] + '</span>' + esc(m[10] || '') +
-      (m[11] ? '<span class="mode">' + m[11] + '</span>' : '') +
-      ' <a class="lab" href="#u' + m[12] + '">' + m[12] + '</a>';
-    else if (m[0] === '(nil)') out += '<span class="nil">(nil)</span>';
-    else if (m[0][0] === '{') out += '<span class="icode">' + esc(m[0]) + '</span>';
-    else {
-      const code = m[13], cls = code === 'mem' ? 'm' : CTL.has(code) ? 'ctl' : 'op';
-      out += '(<span class="' + cls + '">' + code + '</span>' + esc(m[14] || '') +
-        (m[15] ? '<span class="mode">' + m[15] + '</span>' : '');
-    }
-  }
-  return out + esc(text.slice(last));
-}
-
-function plain(text, names) {
-  // Pass log lines ("... reaching reg is 699"): "reg N" and "insn N" are links.
-  return esc(text)
-    .replace(/\breg (is )?(\d+)\b/g, (s, is, n) => 'reg ' + (is || '') + regSpan(n, names))
-    .replace(/\binsn (\d+)\b/g, (s, n) => 'insn <a class="lab" href="#u' + n + '">' + n + '</a>');
-}
+const otherSide = () => D.sides.includes(state.side) ? state.side : D.sides[0];
 
 function asmColor(t, side) {
-  // "lsls r1, r1, #24 <sym> → 12"; [sp, #N] is clickable (see slotInfo).
+  // "lsls r1, r1, #24 <sym> → 12"; [sp, #N] is clickable.
   return esc(t).replace(/\[sp, #(\d+)\]/g, '\u0001$1\u0002')
     .replace(/^(\S+)/, '<span class="op">$1</span>')
     .replace(/\b(r\d+|sb|sl|fp|ip|sp|lr|pc)\b/g, '<span class="hr">$1</span>')
     .replace(/#(-?\w+)/g, '<span class="n">#$1</span>')
     .replace(/&lt;([^&]*)&gt;/g, '<span class="sym">&lt;$1&gt;</span>')
     .replace(/→ (\S+)/, '<span class="lab">→ $1</span>')
-    .replace(/\u0001(\d+)\u0002/g, (m, n) => '<span class="slot" data-off="' + n + '" data-side="' +
-      esc(side || '') + '" title="sp+' + n + '">[sp, #' + n + ']</span>');
+    .replace(/\u0001(\d+)\u0002/g, (m, n) => '<span class="slot" data-off="' + n +
+      '" data-side="' + esc(side || '') + '">[sp, #' + n + ']</span>');
 }
-
-function slotInfo(side, off) {
-  // What lives at sp+off on one side, and why there: {pseudo, html}.
-  const I = side ? (D.info || {})[side] : {names: D.names, homes: D.homes, gcse: D.gcse};
-  if (!I) return {html: '<p class="empty">Sin datos: el original es asm. Para verlos, generá el ' +
-    'reporte con <code>--vs master</code>.</p>'};
-  const homes = I.homes[state.func] || {}, w = 'sp+' + off;
-  const r = Object.keys(homes).find(k => homes[k] === w);
-  if (!r) return {html: '<p class="empty">Nada guardado ahí.</p>'};
-  const vars = (I.names[state.func] || []).filter(v => v[3] === 'reg ' + r).map(v => v[1]);
-  if (vars.length) return {pseudo: r, html: '<div class="v">' + esc(vars[0]) + '</div><p>Una variable tuya.</p>'};
-  const g = (I.gcse || {})[state.func], rows = g ? g.rows : [];
-  const k = rows.findIndex(e => e.reg === r);
-  if (k < 0) return {pseudo: r, html: '<div class="v">t' + r + '</div><p>Un valor temporal.</p>'};
-  const e = rows[k], first = Math.min(...rows.map(x => +(homes[x.reg] || 'sp+1e9').slice(3)));
-  const ord = n => n + 'ª';
-  return {pseudo: r, html: '<div class="v">t' + r + ' = ' +
-    ex(parseRtl(e.expr), {names: regNames(state.func), cc: null}).h + '</div>' +
-    '<p>gcse juntó esta cuenta. En su tabla de ' + g.size + ' casilleros cae en el <b>' + e.hash +
-    '</b>: es la <b>' + ord(k + 1) + ' de ' + rows.length + '</b>.</p>' +
-    '<p>Van a la pila en ese orden desde sp+' + first + ', así que cae en <b>sp+' + off + '</b>.</p>'};
-}
-
-function pickSlot(el) {
-  // Sidebar: what lives in the clicked slot and why. In vs, both cells of the row.
-  mark(null);
-  const tr = el.closest('tr');
-  const cells = tr ? [...tr.querySelectorAll('.slot')] : [el];
-  const other = D.sides.includes(state.side) ? state.side : D.sides[0];
-  let h = '', mine = null;
-  for (const c of cells) {
-    const side = c.dataset.side, off = c.dataset.off;
-    const info = slotInfo(side ? (other in D.info ? other : 'none') : '', off);
-    if (!side) mine = [off, info.pseudo];
-    h += '<div class="card"><div class="t">' + esc(side ? other : 'tuyo') + ' · sp+' + off + '</div>' +
-      info.html + '</div>';
-  }
-  h += '<div class="btns">';
-  if (mine && mine[1]) {
-    for (const e of document.querySelectorAll('main .slot[data-off="' + mine[0] + '"][data-side=""]'))
-      e.classList.add('hl');
-    h += '<a href="#" id="see">ver t' + mine[1] + ' en gcse</a>';
-  }
-  $('pick').innerHTML = h + '<a href="#" id="clear">limpiar</a></div>';
-  if ($('see')) $('see').onclick = e => { e.preventDefault(); setView('gcse'); mark(mine[1]); };
-  $('clear').onclick = e => { e.preventDefault(); mark(null); };
-}
-
-function insnHtml(text, names) {
-  // "(insn 73 71 76 ..." -> uid bold, prev/next faint.
-  const m = /^\((\S+) (\d+) (\d+) (\d+)/.exec(text);
-  if (!m) return color(text, names);
-  return '(<span class="ctl">' + esc(m[1]) + '</span> <span class="uid">' + m[2] +
-    '</span><span class="pn"> ' + m[3] + ' ' + m[4] + '</span>' + color(text.slice(m[0].length), names);
-}
-
+const offs = t => [...String(t).matchAll(/\[sp, #(\d+)\]/g)].map(m => +m[1]);
 
 // ------------------------------------------------------------------ RTL as C
 
@@ -364,7 +242,7 @@ function ex(n, X) {
   const c = n.c, a = n.a;
   if (c === 'reg') {
     if (a.length > 1) return {h: '<span class="hr">' + esc(a[1]) + '</span>', p: 20};
-    return {h: '<span class="r" data-r="' + a[0] + '" title="reg ' + a[0] + '">' +
+    return {h: '<span class="r" data-r="' + a[0] + '">' +
       esc(X.names[a[0]] || 't' + a[0]) + '</span>', p: 20};
   }
   if (c === 'const_int') {
@@ -449,395 +327,503 @@ const RN = {REG_DEAD: 'último uso de', REG_UNUSED: 'no se usa', REG_EQUAL: 'val
   REG_LABEL: 'usa', REG_INC: 'incrementa', REG_NONNEG: 'nunca negativo:'};
 
 function insnC(text, X) {
-  // "(insn 651 650 652 (set ...) 39 {ashlsi3} (nil) (expr_list:REG_DEAD ...))" -> uid + statement.
+  // "(insn 651 650 652 (set ...) 39 {ashlsi3} (nil) (expr_list:REG_DEAD ...))"
+  // -> {kind, uid, h: statement, notes: [html]}.
   const n = parseRtl(text);
-  if (typeof n !== 'object') return esc(text);
-  const uid = n.a[0], gut = '<span class="ln" title="insn ' + esc(uid) + '">' + esc(uid) + '</span>';
-  if (n.c === 'code_label') return gut + '<span class="lbl">L' + esc(uid) + ':</span>';
-  if (n.c === 'barrier') return gut + '<span class="dim">(barrera: no se llega acá de arriba)</span>';
-  if (!/insn$/.test(n.c)) return gut + color(text, X.names);
-  let h = gut + st(n.a[3], X);
-  // REG_NOTES: hints the pass leaves on the insn.
+  if (typeof n !== 'object') return {kind: '?', h: esc(text), notes: []};
+  const uid = n.a[0];
+  if (n.c === 'code_label') return {kind: 'label', uid, h: '<span class="lbl">L' + esc(uid) + ':</span>', notes: []};
+  if (!/insn$/.test(n.c)) return {kind: n.c, uid, h: '', notes: []};
   const notes = [];
-  for (const x of n.a.slice(4)) {
+  const h = st(n.a[3], X);
+  for (const x of n.a.slice(4))
     for (let k = x; isN(k, 'expr_list') || isN(k, 'insn_list'); k = k.a[1])
-      if (/^REG_/.test(k.m)) notes.push((RN[k.m] || k.m.slice(4).toLowerCase()) + ' ' + (isN(k, 'insn_list') ? 'insn ' + esc(k.a[0]) : ex(k.a[0], X).h));
-  }
-  if (notes.length) h += '<span class="rn">   // ' + notes.join(' · ') + '</span>';
-  return h;
+      if (/^REG_/.test(k.m)) notes.push((RN[k.m] || k.m.slice(4).toLowerCase()) + ' ' +
+        (isN(k, 'insn_list') ? 'insn ' + esc(k.a[0]) : ex(k.a[0], X).h));
+  return {kind: 'insn', uid, h, notes};
 }
-
-const KEY = '<p class="key"><code>uy</code> variable · <code>t210</code> valor temporal sin nombre · ' +
-  '<code>r0</code>…<code>sp</code> registros del procesador · <code>*(u8 *)p</code> leer 8 bits en p · ' +
-  '<code>L12</code> etiqueta · columna gris: número de insn</p>';
 
 // An insn's text without its uid/prev/next, to tell whether a pass changed it.
 const body = t => t.replace(/^\((\S+) \d+ \d+ \d+/, '($1').replace(/\s+/g, ' ');
+const cline = n => esc((D.source[n - 1] || '').trim());
 
-function srcRow(file, line) {
-  const own = file === D.src, text = own ? (D.source[line - 1] || '') : '';
-  return '<div class="row src" data-line="' + line + '"><span class="ln">' +
-    (own ? line : esc(file) + ':' + line) + '</span>' + esc(text.trim()) + '</div>';
+// ------------------------------------------------------------------ why a slot
+
+const ord = n => n + 'ª';
+// Insn counts that give an expression table of `size` buckets (n / 2 | 1).
+const insnRange = size => (2 * size - 2) + '–' + (2 * size + 1);
+
+function slotFacts(side, off) {
+  // What lives at sp+off on one side ('' = yours) and why. Null if there's no data.
+  const f = state.func;
+  if (side === 'original' && !D.orig_from[f]) return null;
+  const I = side ? (D.info || {})[side] : {names: D.names, homes: D.homes, gcse: D.gcse};
+  if (!I) return null;
+  const homes = I.homes[f] || {}, names = regNames(f, I);
+  const r = Object.keys(homes).find(k => homes[k] === 'sp+' + off);
+  const F = {off, r, from: side === 'original' ? D.orig_from[f] : null};
+  if (!r) return F;
+  if (names[r]) return {...F, name: names[r]};
+  const g = (I.gcse || {})[f], rows = g ? g.rows : [];
+  const k = rows.findIndex(e => e.reg === r);
+  if (k < 0) return F;
+  return {...F, e: rows[k], k, n: rows.length, size: g.size, X: {names, cc: null},
+    first: Math.min(...rows.map(x => +(homes[x.reg] || 'sp+1e9').slice(3)))};
 }
 
-// ------------------------------------------------------------------ views
-
-function viewCode(lines) {
-  // lines: [[number, text]]; the function's lines in color, the rest faded.
-  const [a, b] = D.range[state.func] || [0, 0];
-  let h = '<div class="code">';
-  for (const [n, t] of lines) {
-    const fn = n >= a && n <= b;
-    h += '<div class="row ' + (fn ? 'fn' : 'out') + '" data-line="' + n + '"' +
-      (n === a ? ' id="fstart"' : '') + '><span class="ln">' + n + '</span>' + esc(t) + '</div>';
-  }
-  return h + '</div>';
+function sideSteps(F, title, mine) {
+  // One side's chain: C value -> gcse table bucket -> order -> stack slot.
+  let h = '<div class="box' + (mine ? ' mine' : '') + '"><div class="t">' + title +
+    ': sp+' + F.off + '</div>';
+  if (F.from) h += '<p class="faint">Datos del C de ' + esc(F.from) + ', que da este mismo asm.</p>';
+  if (!F.r) return h + '<p class="faint">Nada guardado ahí.</p></div>';
+  const t = mine ? '<span class="r" data-r="' + F.r + '">t' + F.r + '</span>' : 't' + F.r;
+  if (F.name) return h + '<p>Guarda la variable <code>' + esc(F.name) + '</code>.</p></div>';
+  if (!F.e) return h + '<p>Guarda ' + t + ', un pseudo sin nombre.</p></div>';
+  return h + '<ol class="steps">' +
+    '<li>gcse calcula una vez la cuenta <code>' + ex(parseRtl(F.e.expr), F.X).h + '</code> y la guarda en el pseudo ' + t + '.</li>' +
+    '<li>Su tabla tiene <b>' + F.size + '</b> casilleros (sale de ' + insnRange(F.size) +
+      ' insns). La cuenta cae en el <b>' + F.e.hash + '</b>.</li>' +
+    '<li>En orden de casillero es la <b>' + ord(F.k + 1) + ' de ' + F.n + '</b>.</li>' +
+    '<li>Las ' + F.n + ' van a la pila en ese orden desde sp+' + F.first + ' → <b>sp+' + F.off +
+      '</b>.</li></ol>' +
+    (mine ? '<p><a class="act" data-see="' + F.r + '">ver t' + F.r + ' en gcse</a></p>' : '') + '</div>';
 }
 
-function viewPass(toc) {
-  const pass = state.view, func = state.func, names = regNames(func);
-  const items = (D.dumps[pass] || {})[func] || [];
-  const k = D.passes.indexOf(pass);
-  // What changed since the previous pass that dumped this function.
-  let prev = null;
-  for (let j = k - 1; j >= 0 && !prev; j--) prev = (D.dumps[D.passes[j]] || {})[func] ? D.passes[j] : null;
-  const before = {};
-  if (state.delta && prev)
-    for (const it of D.dumps[prev][func]) if (it[0] === 'i') before[it[2]] = it[3];
-  const seen = new Set();
-  const X = {names, cc: null};
-  const show = t => state.raw ? insnHtml(t, names) : insnC(t, X);
-  const showOld = t => state.raw ? insnHtml(t, names) : insnC(t, {names, cc: X.cc});
-  let h = state.raw ? '' : KEY, hid = 0, nAdd = 0, nChg = 0;
-  for (const it of items) {
-    if (it[0] === 'l') h += srcRow(it[1], it[2]);
-    else if (it[0] === 'n') h += '<div class="row note">' + esc(it[1]) + '</div>';
-    else if (it[0] === 'i') {
-      let cls = '', tag = '', old = '';
-      seen.add(it[2]);
-      if (state.delta && prev) {
-        if (!(it[2] in before)) { cls = ' d-add'; tag = '<span class="d-tag add">nueva</span>'; nAdd++; }
-        else if (body(before[it[2]]) !== body(it[3])) {
-          cls = ' d-chg'; tag = '<span class="d-tag chg">cambió</span>'; nChg++;
-          old = '<div class="row d-old">' + '<span class="d-tag del">antes</span>' +
-            showOld(before[it[2]]) + '</div>';
-        }
-      }
-      const bar = it[1] === 'barrier' ? ' bar' : '';
-      h += old + '<div class="row insn' + cls + bar + '" id="u' + it[2] + '">' + tag + show(it[3]) + '</div>';
-    } else if (it[0] === 'x')
-      h += '<div class="row">' + (state.raw ? color(it[1], names) : '  ' + ex(parseRtl(it[1]), X).h) + '</div>';
-    else {
-      const t = it[1];
-      if (/^Index \d+ \(hash value \d+\)/.test(t)) h += '<div class="row idx">' + esc(t) + '</div>';
-      else if (/^;; (Start|End) of basic block|^Basic block \d+/.test(t))
-        h += '<div class="row bb">' + plain(t, names) + '</div>';
-      else if (t && HEADS.test(t)) {
-        toc.push([hid, t]);
-        h += '<div class="row head" id="h' + hid++ + '">' + esc(t) + '</div>';
-      } else h += '<div class="row">' + plain(t, names) + '</div>';
-    }
-  }
-  if (!items.length) return '<p class="help">Esta pasada no tiene volcado para esta función.</p>';
-  let top = '';
-  if (state.delta && prev) {
-    const gone = Object.keys(before).filter(u => !seen.has(u));
-    top = '<p class="help">Comparado con <b>' + prev + '</b>: ' + nAdd + ' insns nuevas, ' + nChg +
-      ' cambiadas, ' + gone.length + ' borradas.</p>';
-    if (gone.length)
-      top += '<details class="gone"><summary>Borradas en esta pasada (' + gone.length + ')</summary>' +
-        gone.map(u => '<div class="row d-old">' + showOld(before[u]) + '</div>').join('') + '</details>';
-  }
-  return top + h;
+function explainSlots(oOff, mOff) {
+  // Original's slot vs yours, and what it takes to make them equal.
+  const side = otherSide();
+  const O = oOff != null ? slotFacts(side, oOff) : null, M = mOff != null ? slotFacts('', mOff) : null;
+  let h = '';
+  if (M) h += sideSteps(M, 'Tuyo', true);
+  if (oOff != null) h += O ? sideSteps(O, esc(side)) :
+    '<div class="box"><div class="t">' + esc(side) + ': sp+' + oOff + '</div><p class="faint">Sin datos: ' +
+    'es asm, y ningún C conocido da el mismo asm.</p></div>';
+  if (O && M && O.size && M.size && O.size !== M.size) {
+    const d = M.size - O.size;
+    h += '<div class="box fix"><div class="t">Para que quede igual</div><p>Hacen falta ' + O.size +
+      ' casilleros: ' + insnRange(O.size) + ' insns al empezar gcse. Te ' + (d > 0 ? 'sobran' : 'faltan') +
+      ' unas <b>' + Math.abs(2 * d) + ' insns</b>.</p></div>';
+  } else if (O && M && O.off === M.off) h += '<p class="ok">Mismo lugar en los dos.</p>';
+  return h;
 }
 
-function viewAsm() {
-  const ins = D.asm[state.func] || [];
-  const at = {};
-  ins.forEach((x, i) => at[x[0]] = i + 1);
-  let h = '', line = -1;
-  ins.forEach((x, i) => {
-    if (x[4] && x[4] !== line) h += srcRow(D.src, x[4]);
-    if (x[4]) line = x[4];
-    let t = x[1] + (x[3] ? ' <' + x[3] + '>' : '') + (x[2] ? ' → ' + (at[x[2]] || '?') : '');
-    h += '<div class="row insn" id="a' + (i + 1) + '"><span class="ln">' + (i + 1) + '</span>' + asmColor(t) + '</div>';
-  });
-  return h || '<p class="help">Sin asm para esta función.</p>';
-}
+// ------------------------------------------------------------------ Comparar
 
 const MK = {' ': '', '~': 'm-tilde', '!': 'm-bang', '-': 'm-del', '+': 'm-add'};
+const MEAN = {' ': 'Igual en los dos.', '~': 'Misma instrucción, distinto registro u offset.',
+  '!': 'Instrucción distinta.', '-': 'Sólo en el original.', '+': 'Sólo en el tuyo.'};
+const cmpData = () => D.cmp[otherSide()][state.func];
 
 function viewCmp() {
-  const side = D.sides.includes(state.side) ? state.side : D.sides[0];
-  const c = D.cmp[side][state.func];
-  const s = c.summary;
-  let h = '<div class="sum">';
-  if (!s.differ) h += '<b class="ok">Igual</b> (' + s.left + ' líneas).';
-  else h += '<b class="bad">' + s.differ + ' líneas difieren</b>, ' + s.logic + ' en lógica' +
-    ' · ' + side + ' ' + s.left + ', tuyo ' + s.right + '.';
-  h += '<br><span class="help">frame: ' + s.frame[0] + ' vs ' + s.frame[1] + ' bytes · slots usados: ' +
-    s.slots[0] + ' vs ' + s.slots[1] + (s.same_slots ? ', los mismos' : ', distintos') + '</span></div>';
-  h += '<p class="help legend"><span><b>!</b> el código difiere</span><span><b>~</b> sólo registros u offsets</span>' +
-    '<span><b>-</b> sólo en ' + esc(side) + '</span><span><b>+</b> sólo en el tuyo</span></p>';
-  // Rows to show: all, or only changes with 2 rows around.
-  const rows = c.rows, keep = new Set();
-  rows.forEach((r, i) => { if (!state.only || r[0] !== ' ') for (let k = i - 2; k <= i + 2; k++) keep.add(k); });
-  h += '<table class="cmp"><tbody>';
+  const side = otherSide(), rows = cmpData().rows, keep = new Set();
+  // All rows, or only changes with 2 rows around.
+  rows.forEach((r, i) => {
+    if (!state.only || r[0] !== ' ') for (let k = i - 2; k <= i + 2; k++) keep.add(k);
+  });
+  let h = '<table class="cmp"><thead><tr><th></th><th></th><th>' + esc(side) +
+    '</th><th></th><th>tuyo</th></tr></thead><tbody>';
   let line = -1, gap = false;
   rows.forEach((r, i) => {
-    if (!keep.has(i)) { if (!gap) h += '<tr class="gap"><td colspan="6">⋯</td></tr>'; gap = true; return; }
+    if (!keep.has(i)) {
+      if (!gap) h += '<tr class="gap"><td colspan="5">⋯</td></tr>';
+      gap = true; return;
+    }
     gap = false;
     if (r[5] && r[5] !== line) {
-      h += '<tr class="c"><td></td><td></td><td class="lt"></td><td class="no">' + r[5] + '</td><td colspan="2">' +
-        esc((D.source[r[5] - 1] || '').trim()) + '</td></tr>';
+      h += '<tr class="c" data-line="' + r[5] + '"><td></td><td class="no">' + r[5] +
+        '</td><td colspan="3">' + cline(r[5]) + '</td></tr>';
       line = r[5];
     }
-    h += '<tr class="' + MK[r[0]] + '"><td class="mk">' + esc(r[0]) + '</td><td class="no">' + r[1] +
-      '</td><td class="lt">' + asmColor(r[3], side) + '</td><td class="no">' + r[2] + '</td><td>' + asmColor(r[4]) + '</td></tr>';
+    h += '<tr class="' + MK[r[0]] + '" data-i="' + i + '"><td class="mk">' + esc(r[0]) +
+      '</td><td class="no">' + r[1] + '</td><td class="lt">' + asmColor(r[3], side) +
+      '</td><td class="no">' + r[2] + '</td><td>' + asmColor(r[4]) + '</td></tr>';
   });
   return h + '</tbody></table>';
 }
 
-// After lreg/greg, pseudos are replaced by hard regs, so counting stops at lreg.
-const USE_PASSES = D.passes.slice(0, D.passes.indexOf('lreg') + 1 || undefined);
-
-function countUses(func, r) {
-  // How many times (reg N) appears in each pass.
-  const re = new RegExp('\\(reg(?:/\\w+)*(?::\\w+)? ' + r + '\\)', 'g');
-  return USE_PASSES.map(p => {
-    let n = 0;
-    for (const it of ((D.dumps[p] || {})[func] || []))
-      if (it[0] === 'i') n += (it[3].match(re) || []).length;
-    return n;
+function slotPairs() {
+  // Rows where the two sides use different stack slots: "orig→mine" -> [rows].
+  const pairs = {};
+  cmpData().rows.forEach((r, i) => {
+    const a = offs(r[3]), b = offs(r[4]);
+    a.forEach((o, k) => {
+      if (b[k] != null && b[k] !== o) (pairs[o + '→' + b[k]] = pairs[o + '→' + b[k]] || []).push(i);
+    });
   });
+  return pairs;
 }
 
-function viewAna() {
-  const func = state.func, names = regNames(func), homes = D.homes[func] || {};
-  const vars = D.names[func] || [];
-  let h = '<h3>Variables</h3><p class="help">Del compilador parcheado (agbcc_names): qué pseudo recibió cada ' +
-    'variable y dónde terminó tras greg. Usos = veces que aparece (reg N) en cada pasada. Clic: marcar.</p>';
-  h += '<table><thead><tr><th>variable</th><th>línea</th><th>pseudo</th><th>lugar final</th>' +
-    USE_PASSES.map(p => '<th class="num">' + p + '</th>').join('') + '</tr></thead><tbody>';
-  for (const [d, name, line, where] of vars) {
-    const r = (/^reg (\d+)$/.exec(where) || [])[1];
-    const uses = r ? countUses(func, r) : [];
-    h += '<tr class="click"' + (r ? ' data-r="' + r + '"' : '') + '><td>' + '  '.repeat(d - 1) + esc(name) +
-      '</td><td>' + line + '</td><td>' + (r ? '<span class="r">' + r + '</span>' : esc(where)) + '</td><td>' +
-      esc(r ? homes[r] || 'eliminado' : '') + '</td>' +
-      uses.map(n => '<td class="num' + (n ? '' : ' zero') + '">' + n + '</td>').join('') + '</tr>';
-  }
-  h += '</tbody></table>';
-
-  const g = D.gcse[func];
-  if (g && g.rows.length) {
-    h += '<h3>Expresiones de PRE</h3><p class="help">Tabla de ' + g.size + ' buckets. PRE numera sus pseudos ' +
-      'recorriendo los buckets en orden de hash, y reload les da slots en orden de pseudo.</p>';
-    h += '<table><thead><tr><th class="num">hash</th><th class="num">expr</th><th>expresión</th><th>pseudo</th>' +
-      '<th>lugar</th><th>redundantes</th><th>insertadas</th></tr></thead><tbody>';
-    const link = us => us.map(u => '<a class="lab" data-pass="gcse" href="#u' + u + '">' + u + '</a>').join(' ');
-    for (const e of g.rows)
-      h += '<tr><td class="num">' + e.hash + '</td><td class="num">' + e.index + '</td><td>' + ex(parseRtl(e.expr), {names}).h +
-        '</td><td>' + regSpan(e.reg, names) + '</td><td>' + esc(homes[e.reg] || '') + '</td><td>' + link(e.redundant) +
-        '</td><td>' + link(e.inserted) + '</td></tr>';
+function panelCmp() {
+  const s = cmpData().summary, side = otherSide();
+  let h = '<h2>' + (s.differ ? '<span class="bad">' + s.differ + ' líneas distintas</span>' :
+    '<span class="ok">Igual</span>') + '</h2>';
+  if (s.differ) h += '<p>' + s.logic + ' de lógica; el resto, registros u offsets.</p>';
+  h += '<p class="faint">Pila: ' + s.frame[0] + ' bytes en ' + esc(side) + ', ' + s.frame[1] + ' en el tuyo.</p>';
+  const pairs = Object.entries(slotPairs());
+  if (pairs.length) {
+    h += '<h3>Lugares de pila que no coinciden</h3><table class="pre"><tbody>';
+    for (const [k, is] of pairs) {
+      const [o, m] = k.split('→');
+      h += '<tr data-i="' + is[0] + '"><td>' + esc(side) + ' sp+' + o + '</td><td>→</td><td>tuyo <b>sp+' + m +
+        '</b></td><td class="faint">' + is.length + ' veces</td></tr>';
+    }
     h += '</tbody></table>';
   }
+  return h + '<h3>Cómo leer</h3><p><b class="bad">!</b> distinta · <b style="color:var(--chg-t)">~</b> ' +
+    'sólo registros u offsets · <b>−/+</b> sobra de un lado.</p>' +
+    '<p class="faint">Clic en una fila o en un <span class="slot">[sp, #N]</span> para ver por qué.</p>';
+}
 
-  // Stack slots by offset: which pseudo lives in each.
-  const slots = Object.entries(homes).filter(([, w]) => /^sp\+/.test(w))
-    .sort((a, b) => +a[1].slice(3) - +b[1].slice(3));
-  const pre = {};
-  if (g) for (const e of g.rows) pre[e.reg] = e.expr;
-  h += '<h3>Slots de pila</h3><p class="help">Qué valor vive en cada lugar de la pila. sp+160 en el asm es ' +
-    '[sp, #160].</p>';
-  h += slots.length ? '<table><thead><tr><th>slot</th><th>pseudo</th><th>qué es</th></tr></thead><tbody>' +
-    slots.map(([r, w]) => '<tr><td>' + esc(w) + '</td><td>' + regSpan(r, names) + '</td><td>' +
-      (names[r] ? esc(names[r]) : pre[r] ? 't' + r + ' = ' + ex(parseRtl(pre[r]), {names, cc: null}).h +
-        ' <span class="help">(gcse)</span>' : '<span class="help">temporal</span>') +
-      '</td></tr>').join('') + '</tbody></table>' : '<p class="help">Ninguno.</p>';
+function panelRow(i) {
+  const r = cmpData().rows[i], side = otherSide();
+  let h = '<a class="x" data-clear>✕</a>';
+  if (r[5]) h += '<h2>Línea ' + r[5] + '</h2><div class="code">' + cline(r[5]) + '</div>';
+  h += '<p>' + MEAN[r[0]] + '</p><table class="pre"><tbody>' +
+    '<tr><td class="faint">' + esc(side) + '</td><td>' + asmColor(r[3], side) + '</td></tr>' +
+    '<tr><td class="faint">tuyo</td><td>' + asmColor(r[4]) + '</td></tr></tbody></table>';
+  const a = offs(r[3]), b = offs(r[4]);
+  for (let k = 0; k < Math.max(a.length, b.length); k++) h += explainSlots(a[k], b[k]);
+  return h;
+}
 
-  // Every pseudo's home, grouped by hard reg.
-  const by = {};
-  for (const [r, w] of Object.entries(homes)) if (!/^sp\+/.test(w)) (by[w] = by[w] || []).push(r);
-  h += '<h3>Registros físicos</h3><p class="help">Qué pseudos comparten cada registro (lreg + greg).</p>' +
-    '<table><tbody>' + Object.keys(by).sort((a, b) => a.localeCompare(b, 'en', {numeric: true}))
-    .map(w => '<tr><td class="hr">' + esc(w) + '</td><td style="white-space:normal">' +
-      by[w].map(r => regSpan(r, names)).join(' ') + '</td></tr>').join('') + '</tbody></table>';
+// ------------------------------------------------------------------ Pasadas
+
+function prevPass(k) {
+  for (let j = k - 1; j >= 0; j--) if ((D.dumps[D.passes[j]] || {})[state.func]) return D.passes[j];
+  return null;
+}
+
+let passInfo = {};  // uid -> {text, old}, for the panel
+
+function viewPass() {
+  const pass = state.pass, func = state.func, names = regNames(func);
+  const items = (D.dumps[pass] || {})[func] || [];
+  if (!items.length) return '<p class="faint">Esta pasada no tiene volcado para esta función.</p>';
+  const prev = prevPass(D.passes.indexOf(pass)), before = {};
+  if (prev) for (const it of D.dumps[prev][func]) if (it[0] === 'i') before[it[2]] = it[3];
+  const X = {names, cc: null};
+  passInfo = {added: 0, changed: 0, gone: [], prev, before};
+  let h = '', line = -1;
+  for (const it of items) {
+    if (it[0] === 'l') {
+      // Several insns in a row can come from the same C line: show it once.
+      if (it[1] === D.src && it[2] !== line)
+        h += '<div class="row src" data-line="' + it[2] + '"><span class="ln">' + it[2] + '</span>' +
+          cline(it[2]) + '</div>';
+      line = it[2];
+    } else if (it[0] === 'i') {
+      const c = insnC(it[3], X);
+      if (c.kind !== 'insn' && c.kind !== 'label') continue;
+      let cls = '';
+      if (prev && c.kind === 'insn') {
+        if (!(it[2] in before)) { cls = ' d-add'; passInfo.added++; }
+        else if (body(before[it[2]]) !== body(it[3])) { cls = ' d-chg'; passInfo.changed++; }
+      }
+      passInfo[it[2]] = it[3];
+      h += '<div class="row insn' + cls + '" id="u' + it[2] + '" data-u="' + it[2] + '"><span class="ln">' +
+        it[2] + '</span>' + c.h + '</div>';
+    }
+  }
+  const seen = new Set(items.filter(it => it[0] === 'i').map(it => it[2]));
+  passInfo.gone = Object.keys(before).filter(u => !seen.has(u));
+  return h;
+}
+
+// ------------------------------------------------------------------ gcse's table of sums
+
+function exprTable() {
+  // gcse's "Expression hash table": {size, rows: [{index, hash, expr}]}, or null.
+  const items = (D.dumps.gcse || {})[state.func] || [];
+  const k = items.findIndex(it => it[0] === 't' && /^Expression hash table/.test(it[1]));
+  if (k < 0) return null;
+  const size = +/\((\d+) buckets/.exec(items[k][1])[1], rows = [];
+  for (let j = k + 1; j < items.length; j++) {
+    const it = items[j], m = it[0] === 't' && /^Index (\d+) \(hash value (\d+)\)/.exec(it[1]);
+    if (m) rows.push({index: +m[1], hash: +m[2], expr: (items[j + 1] || [])[1] || ''});
+    else if (it[0] === 't' && it[1].trim()) break;
+  }
+  return {size, rows};
+}
+
+function viewTable() {
+  const T = exprTable();
+  if (!T) return '<p class="faint">No hay tabla para esta función.</p>';
+  const X = {names: regNames(state.func), cc: null}, pre = {};
+  for (const e of (D.gcse[state.func] || {rows: []}).rows) pre[e.index] = e;
+  const rows = [...T.rows].sort((a, b) => a.hash - b.hash || a.index - b.index);
+  let h = '<table class="tab"><thead><tr><th class="num">casillero</th><th>cuenta</th>' +
+    '<th>guardada en</th></tr></thead><tbody>', last = -1;
+  for (const e of rows) {
+    // Empty buckets between two used ones: one faint row.
+    if (e.hash > last + 1) h += '<tr class="gap"><td class="num">' + (last + 1) +
+      (e.hash - 1 > last + 1 ? '–' + (e.hash - 1) : '') + '</td><td colspan="2">vacío</td></tr>';
+    const p = pre[e.index];
+    h += '<tr class="' + (p ? 'pre-on' : '') + '" data-x="' + e.index + '"><td class="num">' +
+      (e.hash === last ? '' : e.hash) + '</td><td>' + ex(parseRtl(e.expr.trim()), X).h + '</td><td>' +
+      (p ? '<span class="r" data-r="' + p.reg + '">t' + p.reg + '</span> · ' + esc(homeOf(p.reg) || '') : '') +
+      '</td></tr>';
+    last = e.hash;
+  }
+  if (last < T.size - 1) h += '<tr class="gap"><td class="num">' + (last + 1) + '–' + (T.size - 1) +
+    '</td><td colspan="2">vacío</td></tr>';
+  return h + '</tbody></table>';
+}
+
+function panelTable() {
+  const T = exprTable(), g = D.gcse[state.func];
+  if (!T) return '<h2>Tabla de cuentas</h2>';
+  const n = g ? g.rows.length : 0;
+  return '<h2>Tabla de cuentas de gcse</h2>' +
+    '<p>gcse anota cada cuenta de la función (<code>uy &lt;&lt; 24</code>, <code>map + 2</code>…) ' +
+    'una sola vez, aunque aparezca muchas veces.</p>' +
+    '<p>Esta tiene <b>' + T.size + '</b> casilleros y ' + T.rows.length + ' cuentas distintas.</p>' +
+    '<p>Cada cuenta va al casillero que le toca según su contenido. Dos pueden caer en el mismo.</p>' +
+    (n ? '<p>Las ' + n + ' <span class="pre-on">&nbsp;marcadas&nbsp;</span> son las que gcse calcula una vez y guarda en un ' +
+      'pseudo nuevo. Las recorre de arriba abajo, en orden de casillero.</p>' : '') +
+    '<p class="faint">En el volcado crudo se llama "Expression hash table".</p>';
+}
+
+function panelExpr(i) {
+  const T = exprTable(), e = T.rows.find(r => r.index === +i), X = {names: regNames(state.func), cc: null};
+  const p = ((D.gcse[state.func] || {rows: []}).rows).find(r => r.index === +i);
+  let h = '<a class="x" data-clear>✕</a><h2>Cuenta ' + esc(i) + '</h2><div class="code">' +
+    ex(parseRtl(e.expr.trim()), X).h + '</div><p>Casillero <b>' + e.hash + '</b> de ' + T.size + '.</p>';
+  if (!p) return h + '<p class="faint">gcse no la guardó en un pseudo.</p>';
+  const home = homeOf(p.reg);
+  if (home && /^sp\+/.test(home)) h += sideSteps(slotFacts('', home.slice(3)), 'Guardada', true);
+  else h += '<p>La guardó en el pseudo t' + p.reg + ', que termina en ' + esc(home || 'ningún lado') + '.</p>';
+  return h;
+}
+
+function panelPass() {
+  const p = state.pass, P = passInfo, func = state.func;
+  if (p === 'gcse' && state.table) return panelTable();
+  let h = '<h2>' + esc(p) + '</h2><p>' + esc(INTRO[p] || '') + '</p>';
+  if (P.prev) h += '<p class="faint">Frente a ' + esc(P.prev) + ': <span class="d-add">&nbsp;' + P.added +
+    ' nuevas&nbsp;</span> <span class="d-chg">&nbsp;' + P.changed + ' cambiadas&nbsp;</span> ' +
+    P.gone.length + ' borradas.</p>';
+  const g = D.gcse[func];
+  if (p === 'gcse' && g && g.rows.length) {
+    const names = regNames(func), X = {names, cc: null};
+    h += '<h3>Cuentas que guardó (tabla de ' + g.size + ')</h3><table class="pre"><tbody>' +
+      g.rows.map(e => '<tr data-r="' + e.reg + '"><td class="faint">' + e.hash + '</td><td><span class="r" data-r="' +
+        e.reg + '">t' + e.reg + '</span> = ' + ex(parseRtl(e.expr), X).h + '</td><td class="faint">' +
+        esc(homeOf(e.reg) || '') + '</td></tr>').join('') + '</tbody></table>' +
+      '<p class="faint">Columna 1: casillero. Van en ese orden; la última, lugar final.</p>';
+  }
+  if (P.gone.length) {
+    const X = {names: regNames(func), cc: null};
+    h += '<details><summary class="faint">Borradas (' + P.gone.length + ')</summary>' +
+      P.gone.map(u => '<div class="row"><span class="ln">' + u + '</span>' +
+        insnC(P.before[u], X).h + '</div>').join('') + '</details>';
+  }
+  return h + '<p class="faint">Clic en una instrucción o un valor para ver más.</p>';
+}
+
+function panelInsn(u) {
+  const X = {names: regNames(state.func), cc: null}, c = insnC(passInfo[u], X);
+  let h = '<a class="x" data-clear>✕</a><h2>Instrucción ' + esc(u) + '</h2><div class="code">' + c.h + '</div>';
+  if (c.notes.length) h += '<p class="faint">' + c.notes.join('<br>') + '</p>';
+  const old = passInfo.before[u];
+  if (passInfo.prev && old == null) h += '<p>Nueva en esta pasada.</p>';
+  else if (old != null && body(old) !== body(passInfo[u]))
+    h += '<p>Antes, en ' + esc(passInfo.prev) + ':</p><div class="code">' + insnC(old, X).h + '</div>';
+  const regs = [...new Set([...passInfo[u].matchAll(/\(reg(?:\/\w+)*(?::\w+)? (\d+)\)/g)].map(m => m[1]))];
+  if (regs.length) h += '<h3>Dónde termina cada valor</h3><table class="pre"><tbody>' +
+    regs.map(r => '<tr data-r="' + r + '"><td>' + ex({c: 'reg', a: [r]}, X).h + '</td><td class="faint">' +
+      esc(homeOf(r) || 'eliminado') + '</td></tr>').join('') + '</tbody></table>';
+  return h;
+}
+
+// ------------------------------------------------------------------ C
+
+function viewC() {
+  const [a, b] = D.range[state.func] || [0, 0];
+  let h = '<div class="code">';
+  D.source.forEach((t, i) => {
+    const n = i + 1, fn = n >= a && n <= b;
+    h += '<div class="row ' + (fn ? 'fn' : 'out') + '" data-line="' + n + '"' + (n === a ? ' id="fstart"' : '') +
+      '><span class="ln">' + n + '</span>' + esc(t) + '</div>';
+  });
+  return h + '</div>';
+}
+
+function panelLine(n) {
+  const side = otherSide();
+  let h = '<a class="x" data-clear>✕</a><h2>Línea ' + n + '</h2><div class="code">' + cline(n) + '</div>';
+  const vars = (D.names[state.func] || []).filter(v => v[2] === n && /^reg \d+$/.test(v[3]));
+  if (vars.length) h += '<p>' + vars.map(v => '<code>' + esc(v[1]) + '</code> termina en ' +
+    esc(homeOf(v[3].slice(4)) || 'ningún lado')).join('<br>') + '</p>';
+  const rows = cmpData().rows.filter(r => r[5] === n);
+  if (!rows.length) return h + '<p class="faint">No genera asm.</p>';
+  h += '<h3>Su asm</h3><table class="cmp"><tbody>' + rows.map(r => '<tr class="' + MK[r[0]] + '" data-i="' +
+    cmpData().rows.indexOf(r) + '"><td class="mk">' + esc(r[0]) + '</td><td class="lt">' + asmColor(r[3], side) +
+    '</td><td>' + asmColor(r[4]) + '</td></tr>').join('') + '</tbody></table>' +
+    '<p class="faint">Izquierda ' + esc(side) + ', derecha el tuyo. Clic: ver en Comparar.</p>';
+  return h;
+}
+
+// ------------------------------------------------------------------ values
+
+function panelReg(r) {
+  const uses = document.querySelectorAll('main .r[data-r="' + r + '"]');
+  const nm = regNames(state.func)[r], home = homeOf(r);
+  let h = '<a class="x" data-clear>✕</a><h2>' + esc(nm || 't' + r) + '</h2><p>' +
+    (nm ? 'Variable tuya.' : 'Pseudo sin nombre (no es una variable de tu C).') + ' Termina en <b>' +
+    esc(home || 'ningún lado (se eliminó)') + '</b>.</p>';
+  if (home && /^sp\+/.test(home)) {
+    const F = slotFacts('', home.slice(3));
+    if (F && F.e) h += sideSteps(F, 'Por qué', true);
+  }
+  h += '<p>' + uses.length + ' usos en esta vista. ' +
+    (uses.length ? '<a class="act" data-next>siguiente ↓</a>' : '') + '</p>';
   return h;
 }
 
 // ------------------------------------------------------------------ shell
 
-function render(keepScroll) {
-  const v = state.view, toc = [];
+function hl() {
+  for (const e of document.querySelectorAll('.hl, .sel')) e.classList.remove('hl', 'sel');
+  if (!sel) return;
+  const q = {reg: 'main .r[data-r="' + sel.r + '"]', row: 'main tr[data-i="' + sel.i + '"]',
+    insn: 'main [data-u="' + sel.u + '"]', expr: 'main [data-x="' + sel.x + '"]', line: 'main .code [data-line="' + sel.n + '"]'}[sel.kind];
+  for (const e of document.querySelectorAll(q)) e.classList.add(sel.kind === 'reg' ? 'hl' : 'sel');
+  if (sel.kind === 'row' && sel.off) for (const e of document.querySelectorAll(
+    'main tr[data-i="' + sel.i + '"] .slot')) e.classList.add('hl');
+}
+
+function panel() {
+  const v = state.view;
   let h;
-  if (v === 'c') h = viewCode(D.source.map((t, i) => [i + 1, t]));
-  else if (v === 'i') h = viewCode(D.pre);
-  else if (v === 'asm') h = viewAsm();
-  else if (v === 'cmp') h = viewCmp();
-  else if (v === 'ana') h = viewAna();
-  else h = viewPass(toc);
-  $('main').innerHTML = '<p class="intro">' + esc(INTRO[v] || '') + '</p>' + h;
-  $('toc').innerHTML = toc.length ? toc.map(([i, t]) =>
-    '<a href="#h' + i + '" title="' + esc(t) + '">' + esc(tocName(t)) + '</a>').join('')
-    : '';
-  $('toc-h').hidden = !toc.length;
-  for (const b of $('tabs').querySelectorAll('button')) b.classList.toggle('on', b.dataset.v === v);
-  renderOpts();
-  mark(state.reg || null);
-  if (!keepScroll && (v === 'c' || v === 'i')) {
-    const e = $('fstart');
-    if (e) e.scrollIntoView({block: 'start'}), window.scrollBy(0, -hdr() - 30);
-  }
+  if (sel && sel.kind === 'reg') h = panelReg(sel.r);
+  else if (sel && sel.kind === 'row' && v === 'cmp') h = panelRow(sel.i);
+  else if (sel && sel.kind === 'insn' && v === 'pass') h = panelInsn(sel.u);
+  else if (sel && sel.kind === 'expr' && v === 'pass') h = panelExpr(sel.x);
+  else if (sel && sel.kind === 'line' && v === 'c') h = panelLine(sel.n);
+  else h = v === 'cmp' ? panelCmp() : v === 'pass' ? panelPass() : '<h2>' + esc(D.src) + '</h2>' +
+    '<p class="faint">Clic en una línea de la función para ver su asm.</p>';
+  $('side').innerHTML = h;
+  hl();
 }
 
-function renderOpts() {
-  const v = state.view, box = (k, label) =>
-    '<label><input type="checkbox" data-o="' + k + '"' + (state[k] ? ' checked' : '') + '> ' + label + '</label>';
+function pick(s) { sel = s; panel(); }
+
+function renderNav() {
+  const v = state.view;
   let h = '';
-  if (D.passes.includes(v)) h = box('delta', 'Δ pasada anterior') + box('det', 'detalles') + box('raw', 'RTL original (Lisp)');
   if (v === 'cmp') {
-    h = box('only', 'sólo cambios');
-    if (D.sides.length > 1)
-      h += '<select id="side">' + D.sides.map(s => '<option' + (s === state.side ? ' selected' : '') + '>' +
-        esc(s) + '</option>').join('') + '</select>';
+    h = '<label><input type="checkbox" id="only"' + (state.only ? ' checked' : '') + '> sólo cambios</label>';
+    if (D.sides.length > 1) h += '<select id="vs">' + D.sides.map(s => '<option' +
+      (s === otherSide() ? ' selected' : '') + '>' + esc(s) + '</option>').join('') + '</select>';
   }
-  $('opts').innerHTML = h;
-  document.body.classList.toggle('hide-det', !state.det);
+  if (v === 'pass') h = '<button data-step="-1" title="pasada anterior">‹</button><select id="pass">' +
+    D.passes.map(p => '<option' + (p === state.pass ? ' selected' : '') + '>' + esc(p) + '</option>').join('') +
+    '</select><button data-step="1" title="pasada siguiente">›</button>' +
+    (state.pass === 'gcse' ? '<span class="tabs"><button data-table="0"' + (state.table ? '' : ' class="on"') +
+      '>código</button><button data-table="1"' + (state.table ? ' class="on"' : '') +
+      '>tabla de cuentas</button></span>' : '');
+  $('nav').innerHTML = h;
+  for (const b of $('tabs').querySelectorAll('button')) b.classList.toggle('on', b.dataset.v === v);
 }
 
-function renderVars() {
-  // One row per variable: its name as in the passes, and where it ends up.
-  const names = regNames(state.func), seen = new Set();
-  const rows = [];
-  for (const [, , line, where] of D.names[state.func] || []) {
-    const r = /^reg (\d+)$/.exec(where);
-    if (!r || seen.has(r[1])) continue;
-    seen.add(r[1]);
-    rows.push('<div class="var" data-r="' + r[1] + '" title="línea ' + line + '"><span>' + esc(names[r[1]]) +
-      '</span><span class="w">' + esc(homeOf(r[1]) || 'desaparece') + '</span></div>');
-  }
-  $('vars').innerHTML = rows.join('') || '<p class="empty">—</p>';
+function render() {
+  const v = state.view;
+  $('main').innerHTML = v === 'cmp' ? viewCmp() : v !== 'pass' ? viewC() :
+    state.pass === 'gcse' && state.table ? viewTable() : viewPass();
+  renderNav();
+  panel();
+  fitHeader();
 }
 
-// The compiler's section titles, in plain words for the index.
-const TOC_NAMES = [
-  [/^BB data/, 'Bloques de código'],
-  [/^GCSE pass (\d+)/, 'Vuelta $1 de gcse'],
-  [/^SET hash table \((\d+)/, 'Tabla de asignaciones'],
-  [/^Expression hash table \((\d+) buckets, (\d+)/, 'Tabla de cuentas ($1 casilleros)'],
-  [/^CPROP of .*pass (\d+)/, 'Copias propagadas (vuelta $1)'],
-  [/^PRE GCSE of .*pass (\d+)/, 'Cuentas que juntó (vuelta $1)'],
-  [/^GCSE of/, 'Resumen'],
-  [/^Registers to be allocated/, 'Orden de reparto'],
-  [/^;; (\d+) regs to allocate/, '$1 valores para repartir'],
-  [/^;; Function/, 'Función'],
-  [/^(\d+) registers?/, 'Cantidad de valores'],
-  [/^Loop /, 'Bucle'],
-  [/^;; Register dispositions/, 'Dónde quedó cada valor'],
-  [/^;; Hard regs used/, 'Registros usados'],
-];
-function tocName(t) {
-  for (const [re, name] of TOC_NAMES) {
-    const m = re.exec(t);
-    if (m) return name.replace(/\$(\d)/g, (x, k) => m[k]);
-  }
-  return t.length > 40 ? t.slice(0, 40) + '…' : t;
-}
-
-function mark(r) {
-  for (const e of document.querySelectorAll('.hl')) e.classList.remove('hl');
-  state.reg = r; save();
-  if (!r) {
-    $('pick').innerHTML = '<p class="empty">Hacé clic en una variable, un <span class="r">t12</span> ' +
-      'o un <span class="slot">[sp, #N]</span> del asm.</p>';
-    return;
-  }
-  const uses = document.querySelectorAll('main .r[data-r="' + r + '"]');
-  for (const e of uses) e.classList.add('hl');
-  const nm = regNames(state.func)[r], home = homeOf(r);
-  $('pick').innerHTML = '<div class="card"><div class="t">' + (nm ? 'variable' : 'valor temporal') + '</div>' +
-    '<div class="v">' + esc(nm || 't' + r) + '</div>' +
-    '<p>Termina en <b>' + esc(home || 'ningún lado (se eliminó)') + '</b>.</p>' +
-    '<p>' + uses.length + ' usos en esta vista.</p></div>' +
-    '<div class="btns"><a href="#" id="next">siguiente ↓</a><a href="#" id="clear">limpiar</a></div>';
-  let k = -1;
-  $('next').onclick = e => { e.preventDefault(); if (!uses.length) return;
-    k = (k + 1) % uses.length; uses[k].scrollIntoView({block: 'center'}); };
-  $('clear').onclick = e => { e.preventDefault(); mark(null); };
-}
-
-function hdr() { return document.querySelector('header').offsetHeight; }
+const hdr = () => document.querySelector('header').offsetHeight;
 function fitHeader() { document.documentElement.style.setProperty('--hdr', hdr() + 'px'); }
 addEventListener('resize', fitHeader);
+const show = e => e && (e.scrollIntoView({block: 'center'}));
 
 function topLine() {
-  for (const e of document.querySelectorAll('main .src, main .code .row'))
+  for (const e of document.querySelectorAll('main .src'))
     if (e.getBoundingClientRect().top > hdr()) return e.dataset.line;
   return null;
 }
 
-function setView(v) {
-  // Moving between passes keeps the same C line at the top.
-  const line = D.passes.includes(state.view) && D.passes.includes(v) ? topLine() : null;
-  state.view = v; save(); render(!!line);
+function setView(v, keep) {
+  // Moving between passes keeps the same C line in view.
+  const line = state.view === 'pass' && v === 'pass' ? topLine() : null;
+  state.view = v; save();
+  if (!keep) sel = null;
+  render();
   if (line) {
     const e = document.querySelector('main .src[data-line="' + line + '"]');
-    if (e) e.scrollIntoView({block: 'start'}), window.scrollBy(0, -hdr() - 6);
-  } else if (v !== 'c' && v !== 'i') scrollTo(0, 0);
-  fitHeader();
+    if (e) e.scrollIntoView({block: 'start'}), window.scrollBy(0, -hdr() - 4);
+  } else if (v === 'c') show($('fstart'));
+  else scrollTo(0, 0);
 }
 
-function goto(sel) {
-  for (const t of document.querySelectorAll('.target')) t.classList.remove('target');
-  const t = document.querySelector(sel);
-  if (t) { t.classList.add('target'); t.scrollIntoView({block: 'center'}); }
-}
+function setPass(p) { state.pass = p; setView('pass', sel && sel.kind === 'reg'); }
 
 $('file').textContent = D.src;
-$('flags').textContent = D.flags;
+$('file').title = D.flags;
 for (const f of D.funcs) $('func').add(new Option(f, f));
-const GROUPS = [['fuente', [['c', 'C'], ['i', '.i']]], ['pasadas', D.passes.map(p => [p, p])],
-  ['salida', [['asm', 'asm'], ['cmp', 'vs ' + D.sides[0]], ['ana', 'análisis']]]];
-for (const [g, vs] of GROUPS) {
-  const s = document.createElement('span');
-  s.className = 'g'; s.textContent = g; $('tabs').appendChild(s);
-  for (const [v, label] of vs) {
-    const b = document.createElement('button');
-    b.textContent = label; b.dataset.v = v; b.onclick = () => setView(v);
-    $('tabs').appendChild(b);
-  }
+for (const [v, label] of [['cmp', 'Comparar'], ['pass', 'Pasadas'], ['c', 'C']]) {
+  const b = document.createElement('button');
+  b.textContent = label; b.dataset.v = v; b.onclick = () => setView(v);
+  $('tabs').appendChild(b);
 }
 // "report.html?view=gcse&func=BuildReachMap" opens straight there.
 const q = new URLSearchParams(location.search);
 if (q.get('view')) state.view = q.get('view');
+if (q.get('pass')) state.pass = q.get('pass');
+if (q.get('table')) state.table = q.get('table') === '1';
 if (q.get('func')) state.func = q.get('func');
 else if (D.start && !q.get('view')) state.func = D.start;
+if (D.passes.includes(state.view)) [state.pass, state.view] = [state.view, 'pass'];
+if (!['cmp', 'pass', 'c'].includes(state.view)) state.view = 'cmp';
+if (!D.passes.includes(state.pass)) state.pass = D.passes.includes('gcse') ? 'gcse' : D.passes[0];
 if (!D.funcs.includes(state.func)) state.func = D.funcs[D.funcs.length - 1];
-if (!INTRO[state.view] && !D.passes.includes(state.view)) state.view = 'rtl';
 $('func').value = state.func;
-$('func').onchange = () => { state.func = $('func').value; state.reg = null; save(); renderVars(); render(); };
+$('func').onchange = () => { state.func = $('func').value; sel = null; save(); render(); };
+
 document.addEventListener('change', e => {
-  const o = e.target.dataset && e.target.dataset.o;
-  if (o) { state[o] = e.target.checked; save(); render(true); }
-  if (e.target.id === 'side') { state.side = e.target.value; save(); render(true); }
+  const t = e.target;
+  if (t.id === 'only') { state.only = t.checked; save(); render(); }
+  if (t.id === 'vs') { state.side = t.value; save(); render(); }
+  if (t.id === 'pass') setPass(t.value);
 });
 document.addEventListener('click', e => {
-  const a = e.target.closest('a.lab');
-  if (a) {
+  const t = e.target, at = s => t.closest(s);
+  let a;
+  if ((a = at('[data-table]'))) { state.table = a.dataset.table === '1'; setView('pass'); }
+  else if ((a = at('[data-step]'))) {
+    const k = D.passes.indexOf(state.pass) + +a.dataset.step;
+    if (k >= 0 && k < D.passes.length) setPass(D.passes[k]);
+  } else if (at('[data-clear]')) pick(null);
+  else if ((a = at('[data-see]'))) {
+    state.pass = 'gcse'; sel = {kind: 'reg', r: a.dataset.see}; setView('pass', true);
+    show(document.querySelector('main .r[data-r="' + a.dataset.see + '"]'));
+  } else if (at('[data-next]')) {
+    const us = [...document.querySelectorAll('main .r.hl')];
+    const k = us.findIndex(u => u.getBoundingClientRect().top > innerHeight / 2 + 4);
+    show(us[k < 0 ? 0 : k]);
+  } else if ((a = at('a.lab'))) {
     e.preventDefault();
-    if (a.dataset.pass && state.view !== a.dataset.pass) setView(a.dataset.pass);
-    goto(a.getAttribute('href'));
-    return;
-  }
-  const sl = e.target.closest('.slot');
-  if (sl) { pickSlot(sl); return; }
-  const r = e.target.closest('[data-r]');
-  if (r) mark(r.dataset.r === state.reg ? null : r.dataset.r);
+    for (const x of document.querySelectorAll('.target')) x.classList.remove('target');
+    const x = document.querySelector(a.getAttribute('href'));
+    if (x) x.classList.add('target'), show(x);
+  } else if ((a = at('[data-r]'))) pick(sel && sel.kind === 'reg' && sel.r === a.dataset.r ? null :
+    {kind: 'reg', r: a.dataset.r});
+  else if ((a = at('tr[data-i]'))) {
+    const s = {kind: 'row', i: +a.dataset.i, off: !!at('.slot')};
+    if (state.view !== 'cmp' || !at('main')) {
+      if (state.view !== 'cmp') setView('cmp');
+      pick(s); show(document.querySelector('main tr[data-i="' + s.i + '"]'));
+    } else pick(s);
+  } else if ((a = at('main [data-u]'))) pick({kind: 'insn', u: a.dataset.u});
+  else if ((a = at('main [data-x]'))) pick({kind: 'expr', x: a.dataset.x});
+  else if ((a = at('main .code .row.fn'))) pick({kind: 'line', n: +a.dataset.line});
 });
-fitHeader();
-renderVars();
 render();
+if (state.view === 'c') show($('fstart'));
 </script>
 </body>
 </html>

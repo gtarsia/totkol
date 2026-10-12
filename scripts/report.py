@@ -7,7 +7,8 @@ Views, per function: the C, the preprocessed C, each RTL pass (with the C lines,
 on pseudos and what each pass changed), the asm, a side-by-side comparison with the original
 (build/totkol/src/NAME.o, as scripts/ndiff.sh does) or with the C at git revision REV, and an
 analysis page (variable -> pseudo -> hard reg or stack slot, PRE expressions, stack slots).
-NONMATCHING is defined unless --matching is given. Run it from the repo root; it needs
+The original is asm, so its stack slot data comes from master's C when that gives the same
+asm. NONMATCHING is defined unless --matching is given. Run it from the repo root; it needs
 tools/agbcc/bin/agbcc_names (agbcc patched to print variables and where pseudos end up).
 """
 
@@ -240,6 +241,12 @@ def show(ins, idx):
     return t
 
 
+def same_asm(a, b):
+    """Same instructions, ignoring alignment padding (and so the branch targets it shifts)."""
+    key = lambda xs: [(x[1], x[3]) for x in xs if x[1] != '.short 0x0000']
+    return key(a) == key(b)
+
+
 def compare(old, new):
     """Rows [mark, left n, right n, left text, right text, C line of the right]. Marks:
     ' ' same, '~' only registers/offsets, '!' code differs, '-' only left, '+' only right."""
@@ -375,20 +382,43 @@ def main():
     sides, info = {}, {}
     run(['make', '-s', 'QOL=' + qol, 'build/totkol/src/%s.o' % name])
     sides['original'] = objdump('build/totkol/src/%s.o' % name)
-    for rev in vs:
-        rsrc = os.path.join(tmp, 'vs-' + rev.replace('/', '_'), 'src', name + '.c')
+    def build_rev(rev):
+        """src at git REV, compiled as src/NAME.c: (asm, slot info), or None if git lacks it."""
+        tag = 'vs-' + rev.replace('/', '_')
+        rsrc = os.path.join(tmp, tag, 'src', name + '.c')
         os.makedirs(os.path.dirname(rsrc), exist_ok=True)
         with open(rsrc, 'w') as f:
-            run(['git', 'show', '%s:%s' % (rev, src)], stdout=f)
-        # Compile it as src/NAME.c so line notes and includes behave the same.
-        rbase = build(rsrc, defines + ['-iquote', 'src'], tmp, 'vs-' + rev.replace('/', '_'))
-        sides[rev] = objdump(rbase + '.o')
+            if subprocess.run(['git', 'show', '%s:%s' % (rev, src)], stdout=f,
+                              stderr=subprocess.DEVNULL).returncode:
+                return None
+        rbase = build(rsrc, defines + ['-iquote', 'src'], tmp, tag)
         # Who lives in each stack slot on that side, for the slot clicks.
         rnames, rhomes = parse_names(rbase + '.names')
         rgcse = {}
         if os.path.exists(rbase + '.c.gcse'):
             rgcse = {f: parse_gcse(lines) for f, lines in split_functions(rbase + '.c.gcse').items()}
-        info[rev] = {'names': rnames, 'homes': rhomes, 'gcse': rgcse}
+        return objdump(rbase + '.o'), {'names': rnames, 'homes': rhomes, 'gcse': rgcse}
+
+    built = {}
+    for rev in vs:
+        built[rev] = build_rev(rev)
+        if built[rev] is None:
+            sys.exit('git has no %s:%s' % (rev, src))
+        sides[rev], info[rev] = built[rev]
+    # The original is asm, so the compiler leaves no data on it. A revision whose C gives the
+    # same asm (master, once it matches) has the same data: use it for the original side.
+    if 'master' not in built:
+        built['master'] = build_rev('master')
+    orig_info, orig_from = {'names': {}, 'homes': {}, 'gcse': {}}, {}
+    for f in funcs:
+        for rev, b in built.items():
+            if b and f in b[0] and same_asm(sides['original'].get(f, []), b[0][f]):
+                for k in orig_info:
+                    if f in b[1][k]:
+                        orig_info[k][f] = b[1][k][f]
+                orig_from[f] = rev
+                break
+    info['original'] = orig_info
     cmp_ = {side: {f: compare(objs.get(f, []), mine.get(f, [])) for f in funcs}
             for side, objs in sides.items()}
 
@@ -408,6 +438,7 @@ def main():
         'asm': mine,
         'sides': list(sides),
         'info': info,
+        'orig_from': orig_from,
         'cmp': cmp_,
     }
     os.makedirs(os.path.dirname(out_path) or '.', exist_ok=True)
