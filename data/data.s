@@ -29749,13 +29749,16 @@ gUnk_0861D578:: @ 0861D578
 
 @ Options for a new game, copied to gUnk_02000000 + 0x132C.
 gDefaultOptions:: @ 0861D57C
-	.byte 0x00, 0x01
+	.byte 0x00
 .if QOL
+	.byte 0x02 @ cursor speed high (repeat every frame; see gUnk_0815F894)
 	.byte 0x01 @ show messages all at once
+	.byte 0xFE @ flags; bit 0 (NAVI) off, needs the name entry fix in src/name_entry.c
 .else
+	.byte 0x01 @ cursor speed normal
 	.byte 0x00 @ letter by letter
+	.byte 0xFF @ flags; bit 0 is NAVI
 .endif
-	.byte 0xFF
 	.incbin "baserom.gba", 0x61D580, 0x4
 
 gUnk_0861D584:: @ 0861D584
