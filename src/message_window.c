@@ -72,9 +72,11 @@ void sub_0801BB1C(u16 *, u32, u32, u8, u32, u16, u32);
 void sub_0801BC70(u16 *, u8, u16);
 void sub_0801C264(void *, s16, u32);
 
-#define NextCopy()                                                              \
-    (gUnk_0200283C->copyIndex %= ARRAY_COUNT(gUnk_0200283C->copies),            \
-     &gUnk_0200283C->copies[gUnk_0200283C->copyIndex++])
+static inline struct VramCopy *NextCopy(void)
+{
+    gUnk_0200283C->copyIndex %= ARRAY_COUNT(gUnk_0200283C->copies);
+    return &gUnk_0200283C->copies[gUnk_0200283C->copyIndex++];
+}
 
 #define OBJ_TILE(n) ((void *)(0x06010000 + (n) * 32))
 
@@ -125,7 +127,7 @@ u16 sub_0801670C(void)
                     break;
                 case 3:
                     CpuFastSet((u8 *)gUnk_08724208
-                                   + (gUnk_0200283C->unk1BC6 * 128 + gUnk_08724208[0]),
+                                   + (gUnk_08724208[0] + gUnk_0200283C->unk1BC6 * 128),
                                OBJ_TILE(gUnk_0200283C->unk1BAE), 0x20);
                     break;
                 }
@@ -213,7 +215,7 @@ u16 sub_0801670C(void)
                 s32 w = gUnk_0200283C->width + 2;
                 s32 h = gUnk_0200283C->height + 2;
                 u16 *src = gUnk_0200283C->frame;
-                dst = gUnk_0200283C->map0 + x + y * 32;
+                dst = (u16 *)(y * 64 + (x * 2 + (u32)gUnk_0200283C->map0));
                 sub_08000CD4(NextCopy(), src, dst, w, h, w * 2, 0x40);
             }
             ctx = gUnk_0200283C;
@@ -253,9 +255,9 @@ u16 sub_0801670C(void)
              || gUnk_0200283C->text->unk7_5) {
                 u8 right = 0;
                 u8 left = 0;
-                u8 inset = 0;
+                u8 inset = left;
                 u8 kind = gUnk_0200283C->unk1BAC;
-                volatile u8 *winIn;
+                struct { volatile u8 v; } *winIn;
 
                 if (kind != 0) {
                     if (gUnk_0200283C->unk1BC1 & 0xC)
@@ -268,26 +270,26 @@ u16 sub_0801670C(void)
                 if (!(gUnk_0200283C->unkEF8 & 8))
                     inset = 3;
                 if (gUnk_0200283C->unk1BB9 == 0) {
-                    gUnk_03000DD0.win0Right = (gUnk_0200283C->width + gUnk_0200283C->x
-                                               - (right + 1)) * 8 - inset;
-                    gUnk_03000DD0.win0Left = (gUnk_0200283C->x + left) * 8 + inset;
-                    gUnk_03000DD0.win0Bottom = (gUnk_0200283C->height + gUnk_0200283C->y + 2)
-                                               * 8 - inset;
-                    gUnk_03000DD0.win0Top = gUnk_0200283C->y * 8 + inset;
+                    gUnk_03000DD0.win0Right = ((gUnk_0200283C->x + gUnk_0200283C->width
+                                               - (right + 1)) << 3) - inset;
+                    gUnk_03000DD0.win0Left = ((gUnk_0200283C->x + left) << 3) + inset;
+                    gUnk_03000DD0.win0Bottom = ((gUnk_0200283C->y + gUnk_0200283C->height + 2)
+                                               << 3) - inset;
+                    gUnk_03000DD0.win0Top = (gUnk_0200283C->y << 3) + inset;
                     gUnk_03000DD0.dispcnt |= 0x2000;
-                    winIn = &gUnk_03000DD0.winIn0;
+                    winIn = (void *)&gUnk_03000DD0.winIn0;
                 } else {
-                    gUnk_03000DD0.win1Right = (gUnk_0200283C->width + gUnk_0200283C->x
-                                               - (right + 1)) * 8 - inset;
-                    gUnk_03000DD0.win1Left = (gUnk_0200283C->x + left) * 8 + inset;
-                    gUnk_03000DD0.win1Bottom = (gUnk_0200283C->height + gUnk_0200283C->y + 2)
-                                               * 8 - inset;
-                    gUnk_03000DD0.win1Top = gUnk_0200283C->y * 8 + inset;
+                    gUnk_03000DD0.win1Right = ((gUnk_0200283C->x + gUnk_0200283C->width
+                                               - (right + 1)) << 3) - inset;
+                    gUnk_03000DD0.win1Left = ((gUnk_0200283C->x + left) << 3) + inset;
+                    gUnk_03000DD0.win1Bottom = ((gUnk_0200283C->y + gUnk_0200283C->height + 2)
+                                               << 3) - inset;
+                    gUnk_03000DD0.win1Top = (gUnk_0200283C->y << 3) + inset;
                     gUnk_03000DD0.dispcnt |= 0x4000;
-                    winIn = &gUnk_03000DD0.winIn1;
+                    winIn = (void *)&gUnk_03000DD0.winIn1;
                 }
-                *winIn &= 0xE0;
-                *winIn |= 0xF;
+                winIn->v &= 0xE0;
+                winIn->v |= 0xF;
                 if (gUnk_0200283C->unk1BBB == 1) {
                     gUnk_03000DD0.winOut = 0x1F;
                     REG_DISPCNT = gUnk_03000DD0.dispcnt;
@@ -396,27 +398,21 @@ u16 sub_0801670C(void)
                 if (!(gUnk_0200283C->unkEF8 & 8))
                     inset = 3;
                 if (gUnk_0200283C->unk1BB9 == 0) {
-                    gUnk_03000DD0.win0Right = (gUnk_0200283C->animWidth
-                        + ((gUnk_0200283C->width - gUnk_0200283C->animWidth) / 2
-                           + gUnk_0200283C->x) + 2) * 8 - inset;
-                    gUnk_03000DD0.win0Left = ((gUnk_0200283C->width - gUnk_0200283C->animWidth)
-                                              / 2 + gUnk_0200283C->x) * 8 + inset;
-                    gUnk_03000DD0.win0Bottom = (gUnk_0200283C->height / 2 + gUnk_0200283C->y
+                    gUnk_03000DD0.win0Right = ((gUnk_0200283C->x + (gUnk_0200283C->width - gUnk_0200283C->animWidth) / 2 + gUnk_0200283C->animWidth + 2) << 3) - inset;
+                    gUnk_03000DD0.win0Left = (gUnk_0200283C->x + (gUnk_0200283C->width - gUnk_0200283C->animWidth) / 2) * 8 + inset;
+                    gUnk_03000DD0.win0Bottom = (gUnk_0200283C->y + gUnk_0200283C->height / 2
                                                 + 2) * 8 - inset;
-                    gUnk_03000DD0.win0Top = (gUnk_0200283C->height / 2 + gUnk_0200283C->y) * 8
+                    gUnk_03000DD0.win0Top = (gUnk_0200283C->y + gUnk_0200283C->height / 2) * 8
                                             + inset;
                     gUnk_03000DD0.winIn0 &= 0xE0;
                     gUnk_03000DD0.winIn0 = gUnk_03000DD0.winIn0 | 0xF | bits;
                     gUnk_03000DD0.dispcnt |= 0x2000;
                 } else {
-                    gUnk_03000DD0.win1Right = (gUnk_0200283C->animWidth
-                        + ((gUnk_0200283C->width - gUnk_0200283C->animWidth) / 2
-                           + gUnk_0200283C->x) + 2) * 8 - inset;
-                    gUnk_03000DD0.win1Left = ((gUnk_0200283C->width - gUnk_0200283C->animWidth)
-                                              / 2 + gUnk_0200283C->x) * 8 + inset;
-                    gUnk_03000DD0.win1Bottom = (gUnk_0200283C->height / 2 + gUnk_0200283C->y
+                    gUnk_03000DD0.win1Right = ((gUnk_0200283C->x + (gUnk_0200283C->width - gUnk_0200283C->animWidth) / 2 + gUnk_0200283C->animWidth + 2) << 3) - inset;
+                    gUnk_03000DD0.win1Left = (gUnk_0200283C->x + (gUnk_0200283C->width - gUnk_0200283C->animWidth) / 2) * 8 + inset;
+                    gUnk_03000DD0.win1Bottom = (gUnk_0200283C->y + gUnk_0200283C->height / 2
                                                 + 2) * 8 - inset;
-                    gUnk_03000DD0.win1Top = (gUnk_0200283C->height / 2 + gUnk_0200283C->y) * 8
+                    gUnk_03000DD0.win1Top = (gUnk_0200283C->y + gUnk_0200283C->height / 2) * 8
                                             + inset;
                     gUnk_03000DD0.winIn1 &= 0xE0;
                     gUnk_03000DD0.winIn1 = gUnk_03000DD0.winIn1 | 0xF | bits;
@@ -437,14 +433,14 @@ u16 sub_0801670C(void)
                 s32 w, h;
                 dst = gUnk_0200283C->map0 + gUnk_0200283C->x
                       + (gUnk_0200283C->width - gUnk_0200283C->animWidth) / 2
-                      + (gUnk_0200283C->height / 2 + gUnk_0200283C->y) * 32;
+                      + (gUnk_0200283C->y + gUnk_0200283C->height / 2) * 32;
                 w = gUnk_0200283C->animWidth + 2;
                 h = 2;
                 sub_08000CD4(NextCopy(), src, dst, w, h, w * 2, 0x40);
             }
             dst = gUnk_0200283C->map1 + gUnk_0200283C->x
                   + (gUnk_0200283C->width - gUnk_0200283C->animWidth) / 2
-                  + (gUnk_0200283C->height / 2 + gUnk_0200283C->y) * 32;
+                  + (gUnk_0200283C->y + gUnk_0200283C->height / 2) * 32;
             sub_08000D94(NextCopy(), 0, dst, gUnk_0200283C->animWidth + 2, 2, 0x40);
             if (gUnk_0200283C->next == WIN_CLOSED) {
                 if (gUnk_0200283C->animWidth > 2)

@@ -61,7 +61,8 @@ for l in subprocess.run(['arm-none-eabi-objdump', '-d', '-r', '--no-show-raw-ins
                          f'--disassemble={FUNC}', f'{W}/w.o'], capture_output=True,
                         text=True).stdout.splitlines():
     m = re.match(r'^\s+([0-9a-f]+):', l)
-    if m:
+    # A relocation belongs to the line at its address; one on its own is a word objdump left out.
+    if m and not ('R_ARM_' in l and obj and obj[-1] == int(m.group(1), 16)):
         obj.append(int(m.group(1), 16))
 if len(obj) != len(new):
     sys.exit('build/why is out of date with diff; run why again')
