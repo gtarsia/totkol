@@ -6,7 +6,7 @@ _lodis_scripts() {
 	[[ $cmd = report ]] && { _lodis_report; return }
 	if [[ $PREFIX = -* ]]; then
 		case $cmd in
-		diff) compadd -- --logic --context --nvim --qol -h ;;
+		diff) compadd -- --logic --nvim --qol -h ;;
 		why) compadd -- --orig -v -h ;;
 		perm) compadd -- --no-vars --keep-types --all --context -j --permuter -h ;;
 		*) compadd -- -h ;;

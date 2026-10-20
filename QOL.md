@@ -9,6 +9,11 @@ What the QOL build (`make QOL=1`) changes from the original game.
 - **Navigation messages:** start off. In the original that hung the name
   entry; see [BUGS.md](BUGS.md).
 
+## Messages
+
+- **Message window:** opens and closes at once, without the animation where it grows from
+  a bar or shrinks into one.
+
 ## Battle
 
 - **EXP popup:** the EXP a unit earns rises above it as a gold number, like damage numbers.

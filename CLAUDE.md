@@ -36,7 +36,8 @@ uncommitted first.
   `bin/diff NAME FUNC [FROM [TO]]` (FROM/TO: regexes, e.g. a callee, to compare a part);
   `bin/diff [NAME]` lists the NONMATCHING functions and how far each is.
   `bin/show NAME FUNC` shows that build with its C lines over their instructions.
-  diff's count also gives the logic-only differences (registers and stack offsets ignored);
+  diff's count also gives the logic-only differences (registers, stack offsets and
+  where each constant sits in the literal pool ignored);
   `--logic` marks only those. Match the logic first (that count at 0), then registers and stack:
   the total alone misleads, since C that does something different can line up registers better.
   `bin/perm NAME FUNC` runs decomp-permuter on it and offers each better result for
@@ -107,5 +108,5 @@ All take ROM SAV INPUTS. SAV is a copy that gets written; a fresh one is
   (+0x12). The interpreter is `sub_080077E4`, and script commands start with a (cmd, frames)
   byte pair. `sub_08011CD0` starts a sprite animation and resets the speed to 0.
 - Messages: `src/message.c`, `include/message.h`. The printer's context is
-  `*gUnk_0200283C`; the control-code interpreter is `sub_08015188`.
+  `*message_context`; the control-code interpreter is `sub_08015188`.
 - Battle popups (damage, GUARD) are data scripts; see `gDamageNumberAnim` in `data/data.s`.

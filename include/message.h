@@ -94,7 +94,7 @@ struct GlyphInfo {
     u16 width;              // guess: in 8-pixel tiles
 };
 
-extern struct MessageCtx *gUnk_0200283C;
+extern struct MessageCtx *message_context;
 extern u8 gUnk_02002800[][16];      // guess: names, inserted by control code 0x80
 extern u8 *gUnk_086254D8[];         // strings inserted by control code 0x87
 extern const struct GlyphInfo gUnk_0860D088[];

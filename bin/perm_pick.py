@@ -4,10 +4,10 @@
 # preprocessed C (no comments, macros expanded), so changes are matched to SRC ignoring spaces,
 # parentheses, braces and comments, with macros expanded. If any can't be matched cleanly, or
 # would drop a comment, nothing is patched and they're listed to apply by hand. An output that adds
-# logic differences (see diff) is rejected; one whose changes don't change the diff is skipped
-# (perm's --all shows it).
+# logic differences (see diff) is shown with a red warning; one whose changes don't change the
+# diff is skipped (perm's --all shows it).
 import difflib, os, re, subprocess, sys, tempfile, time
-from pycparser import c_parser, c_generator
+from pycparser import c_ast, c_parser, c_generator
 
 SRC, FUNC, DIR, BEST, STYLE = sys.argv[1:6]
 TMP = tempfile.mkdtemp()
@@ -21,7 +21,17 @@ def run(*cmd, **kw):
 
 def formatted(path):
     """The file reprinted by pycparser (as the permuter does), then in src/'s style."""
-    text = c_generator.CGenerator().visit(c_parser.CParser().parse(open(path).read()))
+    ast = c_parser.CParser().parse(open(path).read())
+    # Drop empty statements: a block macro's "{ ... };" is a block plus ";", and clang-format's
+    # RemoveBracesLLVM then unwraps "if (x) { {...} ; } else" into "{...}; else", which breaks.
+    class Drop(c_ast.NodeVisitor):
+        def visit_Compound(self, node):
+            if node.block_items:
+                node.block_items = [n for n in node.block_items
+                                    if not isinstance(n, c_ast.EmptyStatement)]
+            self.generic_visit(node)
+    Drop().visit(ast)
+    text = c_generator.CGenerator().visit(ast)
     return run('clang-format', f'--style={STYLE}', input=text).stdout.splitlines()
 
 
@@ -50,10 +60,41 @@ def dump(obj):
 open(f'{TMP}/target.txt', 'w').write('\n'.join(dump(f'{DIR}/target.o')) + '\n')
 
 
+def pool_loads(lines):
+    """The lines with "ldr rX, [pc, #N]" as "ldr rX, =VALUE", as diff's logic does: VALUE is the
+    word at that address, or its relocation's symbol. objdump leaves out a word that is 0 plus a
+    relocation, so then the relocation is the word; words are aligned to 4."""
+    def word(l, p):
+        return l.startswith('.word ') or (l.startswith('R_ARM_ABS32 ')
+                                          and not p.startswith('.word '))
+    addrs, pool, a, p, w, wa = [], {}, 0, '', '', 0
+    for l in lines:
+        if word(l, p):
+            a = (a + 3) // 4 * 4
+        addrs.append(a)
+        if l.startswith('.word '):
+            w, wa = l.split()[1], a
+            pool[a] = w
+        elif l.startswith('R_ARM_ABS32 '):
+            sym = l.split()[1]
+            pool[wa if p.startswith('.word ') else a] = (
+                sym + ('' if re.fullmatch(r'0x0+', w) or not p.startswith('.word ') else '+' + w))
+        a += 4 if word(l, p) or re.match(r'bl( |$)', l) else 0 if l.startswith('R_ARM') else 2
+        p = l
+    out = []
+    for l, a in zip(lines, addrs):
+        m = re.search(r'\[pc, #(\d+)\]', l)
+        t = (a + 4) // 4 * 4 + int(m.group(1)) if m else None
+        out.append(l[:m.start()] + ('=' + pool[t] if t in pool else '[pc]') if m else l)
+    return out
+
+
 def logic(lines):
     """The listing with what isn't logic made equal, as diff's logic count does: registers,
-    stack offsets, register copies, alignment padding and jump-table addresses."""
+    stack offsets, register copies, alignment padding, jump-table addresses, where a constant
+    sits (pc offsets) and the literal pool itself."""
     out = []
+    lines = pool_loads(lines)
     for i, l in enumerate(lines):
         l = re.sub(r'\b(r\d+|sb|sl|fp|ip)\b', 'R', l)
         l = re.sub(r'\[sp, #\d+\]', '[sp, #N]', l)
@@ -61,6 +102,8 @@ def logic(lines):
              'adds R, R, R': 'add R, R'}.get(l, l)
         if l.startswith('.word ') and i + 1 < len(lines) and lines[i + 1] == 'R_ARM_ABS32 .text':
             l = '.word target'
+        elif l.startswith(('.word ', 'R_ARM_ABS32 ')) and l != 'R_ARM_ABS32 .text':
+            l = 'pool'
         out.append(l)
     return out
 
@@ -82,7 +125,7 @@ def score(prefix, region):
     total = sum(1 for l in out.splitlines() if l[:1] in '<>')
     open(f'{TMP}/new.logic', 'w').write('\n'.join(logic(lines + [''])))
     out = run('diff', f'{TMP}/target.logic', f'{TMP}/new.logic').stdout
-    lg = sum(1 for l in out.splitlines() if l[:1] in '<>' and l[2:] != 'copy')
+    lg = sum(1 for l in out.splitlines() if l[:1] in '<>' and l[2:] not in ('copy', 'pool'))
     return total, lg
 
 
@@ -256,11 +299,6 @@ def with_changes(ops):
 
 (current, current_logic), new = score(prefix, A), score(prefix, with_changes(hunks))
 s, s_logic = new if new else (None, None)
-if s_logic is not None and s_logic > current_logic:
-    # Its changes alter what the code does (or how): not something to patch into src.
-    print(f'\033[90mrejected: it adds logic differences ({current_logic} → {s_logic}), so it '
-          'changes what the code does\033[0m')
-    sys.exit()
 if not hunks or (s == current and not SHOW_ALL):
     print(f"\033[90mskipped: its changes don't change the diff ({current} lines; perm's --all "
           'shows them)\033[0m')
@@ -271,6 +309,10 @@ else:
     d = s - current
     color = '\033[32m' if d < 0 else '\033[31m' if d > 0 else '\033[90m'
     effect = f'differing lines {current} → {s} ({color}{d:+d}\033[1;34m)'
+    if s_logic > current_logic:
+        # Its changes alter what the code does (or how): check it before accepting.
+        effect += (f'\n\033[1;31madds logic differences ({current_logic} → {s_logic}): '
+                   'it may change what the code does\033[1;34m')
 # The permuter's own score (what it optimizes: a missing or extra instruction costs 100, a
 # different register 5), from its log and the output's name; the line count weighs all the same.
 log = open(f'{DIR}/log').read() if os.path.exists(f'{DIR}/log') else ''

@@ -5,25 +5,23 @@
 # Without FUNC, lists the NONMATCHING functions (all, or only src/NAME.c's) and how far each is
 # from matching.
 # FROM and TO are regexes on instructions (e.g. ReachTileCost): only the part from the first
-# FROM to the next TO is compared, on each side; calls show as "R_ARM_THM_CALL NAME". Branch
+# FROM to the next TO is compared, on each side; calls show as "bl NAME". Branch
 # targets aren't compared; they show as "→ N", the line they land on. In a terminal, shows the
-# logic differences first, then the whole diff, side by side in color (marks: ! the code differs,
-# ~ only registers or stack offsets, - only in the original, + only in yours); piped, plain
-# side-by-side. At the far right, code from a static inline is tagged ":222 → Edge#2": the 2nd
+# whole diff side by side in color (marks: ! the code differs, ~ only registers or stack offsets,
+# - only in the original, + only in yours), with how many rows of each; piped, plain side-by-side. At the far right, code from a static inline is tagged ":222 → Edge#2": the 2nd
 # copy of Edge, the one called at line 222. The counts also give the logic-only differences
-# (registers and stack offsets ignored) and whether the stack frames match.
+# (registers, stack offsets and literal pool positions ignored) and whether the stack frames match.
 # Options, anywhere on the line:
 #   --logic        don't mark differences that are only registers or stack offsets
-#   --context N    only the changes and N lines around them
 #   --nvim         open both listings in nvim -d instead
 #   --qol          build the QOL version (default: the original game's)
+# AGBCC=PATH builds yours with another agbcc (e.g. one patched to trace reload).
 # Exits 0 when they match.
 usage() { sed -n '2,/^[^#]/s/^# \{0,1\}//p' "$0"; exit ${1:-0}; }
-args=() LOGIC= CONTEXT= VIEW= QOL=0
+args=() LOGIC= VIEW= QOL=0
 while [ $# -gt 0 ]; do
 	case $1 in
 	--logic) LOGIC=1 ;;
-	--context) CONTEXT=$2; shift ;;
 	--nvim) VIEW=nvim ;;
 	--qol) QOL=1 ;;
 	-h | --help) usage ;;
@@ -53,7 +51,7 @@ mkdir -p $OUT
 make -s QOL=$QOL build/totkol/src/$NAME.o
 cc -E -I tools/agbcc -I tools/agbcc/include -iquote include -nostdinc -DREVISION=0 -DENGLISH \
 	-DQOL=$QOL -DNONMATCHING src/$NAME.c -o $OUT/nm.i
-tools/preproc/preproc $OUT/nm.i charmap.txt | tools/agbcc/bin/agbcc -mthumb-interwork -Wimplicit \
+tools/preproc/preproc $OUT/nm.i charmap.txt | ${AGBCC:-tools/agbcc/bin/agbcc} -mthumb-interwork -Wimplicit \
 	-Wparentheses -O2 -g -fhex-asm -fprologue-bugfix -ffix-debug-line -o $OUT/nm.s
 arm-none-eabi-as -mcpu=arm7tdmi -o $OUT/nm.o $OUT/nm.s
 
@@ -80,6 +78,8 @@ dump() {
 			}
 			# With -l, "file:N" comes before each block of C lines, and the block ends at line N.
 			function flush(   i) {
+				if (pend != "") print pend
+				pend = ""
 				for (i = 1; i <= ns; i++)
 					if (sl[i] ~ /[^ \t]/) print "C\t" (n ? n - ns + i : "") "\t" sl[i]
 				ns = 0
@@ -106,17 +106,29 @@ dump() {
 			/^[A-Za-z_][A-Za-z0-9_]*\(\):$/ { next }
 			!/^\s+[0-9a-f]+:/ { sl[++ns] = $0; next }
 			/^\s+[0-9a-f]+:/ {
-				flush()
 				addr = $1; sub(/:$/, "", addr)
 				t = $0; sub(/^\s+[0-9a-f]+:\s+/, "", t)
 				gsub(/\s*<[^>]*>/, "", t); sub(/\s*@.*/, "", t); gsub(/\t+/, " ", t)
+				# A relocation goes into its instruction or word: "bl NAME", ".word NAME". One on
+				# its own is a word objdump left out because it is 0.
+				if (t ~ /^R_ARM_/) {
+					sym = t; sub(/^[^ ]+ /, "", sym)
+					if (addr == paddr && pt == "bl") { pt = "bl " sym; ptarget = ""; set(); next }
+					if (addr == paddr && pt ~ /^\.word /) {
+						v = pt; sub(/^\.word /, "", v)
+						pt = ".word " sym (v ~ /^0x0+$/ ? "" : "+" v); set(); next
+					}
+					t = ".word " sym
+				}
+				flush()
 				target = ""
 				if (t ~ /^b[a-z.]* [0-9a-f]+$/) {
-					if (t !~ /^bl /) { target = t; sub(/^.* /, "", target) }  # calls show their callee
+					target = t; sub(/^.* /, "", target)  # a call loses it to its relocation
 					sub(/ [0-9a-f]+$/, "", t)
 				}
-				print "A\t" addr "\t" t "\t" target "\t" tag; next
+				paddr = addr; pt = t; ptarget = target; ptag = tag; set(); next
 			}
+			function set() { pend = "A\t" paddr "\t" pt "\t" ptarget "\t" ptag }
 			END { flush() }' |
 		awk -F '\t' -v from="$FROM" -v to="$TO" -v src="$SRC" -v annot="$ANNOT" -v tags="$TAGS" '
 			/^C/ { if (src) c[++nc] = $0; next }
@@ -142,7 +154,6 @@ dump() {
 }
 # Side by side, highlighted like show, with the C lines of the new version above their
 # instructions. Marks: ~ changed, - only in orig, + only in new.
-# CONTEXT (from --context) shows only the changes and N lines around them.
 show() {
 	local sep=$'\x01'
 	# Rows are lined up by the logic-only comparison, so each instruction sits next to its pair
@@ -161,7 +172,8 @@ show() {
 				if (t == "~") t = "!"
 				else if (t == " " && O[ln] != N[rn] && !only) t = "~"
 				# A copy only one side has: logistics, not logic.
-				if ((t == "-" && l == "copy") || (t == "+" && r == "copy")) t = only ? " " : "~"
+				if ((t == "-" && l ~ /^(copy|pool)$/) || (t == "+" && r ~ /^(copy|pool)$/))
+					t = only ? " " : "~"
 				print t, hl ? ln : "", hr ? rn : "", hl ? O[ln] : "", hr ? N[rn] : ""
 			}
 			function flush(   i, n) {
@@ -175,14 +187,6 @@ show() {
 			/^>/ { R[++nr] = s; next }
 			{ flush(); row(" ", s, s, 1, 1) }
 			END { flush() }' |
-		# SHOW_MARKS: which rows count as changes for CONTEXT (all changes by default).
-		awk -F "$sep" -v ctx="${CONTEXT:--1}" -v marks="${SHOW_MARKS:-[^ ]}" '
-			{ line[NR] = $0; if ($1 ~ "^" marks "$") for (i = NR - ctx; i <= NR + ctx; i++) keep[i] = 1 }
-			END {
-				for (i = 1; i <= NR; i++)
-					if (ctx < 0 || keep[i]) { print line[i]; gap = 0 }
-					else if (!gap++) print "."
-			}' |
 		# Put each instruction's C lines (tag "c") in the rows above it.
 		awk -F "$sep" -v OFS="$sep" '
 			NR == FNR { if (/^C/) c[n + 1] = c[n + 1] substr($0, 3) "\n"; else n++; next }
@@ -198,7 +202,7 @@ show() {
 		awk -F "$sep" -v OFS="$sep" '
 			FILENAME == ARGV[1] { o[FNR] = $0; next }
 			FILENAME == ARGV[2] { n[FNR] = $0; next }
-			$1 != "c" && $1 != "." { if ($2 != "") $4 = o[$2]; if ($3 != "") $5 = n[$3] }
+			$1 != "c" { if ($2 != "") $4 = o[$2]; if ($3 != "") $5 = n[$3] }
 			{ print }' $OUT/orig.ann $OUT/new.ann - > $OUT/rows.txt
 	hl() {
 		awk -F "$sep" -v f=$1 -v want="$2" '{ print ($1 ~ want) ? $f : "" }' $OUT/rows.txt |
@@ -215,7 +219,6 @@ show() {
 			c[" "] = c["c"] = "\033[90m"
 			while ((getline x < tagf) > 0) tag[++nt] = x
 		}
-		$1 == "." { print "\033[90m  ⋯\033[0m"; next }
 		$1 == "c" {
 			printf "%*s\033[90m│ %4s \033[36m%5s\033[0m  %s\n", w + 8, "", "", $2 ? ":" $2 : "", $8
 			next
@@ -243,22 +246,43 @@ sed -n "s/^A\t//p" $OUT/newsrc.txt > $OUT/new.txt
 # Copies between registers are logistics too: "mov rX, rY" and "adds rX, rY, #0" are the same copy
 # (agbcc picks one by whether high registers are involved), and so are "add rX, rY" and
 # "adds rX, rX, rY". A copy one side has and the other doesn't isn't counted as logic either.
-# Also not logic: addresses in a switch's jump table (a .word followed by a relocation to .text;
-# they move with the code, like branch targets) and alignment padding (.short 0x0000).
+# Also not logic: addresses in a switch's jump table (".word .text+N"; they move with the code,
+# like branch targets) and alignment padding (.short 0x0000).
+# Nor where a constant sits: "ldr rX, [pc, #N]" becomes "ldr R, =VALUE" (the word at that
+# address), and the literal pool itself "pool", like a copy. N changes whenever the code before
+# it grows or shrinks. With FROM the addresses are unknown, so it's just "ldr R, [pc]".
 logic() {
+	awk -v part="$FROM" '
+		# The address of each line: bl and .word take 4 bytes, the rest 2. A word is aligned to 4
+		# (the padding before it is not always listed).
+		function size(l) { return l ~ /^(bl|\.word)( |$)/ ? 4 : 2 }
+		function align(x, l) { return l ~ /^\.word / ? int((x + 3) / 4) * 4 : x }
+		NR == FNR { a = align(a, $0); if ($0 ~ /^\.word /) pool[a] = $2; a += size($0); next }
+		{
+			l = $0
+			b = align(b, $0)
+			if (match(l, /\[pc, #[0-9]+\]/)) {
+				n = substr(l, RSTART + 6, RLENGTH - 7) + 0
+				t = int((b + 4) / 4) * 4 + n
+				l = substr(l, 1, RSTART - 1) (part != "" || !(t in pool) ? "[pc]" : "=" pool[t])
+			}
+			b += size($0)
+			print l
+		}' $1 $1 |
 	sed -E 's/\b(r[0-9]+|sb|sl|fp|ip)\b/R/g; s/\[sp, #[0-9]+\]/[sp, #N]/g
-		s/^(mov R, R|adds R, R, #0)$/copy/; s/^adds R, R, R$/add R, R/; s/^\.short 0x0000$/copy/' $1 |
-		awk 'NR > 1 { print ($0 == "R_ARM_ABS32 .text" && prev ~ /^\.word /) ? ".word target" : prev }
-			{ prev = $0 } END { if (NR) print prev }'
+		s/^(mov R, R|adds R, R, #0)$/copy/; s/^adds R, R, R$/add R, R/; s/^\.short 0x0000$/copy/
+		s/=\.text(\+0x[0-9a-f]+)?$/=target/; s/^\.word \.text(\+.*)?$/jump/; s/^\.word .*/pool/; s/^jump$/.word target/'
 }
 logic $OUT/orig.txt > $OUT/orig.logic
 logic $OUT/new.txt > $OUT/new.logic
 if diff -q $OUT/orig.txt $OUT/new.txt > /dev/null; then
 	echo "match ($(wc -l < $OUT/orig.txt) lines)"
 else
-	all=$(diff $OUT/orig.txt $OUT/new.txt | grep -c '^[<>]' || true)
-	logic=$(diff $OUT/orig.logic $OUT/new.logic | grep '^[<>]' | grep -vc '^[<>] copy$' || true)
-	summary="$all lines differ, $logic in logic only"
+	# Rows by mark, as shown: show also writes the rows.
+	show > $OUT/view.txt
+	count() { cut -d $'\x01' -f1 $OUT/rows.txt | grep -c "^$1$" || true; }
+	summary="$(( $(count '!') + $(count -) + $(count +) )) rows with logic differences (! - +),"
+	summary+=" $(count '~') only registers/stack (~)"
 	# Stack frame: its size, and whether both use the same slots (they may hold other values).
 	frame() { grep -m1 -o 'sub sp, #[0-9]*' $1 | grep -o '[0-9]*$' || echo 0; }
 	slots() { grep -o '\[sp, #[0-9]*\]' $1 | sort -u; }
@@ -280,18 +304,11 @@ else
 		nvim -d $OUT/orig.txt $OUT/new.txt
 	else
 		{
+			printf '\033[1m%s\033[0m\n' "$summary"
+			printf '\033[90m%s\033[0m\n' "$frame_note"
 			printf '\033[90m%s\033[0m\n\n' \
 				'! code differs   ~ only registers/stack   - only original   + only yours'
-			# First only the logic differences, then the whole diff.
-			if [ "$logic" != 0 ]; then
-				printf '\033[1mLogic differences: %s lines\033[0m\n' "$logic"
-				CONTEXT=2 SHOW_MARKS='[!+-]' show
-				echo
-			fi
-			printf '\033[1mAll differences: %s lines\033[0m %s\n' "$all" \
-				"(orig $(wc -l < $OUT/orig.txt), new $(wc -l < $OUT/new.txt))"
-			printf '\033[90m%s\033[0m\n' "$frame_note"
-			show
+			cat $OUT/view.txt
 		} | less -RS
 	fi
 	echo "$summary"

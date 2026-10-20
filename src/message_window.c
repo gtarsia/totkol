@@ -74,132 +74,143 @@ void sub_0801C264(void *, s16, u32);
 
 static inline struct VramCopy *NextCopy(void)
 {
-    gUnk_0200283C->copyIndex %= ARRAY_COUNT(gUnk_0200283C->copies);
-    return &gUnk_0200283C->copies[gUnk_0200283C->copyIndex++];
+    message_context->copyIndex %= ARRAY_COUNT(message_context->copies);
+    return &message_context->copies[message_context->copyIndex++];
 }
 
 #define OBJ_TILE(n) ((void *)(0x06010000 + (n) * 32))
 
-#ifdef NONMATCHING
+// dst, p and inset serve several cases, each as one variable: the original keeps each in one
+// register across those cases.
 u16 sub_0801670C(void)
 {
-    struct MessageCtx *ctx;
     u16 ret;
     u16 *dst;
+    u16 *p;
+    s32 inset;
 
-    gUnk_0200283C->timer = (gUnk_0200283C->timer + 1) % 240;
+    message_context->timer = (message_context->timer + 1) % 240;
     ret = 0;
     if (gUnk_03000820 & (A_BUTTON | B_BUTTON)) {
-        if (gUnk_0200283C->repeatTimer != 0)
-            gUnk_0200283C->repeatTimer--;
+        if (message_context->repeatTimer != 0)
+            message_context->repeatTimer--;
     } else {
-        gUnk_0200283C->repeatTimer = gUnk_0200283C->repeatDelay;
+        message_context->repeatTimer = message_context->repeatDelay;
     }
 
-    switch (gUnk_0200283C->unk1BA4) {
+    switch (message_context->unk1BA4) {
     case WIN_INIT:
         sub_080142E8();
-        if (!(gUnk_0200283C->unk1BC1 & 0xF)) {
+        if (!(message_context->unk1BC1 & 0xF)) {
             sub_080141C8();
             sub_080160E4();
         }
-        if (gUnk_0200283C->unk1BAC != 0) {
-            if (!(gUnk_0200283C->unk1BC1 & 0xC)) {
+        if (message_context->unk1BAC != 0) {
+            if (!(message_context->unk1BC1 & 0xC)) {
                 u16 *pal = gUnk_02002600;
-                if (gUnk_0200283C->unkEF8 & 0x1000)
+                if (message_context->unkEF8 & 0x1000)
                     pal += 0xC0;
                 else
                     pal += 0x70;
-                sub_0801B8D0(gUnk_0200283C->unk1B7C, gUnk_0200283C->unk1BC6,
-                             gUnk_0200283C->unk1BAD, pal, gUnk_0200283C->frame,
-                             OBJ_TILE(gUnk_0200283C->unk1BAE));
+                sub_0801B8D0(message_context->unk1B7C, message_context->unk1BC6,
+                             message_context->unk1BAD, pal, message_context->frame,
+                             OBJ_TILE(message_context->unk1BAE));
             } else {
-                switch (gUnk_0200283C->unk1BC2) {
+                switch (message_context->unk1BC2) {
                 case 0:
                 case 2:
                 case 5:
-                    sub_0801C264(OBJ_TILE(gUnk_0200283C->unk1BAE),
-                                 gUnk_0200283C->unk1BC6, 0);
+                    sub_0801C264(OBJ_TILE(message_context->unk1BAE),
+                                 message_context->unk1BC6, 0);
                     break;
                 case 4:
                     CpuFastSet((u8 *)gUnk_08724208 + 0xCC * 128 + gUnk_08724208[0],
-                               OBJ_TILE(gUnk_0200283C->unk1BAE), 0x20);
+                               OBJ_TILE(message_context->unk1BAE), 0x20);
                     break;
                 case 3:
                     CpuFastSet((u8 *)gUnk_08724208
-                                   + (gUnk_08724208[0] + gUnk_0200283C->unk1BC6 * 128),
-                               OBJ_TILE(gUnk_0200283C->unk1BAE), 0x20);
+                                   + (gUnk_08724208[0] + message_context->unk1BC6 * 128),
+                               OBJ_TILE(message_context->unk1BAE), 0x20);
                     break;
                 }
             }
         }
-        if (gUnk_0200283C->unkEF1 == 1) {
-            if (gUnk_0200283C->unkEF2 == 0)
-                sub_08000C44(NextCopy(), 0, gUnk_0200283C->map0, 0x280);
-            sub_08000C44(NextCopy(), 0, gUnk_0200283C->map1, 0x280);
+        if (message_context->unkEF1 == 1) {
+            if (message_context->unkEF2 == 0)
+                sub_08000C44(NextCopy(), 0, message_context->map0, 0x280);
+            sub_08000C44(NextCopy(), 0, message_context->map1, 0x280);
         }
-        if (gUnk_0200283C->unkEF8 & 0x8000) {
-            CpuFastFill(0, gUnk_0200283C, 0xA00);
-        } else {
-            sub_08014068();
+        {
+            struct MessageCtx *c = message_context;
+            // Set before the if: the original loads it last, into r2.
+            u32 control = CPU_FAST_SET_SRC_FIXED | (0xA00 / 4);
+            if (c->unkEF8 & 0x8000) {
+                vu32 tmp = 0;
+                CpuFastSet((void *)&tmp, c, control);
+            } else {
+                sub_08014068();
+            }
         }
-        gUnk_0200283C->unk1BA4 = WIN_OPEN;
+        message_context->unk1BA4 = WIN_OPEN;
         return 0;
     case WIN_OPEN:
-        if ((gUnk_0200283C->unk1BA7 & 3) == 2) {
+        if ((message_context->unk1BA7 & 3) == 2) {
             sub_08016318();
-            gUnk_0200283C->unk1BA4 = WIN_9;
+            message_context->unk1BA4 = WIN_9;
             return 0;
         }
-        if (!(gUnk_0200283C->unk1BC1 & 3) && !(gUnk_0200283C->unkEF8 & 0x82)) {
-            gUnk_0200283C->animTimer = 4;
-            gUnk_0200283C->animWidth = 2;
-            gUnk_0200283C->unk1BA4 = WIN_ANIM;
-            gUnk_0200283C->next = WIN_DRAW;
+        if (!(message_context->unk1BC1 & 3) && !(message_context->unkEF8 & 0x82)) {
+            message_context->animTimer = 4;
+            message_context->animWidth = 2;
+            // QOL: no opening animation; the window shows up whole.
+            message_context->unk1BA4 = QOL ? WIN_DRAW : WIN_ANIM;
+            message_context->next = WIN_DRAW;
             return 0;
         }
-        gUnk_0200283C->unkEF0 = 0;
-        gUnk_0200283C->unk1BA4 = WIN_DRAW;
+        message_context->unkEF0 = 0;
+        message_context->unk1BA4 = WIN_DRAW;
     case WIN_DRAW:
-        if ((u8)(gUnk_0200283C->unkEEB - 1) <= 1)
+        if ((u8)(message_context->unkEEB - 1) <= 1)
             PlaySE(0xB6);
-        if (gUnk_0200283C->unkEEB == 4)
+        if (message_context->unkEEB == 4)
             PlaySE(0xB5);
-        if (gUnk_0200283C->unkEF8 & 2) {
-            if (gUnk_0200283C->unkEF2 == 0) {
-                dst = gUnk_0200283C->map0 + gUnk_0200283C->x + gUnk_0200283C->y * 32;
-                sub_08000D94(NextCopy(), 0, dst, gUnk_0200283C->width + 2,
-                             gUnk_0200283C->height + 2, 0x40);
+        if (message_context->unkEF8 & 2) {
+            if (message_context->unkEF2 == 0) {
+                dst = message_context->map0 + message_context->x + message_context->y * 32;
+                sub_08000D94(NextCopy(), 0, dst, message_context->width + 2,
+                             message_context->height + 2, 0x40);
             }
-            dst = gUnk_0200283C->map1 + gUnk_0200283C->x + gUnk_0200283C->y * 32;
-            sub_08000D94(NextCopy(), 0, dst, gUnk_0200283C->width + 2,
-                         gUnk_0200283C->height + 2, 0x40);
+            dst = message_context->map1 + message_context->x + message_context->y * 32;
+            sub_08000D94(NextCopy(), 0, dst, message_context->width + 2,
+                         message_context->height + 2, 0x40);
         } else {
+            struct MessageCtx *ctx;
             u8 flags;
             u8 kind;
             u32 pal;
 
-            sub_0801BB1C(gUnk_0200283C->frame, gUnk_0200283C->width + 2,
-                         gUnk_0200283C->height + 2, gUnk_0200283C->unkEEA,
-                         gUnk_0200283C->width + 2, gUnk_0200283C->unkEFE, 4);
-            flags = gUnk_0200283C->unk1BC1;
-            if (!(flags & 3) && (kind = gUnk_0200283C->unk1BAC) != 0) {
-                u8 w = gUnk_0200283C->width;
-                u16 *p = &gUnk_0200283C->frame[w + 3];
+            sub_0801BB1C(message_context->frame, message_context->width + 2,
+                         message_context->height + 2, message_context->unkEEA,
+                         message_context->width + 2, message_context->unkEFE, 4);
+            flags = message_context->unk1BC1;
+            if (!(flags & 3) && (kind = message_context->unk1BAC) != 0) {
+                u8 w = message_context->width;
+                // &frame[w + 3], with w * 2 + message_context added first, as the original does.
+                p = &((struct MessageCtx *)(w * 2 + (u32)message_context))->frame[3];
                 if (!(flags & 0xC)) {
                     if (kind == 2)
                         p += w - 5;
-                    sub_0801B9AC(p, 5, gUnk_0200283C->height, w + 2,
-                                 gUnk_0200283C->unkEFE, gUnk_0200283C->unk1BCC, 0);
+                    sub_0801B9AC(p, 5, message_context->height, w + 2,
+                                 message_context->unkEFE, message_context->unk1BCC, 0);
                 } else {
-                    switch (gUnk_0200283C->unk1BC2) {
+                    switch (message_context->unk1BC2) {
                     case 0:
                     case 2:
                         pal = 0x4000;
                         p[0] = pal + 1;
                         p[1] = pal + 2;
-                        p[gUnk_0200283C->width + 2] = pal + 3;
-                        p[gUnk_0200283C->width + 3] = pal + 4;
+                        p[message_context->width + 2] = pal + 3;
+                        p[message_context->width + 3] = pal + 4;
                         break;
                     case 1:
                     case 3:
@@ -210,106 +221,107 @@ u16 sub_0801670C(void)
                 }
             }
             {
-                u8 x = gUnk_0200283C->x;
-                u8 y = gUnk_0200283C->y;
-                s32 w = gUnk_0200283C->width + 2;
-                s32 h = gUnk_0200283C->height + 2;
-                u16 *src = gUnk_0200283C->frame;
-                dst = (u16 *)(y * 64 + (x * 2 + (u32)gUnk_0200283C->map0));
-                sub_08000CD4(NextCopy(), src, dst, w, h, w * 2, 0x40);
+                u8 x = message_context->x;
+                u8 y = message_context->y;
+                s32 w = message_context->width + 2;
+                s32 h = message_context->height + 2;
+                u16 *src = message_context->frame;
+                u16 *d = (u16 *)(y * 64 + (x * 2 + (u32)message_context->map0));
+                sub_08000CD4(NextCopy(), src, d, w, h, w * 2, 0x40);
             }
-            ctx = gUnk_0200283C;
+            ctx = message_context;
             if (ctx->unk1BC1 & 0xC) {
                 if (ctx->unk1BC2 == 1) {
-                    u16 *line = ctx->line;
-                    sub_08018F80(line, ctx->unk1BC6);
-                    dst = gUnk_0200283C->map1 + gUnk_0200283C->x
-                        + ((gUnk_0200283C->y + 1) * 32 + 1);
-                    sub_08000BB4(NextCopy(), line, dst, 2);
-                    dst = gUnk_0200283C->map1 + gUnk_0200283C->x
-                        + ((gUnk_0200283C->y + 2) * 32 + 1);
-                    line = &ctx->line[2];
-                    sub_08000BB4(NextCopy(), line, dst, 2);
+                    p = ctx->line;
+                    sub_08018F80(p, ctx->unk1BC6);
+                    dst = message_context->map1 + message_context->x
+                        + ((message_context->y + 1) * 32 + 1);
+                    sub_08000BB4(NextCopy(), p, dst, 2);
+                    dst = message_context->map1 + message_context->x
+                        + ((message_context->y + 2) * 32 + 1);
+                    p = &ctx->line[2];
+                    sub_08000BB4(NextCopy(), p, dst, 2);
                 }
             } else {
                 memzero(ctx->line, (ctx->width + 2) * 2);
-                sub_0801BC70(&gUnk_0200283C->line[1], gUnk_0200283C->unkEEB,
-                             gUnk_0200283C->unkEFE);
-                dst = gUnk_0200283C->map1 + gUnk_0200283C->x + gUnk_0200283C->y * 32;
+                sub_0801BC70(&message_context->line[1], message_context->unkEEB,
+                             message_context->unkEFE);
+                dst = message_context->map1 + message_context->x + message_context->y * 32;
                 {
-                    s32 w = gUnk_0200283C->width + 2;
-                    u16 *src = gUnk_0200283C->line;
+                    s32 w = message_context->width + 2;
+                    u16 *src = message_context->line;
                     sub_08000BB4(NextCopy(), src, dst, w);
                 }
                 dst += 32;
-                sub_08000D94(NextCopy(), 0, dst, gUnk_0200283C->width + 2,
-                             gUnk_0200283C->height + 1, 0x40);
+                sub_08000D94(NextCopy(), 0, dst, message_context->width + 2,
+                             message_context->height + 1, 0x40);
             }
         }
-        gUnk_0200283C->unk1B98 = 3;
-        gUnk_0200283C->unk1BA4 = WIN_PRINT;
+        message_context->unk1B98 = 3;
+        message_context->unk1BA4 = WIN_PRINT;
         sub_08015188();
     case WIN_PRINT:
-        if (gUnk_0200283C->unk1BB8 == 1) {
-            if (gUnk_0200283C->text->unk7_3 <= 1
-             || gUnk_0200283C->text->unk7_5) {
+        if (message_context->unk1BB8 == 1) {
+            if (message_context->text->unk7_3 <= 1
+             || message_context->text->unk7_5) {
                 u8 right = 0;
                 u8 left = 0;
-                u8 inset = left;
-                u8 kind = gUnk_0200283C->unk1BAC;
-                struct { volatile u8 v; } *winIn;
+                u8 kind;
+
+                inset = 0;
+                kind = message_context->unk1BAC;
 
                 if (kind != 0) {
-                    if (gUnk_0200283C->unk1BC1 & 0xC)
+                    if (message_context->unk1BC1 & 0xC)
                         left = 3;
                     else if (kind == 1)
                         left = 6;
                     else
                         right = 6;
                 }
-                if (!(gUnk_0200283C->unkEF8 & 8))
+                if (!(message_context->unkEF8 & 8))
                     inset = 3;
-                if (gUnk_0200283C->unk1BB9 == 0) {
-                    gUnk_03000DD0.win0Right = ((gUnk_0200283C->x + gUnk_0200283C->width
+                if (message_context->unk1BB9 == 0) {
+                    gUnk_03000DD0.win0Right = ((message_context->x + message_context->width
                                                - (right + 1)) << 3) - inset;
-                    gUnk_03000DD0.win0Left = ((gUnk_0200283C->x + left) << 3) + inset;
-                    gUnk_03000DD0.win0Bottom = ((gUnk_0200283C->y + gUnk_0200283C->height + 2)
+                    gUnk_03000DD0.win0Left = (message_context->x + left) * 8 + inset;
+                    gUnk_03000DD0.win0Bottom = ((message_context->y + message_context->height + 2)
                                                << 3) - inset;
-                    gUnk_03000DD0.win0Top = (gUnk_0200283C->y << 3) + inset;
+                    gUnk_03000DD0.win0Top = (message_context->y << 3) + inset;
                     gUnk_03000DD0.dispcnt |= 0x2000;
-                    winIn = (void *)&gUnk_03000DD0.winIn0;
+                    gUnk_03000DD0.winIn0 &= 0xE0;
+                    gUnk_03000DD0.winIn0 |= 0xF;
                 } else {
-                    gUnk_03000DD0.win1Right = ((gUnk_0200283C->x + gUnk_0200283C->width
+                    gUnk_03000DD0.win1Right = ((message_context->x + message_context->width
                                                - (right + 1)) << 3) - inset;
-                    gUnk_03000DD0.win1Left = ((gUnk_0200283C->x + left) << 3) + inset;
-                    gUnk_03000DD0.win1Bottom = ((gUnk_0200283C->y + gUnk_0200283C->height + 2)
+                    gUnk_03000DD0.win1Left = (message_context->x + left) * 8 + inset;
+                    gUnk_03000DD0.win1Bottom = ((message_context->y + message_context->height + 2)
                                                << 3) - inset;
-                    gUnk_03000DD0.win1Top = (gUnk_0200283C->y << 3) + inset;
+                    gUnk_03000DD0.win1Top = (message_context->y << 3) + inset;
                     gUnk_03000DD0.dispcnt |= 0x4000;
-                    winIn = (void *)&gUnk_03000DD0.winIn1;
+                    gUnk_03000DD0.winIn1 &= 0xE0;
+                    gUnk_03000DD0.winIn1 |= 0xF;
                 }
-                winIn->v &= 0xE0;
-                winIn->v |= 0xF;
-                if (gUnk_0200283C->unk1BBB == 1) {
+                if (message_context->unk1BBB == 1) {
                     gUnk_03000DD0.winOut = 0x1F;
                     REG_DISPCNT = gUnk_03000DD0.dispcnt;
                     CpuSet((void *)&gUnk_03000DD0.win0Right, (void *)REG_ADDR_WIN0H, 6);
                 }
             }
         }
-        if (gUnk_0200283C->unk1B84 >= gUnk_0200283C->text->lines - 1
-         && gUnk_0200283C->unkEEE == 0 && gUnk_0200283C->unk1B98 == 0
-         && (gUnk_0200283C->unk1BA7 & 2)) {
+        if (message_context->unk1B84 >= message_context->text->lines - 1
+         && message_context->unkEEE == 0 && message_context->unk1B98 == 0
+         && (message_context->unk1BA7 & 2)) {
             sub_08016318();
-            gUnk_0200283C->unk1BA4 = WIN_9;
+            message_context->unk1BA4 = WIN_9;
         } else {
-            gUnk_0200283C->unk1BA4 = WIN_TEXT;
+            message_context->unk1BA4 = WIN_TEXT;
         }
         break;
     case WIN_TEXT:
     case WIN_TEXT_7:
-        if (gUnk_0200283C->unkEF8 & 0x80) {
-            gUnk_0200283C->unk1BA4 = WIN_CLOSED;
+        if (message_context->unkEF8 & 0x80) {
+            message_context->unk1BA4 = WIN_CLOSED;
             break;
         }
         ret = sub_08018568();
@@ -318,15 +330,15 @@ u16 sub_0801670C(void)
             return 1;
         }
         if (ret == 0xFF) {
-            gUnk_0200283C->unk1BA4 = WIN_CLOSE;
+            message_context->unk1BA4 = WIN_CLOSE;
             ret = 0;
         }
         break;
     case WIN_8:
         sub_08016318();
     case WIN_9:
-        gUnk_0200283C->unk1BA4 = WIN_10;
-        gUnk_0200283C->unk1B99 = 8;
+        message_context->unk1BA4 = WIN_10;
+        message_context->unk1B99 = 8;
         sub_08018D58();
         sub_080188D0();
         return 0;
@@ -336,155 +348,154 @@ u16 sub_0801670C(void)
         sub_08018D58();
         return 0;
     case WIN_CLOSE:
-        if (gUnk_0200283C->unkEF2 != 0) {
-            gUnk_0200283C->unk1BA4 = WIN_FADE_INIT;
-            gUnk_0200283C->next = WIN_CLOSED;
+        if (message_context->unkEF2 != 0) {
+            message_context->unk1BA4 = WIN_FADE_INIT;
+            message_context->next = WIN_CLOSED;
             break;
         }
-        if (!(gUnk_0200283C->unk1BC1 & 3) && gUnk_0200283C->unkEF0 == 0
-         && !(gUnk_0200283C->unkEF8 & 0x82)) {
-            gUnk_0200283C->animTimer = 4;
-            gUnk_0200283C->animWidth = gUnk_0200283C->width;
-            gUnk_0200283C->next = WIN_CLOSED;
-            gUnk_0200283C->unk1BA4 = WIN_ANIM;
+        if (!(message_context->unk1BC1 & 3) && message_context->unkEF0 == 0
+         && !(message_context->unkEF8 & 0x82)) {
+            message_context->animTimer = 4;
+            message_context->animWidth = message_context->width;
+            message_context->next = WIN_CLOSED;
+            // QOL: no closing animation; the window goes at once.
+            message_context->unk1BA4 = QOL ? WIN_CLOSED : WIN_ANIM;
             break;
         }
-        gUnk_0200283C->unk1BA4 = WIN_CLOSED;
+        message_context->unk1BA4 = WIN_CLOSED;
     case WIN_CLOSED:
-        if (!(gUnk_0200283C->unkEF8 & 0x80))
+        if (!(message_context->unkEF8 & 0x80))
             sub_08014118();
         else
             sub_08018D58();
-        gUnk_0200283C->unk1BA4 = WIN_RESTORE;
-        if (!(gUnk_0200283C->unkEF8 & 0x1000))
+        message_context->unk1BA4 = WIN_RESTORE;
+        if (!(message_context->unkEF8 & 0x1000))
             return 0;
     case WIN_RESTORE:
-        if (gUnk_0200283C->unk1BB8 == 1) {
-            if (gUnk_0200283C->unk1BB9 == 0) {
-                gUnk_03000DD0.win0Right = gUnk_0200283C->savedWin[1];
-                gUnk_03000DD0.win0Left = gUnk_0200283C->savedWin[0];
-                gUnk_03000DD0.win0Bottom = gUnk_0200283C->savedWin[3];
-                gUnk_03000DD0.win0Top = gUnk_0200283C->savedWin[2];
+        if (message_context->unk1BB8 == 1) {
+            if (message_context->unk1BB9 == 0) {
+                gUnk_03000DD0.win0Right = message_context->savedWin[1];
+                gUnk_03000DD0.win0Left = message_context->savedWin[0];
+                gUnk_03000DD0.win0Bottom = message_context->savedWin[3];
+                gUnk_03000DD0.win0Top = message_context->savedWin[2];
             } else {
-                gUnk_03000DD0.win1Right = gUnk_0200283C->savedWin[1];
-                gUnk_03000DD0.win1Left = gUnk_0200283C->savedWin[0];
-                gUnk_03000DD0.win1Bottom = gUnk_0200283C->savedWin[3];
-                gUnk_03000DD0.win1Top = gUnk_0200283C->savedWin[2];
+                gUnk_03000DD0.win1Right = message_context->savedWin[1];
+                gUnk_03000DD0.win1Left = message_context->savedWin[0];
+                gUnk_03000DD0.win1Bottom = message_context->savedWin[3];
+                gUnk_03000DD0.win1Top = message_context->savedWin[2];
             }
-            gUnk_03000DD0.dispcnt = gUnk_0200283C->savedDispcnt;
-            gUnk_03000DD0.winIn0 = gUnk_0200283C->savedWinIn[0];
-            gUnk_03000DD0.winIn1 = gUnk_0200283C->savedWinIn[1];
-            if (gUnk_0200283C->unk1BBB == 1) {
-                gUnk_03000DD0.winOut = gUnk_0200283C->savedWinOut;
+            gUnk_03000DD0.dispcnt = message_context->savedDispcnt;
+            gUnk_03000DD0.winIn0 = message_context->savedWinIn[0];
+            gUnk_03000DD0.winIn1 = message_context->savedWinIn[1];
+            if (message_context->unk1BBB == 1) {
+                gUnk_03000DD0.winOut = message_context->savedWinOut;
                 REG_DISPCNT = gUnk_03000DD0.dispcnt;
                 CpuSet((void *)&gUnk_03000DD0.win0Right, (void *)REG_ADDR_WIN0H, 6);
             }
         }
-        if (gUnk_0200283C->unkEF8 & 0x80)
+        if (message_context->unkEF8 & 0x80)
             sub_08018D58();
         return 0xFF;
     case WIN_ANIM:
         {
-            u32 bits = 0;
-            s32 inset;
-
-            if (++gUnk_0200283C->animTimer <= 3)
+            if (++message_context->animTimer <= 3)
                 return 0;
-            gUnk_0200283C->animTimer = 0;
-            if (gUnk_0200283C->unk1BB8 == 1
-             && (gUnk_0200283C->text->unk7_3 <= 1
-                 || gUnk_0200283C->text->unk7_5)) {
+            message_context->animTimer = 0;
+            if (message_context->unk1BB8 == 1
+             && (message_context->text->unk7_3 <= 1
+                 || message_context->text->unk7_5)) {
                 inset = 0;
-                if (!(gUnk_0200283C->unkEF8 & 8))
+                if (!(message_context->unkEF8 & 8))
                     inset = 3;
-                if (gUnk_0200283C->unk1BB9 == 0) {
-                    gUnk_03000DD0.win0Right = ((gUnk_0200283C->x + (gUnk_0200283C->width - gUnk_0200283C->animWidth) / 2 + gUnk_0200283C->animWidth + 2) << 3) - inset;
-                    gUnk_03000DD0.win0Left = (gUnk_0200283C->x + (gUnk_0200283C->width - gUnk_0200283C->animWidth) / 2) * 8 + inset;
-                    gUnk_03000DD0.win0Bottom = (gUnk_0200283C->y + gUnk_0200283C->height / 2
+                if (message_context->unk1BB9 == 0) {
+                    gUnk_03000DD0.win0Right = ((message_context->x + (message_context->width - message_context->animWidth) / 2 + message_context->animWidth + 2) << 3) - inset;
+                    gUnk_03000DD0.win0Left = (message_context->x + (message_context->width - message_context->animWidth) / 2) * 8 + inset;
+                    gUnk_03000DD0.win0Bottom = (message_context->y + message_context->height / 2
                                                 + 2) * 8 - inset;
-                    gUnk_03000DD0.win0Top = (gUnk_0200283C->y + gUnk_0200283C->height / 2) * 8
+                    gUnk_03000DD0.win0Top = (message_context->y + message_context->height / 2) * 8
                                             + inset;
                     gUnk_03000DD0.winIn0 &= 0xE0;
-                    gUnk_03000DD0.winIn0 = gUnk_03000DD0.winIn0 | 0xF | bits;
+                    gUnk_03000DD0.winIn0 = gUnk_03000DD0.winIn0 | 0xF;
                     gUnk_03000DD0.dispcnt |= 0x2000;
                 } else {
-                    gUnk_03000DD0.win1Right = ((gUnk_0200283C->x + (gUnk_0200283C->width - gUnk_0200283C->animWidth) / 2 + gUnk_0200283C->animWidth + 2) << 3) - inset;
-                    gUnk_03000DD0.win1Left = (gUnk_0200283C->x + (gUnk_0200283C->width - gUnk_0200283C->animWidth) / 2) * 8 + inset;
-                    gUnk_03000DD0.win1Bottom = (gUnk_0200283C->y + gUnk_0200283C->height / 2
+                    gUnk_03000DD0.win1Right = ((message_context->x + (message_context->width - message_context->animWidth) / 2 + message_context->animWidth + 2) << 3) - inset;
+                    gUnk_03000DD0.win1Left = (message_context->x + (message_context->width - message_context->animWidth) / 2) * 8 + inset;
+                    gUnk_03000DD0.win1Bottom = (message_context->y + message_context->height / 2
                                                 + 2) * 8 - inset;
-                    gUnk_03000DD0.win1Top = (gUnk_0200283C->y + gUnk_0200283C->height / 2) * 8
+                    gUnk_03000DD0.win1Top = (message_context->y + message_context->height / 2) * 8
                                             + inset;
                     gUnk_03000DD0.winIn1 &= 0xE0;
-                    gUnk_03000DD0.winIn1 = gUnk_03000DD0.winIn1 | 0xF | bits;
+                    gUnk_03000DD0.winIn1 = gUnk_03000DD0.winIn1 | 0xF;
                     gUnk_03000DD0.dispcnt |= 0x4000;
                 }
-                if (gUnk_0200283C->unk1BBB == 1) {
+                if (message_context->unk1BBB == 1) {
                     gUnk_03000DD0.winOut = 0x1F;
                     REG_DISPCNT = gUnk_03000DD0.dispcnt;
                     CpuSet((void *)&gUnk_03000DD0.win0Right, (void *)REG_ADDR_WIN0H, 6);
                 }
             }
             sub_08014118();
-            sub_0801BB1C(gUnk_0200283C->frame, gUnk_0200283C->animWidth + 2, 2,
-                         gUnk_0200283C->unkEEA, gUnk_0200283C->animWidth + 2,
-                         gUnk_0200283C->unkEFE, 4);
+            sub_0801BB1C(message_context->frame, message_context->animWidth + 2, 2,
+                         message_context->unkEEA, message_context->animWidth + 2,
+                         message_context->unkEFE, 4);
             {
-                u16 *src = gUnk_0200283C->frame;
                 s32 w, h;
-                dst = gUnk_0200283C->map0 + gUnk_0200283C->x
-                      + (gUnk_0200283C->width - gUnk_0200283C->animWidth) / 2
-                      + (gUnk_0200283C->y + gUnk_0200283C->height / 2) * 32;
-                w = gUnk_0200283C->animWidth + 2;
+
+                p = message_context->frame;
+                dst = message_context->map0 + message_context->x
+                      + (message_context->width - message_context->animWidth) / 2
+                      + (message_context->y + message_context->height / 2) * 32;
+                w = message_context->animWidth + 2;
                 h = 2;
-                sub_08000CD4(NextCopy(), src, dst, w, h, w * 2, 0x40);
+                sub_08000CD4(NextCopy(), p, dst, w, h, w * 2, 0x40);
             }
-            dst = gUnk_0200283C->map1 + gUnk_0200283C->x
-                  + (gUnk_0200283C->width - gUnk_0200283C->animWidth) / 2
-                  + (gUnk_0200283C->y + gUnk_0200283C->height / 2) * 32;
-            sub_08000D94(NextCopy(), 0, dst, gUnk_0200283C->animWidth + 2, 2, 0x40);
-            if (gUnk_0200283C->next == WIN_CLOSED) {
-                if (gUnk_0200283C->animWidth > 2)
-                    gUnk_0200283C->animWidth = 2;
+            dst = message_context->map1 + message_context->x
+                  + (message_context->width - message_context->animWidth) / 2
+                  + (message_context->y + message_context->height / 2) * 32;
+            sub_08000D94(NextCopy(), 0, dst, message_context->animWidth + 2, 2, 0x40);
+            if (message_context->next == WIN_CLOSED) {
+                if (message_context->animWidth > 2)
+                    message_context->animWidth = 2;
                 else
-                    gUnk_0200283C->unk1BA4 = WIN_ANIM_WAIT;
+                    message_context->unk1BA4 = WIN_ANIM_WAIT;
             } else {
-                if (gUnk_0200283C->animWidth < gUnk_0200283C->width)
-                    gUnk_0200283C->animWidth = gUnk_0200283C->width;
+                if (message_context->animWidth < message_context->width)
+                    message_context->animWidth = message_context->width;
                 else
-                    gUnk_0200283C->unk1BA4 = WIN_ANIM_WAIT;
+                    message_context->unk1BA4 = WIN_ANIM_WAIT;
             }
         }
         return 0;
     case WIN_ANIM_WAIT:
-        if (++gUnk_0200283C->animTimer <= 3)
+        if (++message_context->animTimer <= 3)
             return 0;
-        gUnk_0200283C->animTimer = 0;
-        gUnk_0200283C->unk1BA4 = gUnk_0200283C->next;
-        if (gUnk_0200283C->next == WIN_CLOSED)
+        message_context->animTimer = 0;
+        message_context->unk1BA4 = message_context->next;
+        if (message_context->next == WIN_CLOSED)
             sub_08014118();
         return 0;
     case WIN_FADE_INIT:
-        gUnk_0200283C->fadeStep = 0;
-        gUnk_0200283C->unk1BA4 = WIN_FADE;
-        CpuSet(gUnk_02002500, gUnk_0200283C->frame, 0x10);
+        message_context->fadeStep = 0;
+        message_context->unk1BA4 = WIN_FADE;
+        CpuSet(gUnk_02002500, message_context->frame, 0x10);
     case WIN_FADE:
-        if (++gUnk_0200283C->fadeStep < gUnk_0200283C->fadeLength) {
-            u8 step = gUnk_0200283C->fadeStep;
-            vu16 *src = gUnk_0200283C->frame;
+        if (++message_context->fadeStep < message_context->fadeLength) {
+            u8 step = message_context->fadeStep;
+            vu16 *src = message_context->frame;
             u16 *dst = gUnk_02002500;
-            u8 len = gUnk_0200283C->fadeLength;
+            u8 len = message_context->fadeLength;
             u16 i;
 
             for (i = 0; i < 16; i++, src++) {
-                *dst++ = ((len - step) * (*src & 0x1F)) / len
-                       | ((len - step) * ((*src >> 5) & 0x1F)) / len << 5
-                       | ((len - step) * ((*src >> 10) & 0x1F)) / len << 10;
+                *dst++ = ((*src & 0x1F) * (len - step)) / len
+                       | (((*src >> 5) & 0x1F) * (len - step)) / len << 5
+                       | (((*src >> 10) & 0x1F) * (len - step)) / len << 10;
             }
             return 0;
         }
         sub_08014118();
-        CpuSet(gUnk_0200283C->frame, gUnk_02002500, 0x10);
-        gUnk_0200283C->unk1BA4 = gUnk_0200283C->next;
+        CpuSet(message_context->frame, gUnk_02002500, 0x10);
+        message_context->unk1BA4 = message_context->next;
         return 0;
     default:
         break;
@@ -496,9 +507,3 @@ u16 sub_0801670C(void)
         ret = 0;
     return ret;
 }
-#else
-NAKED u16 sub_0801670C(void)
-{
-    asm_unified(".include \"asm/non_matching/message_window/sub_0801670C.inc\"");
-}
-#endif

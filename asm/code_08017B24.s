@@ -28,7 +28,7 @@ sub_08017B24: @ 0x08017B24
 	lsls r1, r1, #0x10
 	lsrs r1, r1, #0x10
 	str r1, [sp, #0x10]
-	ldr r7, _08017C54 @ =gUnk_0200283C
+	ldr r7, _08017C54 @ =message_context
 	str r0, [r7]
 	ldr r1, _08017C58 @ =0x00001C24
 	bl memzero
@@ -158,7 +158,7 @@ _08017C14:
 	strb r0, [r1]
 	b _08017CA6
 	.align 2, 0
-_08017C54: .4byte gUnk_0200283C
+_08017C54: .4byte message_context
 _08017C58: .4byte 0x00001C24
 _08017C5C: .4byte 0x00000EE4
 _08017C60: .4byte 0x00000ED4
@@ -182,7 +182,7 @@ _08017CA0:
 	adds r0, r1, r2
 	strb r5, [r0]
 _08017CA6:
-	ldr r3, _08017CF4 @ =gUnk_0200283C
+	ldr r3, _08017CF4 @ =message_context
 	ldr r0, [r3]
 	ldr r4, _08017CF8 @ =0x00000EED
 	adds r1, r0, r4
@@ -220,7 +220,7 @@ _08017CA6:
 	b _08017D24
 	.align 2, 0
 _08017CF0: .4byte 0x00000EEA
-_08017CF4: .4byte gUnk_0200283C
+_08017CF4: .4byte message_context
 _08017CF8: .4byte 0x00000EED
 _08017CFC: .4byte 0x00001B95
 _08017D00: .4byte 0x00001B94
@@ -241,7 +241,7 @@ _08017D0C:
 	strh r1, [r0]
 _08017D24:
 	bl sub_080160E4
-	ldr r7, _08017FB4 @ =gUnk_0200283C
+	ldr r7, _08017FB4 @ =message_context
 	ldr r4, [r7]
 	ldr r1, _08017FB8 @ =0x00000EFC
 	adds r0, r4, r1
@@ -556,7 +556,7 @@ _08017F7C:
 	.align 2, 0
 _08017FAC: .4byte 0x00001B94
 _08017FB0: .4byte 0x00001BC4
-_08017FB4: .4byte gUnk_0200283C
+_08017FB4: .4byte message_context
 _08017FB8: .4byte 0x00000EFC
 _08017FBC: .4byte 0x00001B96
 _08017FC0: .4byte 0x00000EF1
@@ -592,7 +592,7 @@ _08018010:
 	adds r0, r3, r4
 	strb r1, [r0]
 _08018018:
-	ldr r1, _08018048 @ =gUnk_0200283C
+	ldr r1, _08018048 @ =message_context
 	ldr r2, [r1]
 	ldr r0, _0801804C @ =0x00000EE9
 	adds r6, r2, r0
@@ -615,7 +615,7 @@ _08018018:
 	b _0801805E
 	.align 2, 0
 _08018044: .4byte 0x00001B93
-_08018048: .4byte gUnk_0200283C
+_08018048: .4byte message_context
 _0801804C: .4byte 0x00000EE9
 _08018050: .4byte 0x00001B96
 _08018054:
@@ -671,7 +671,7 @@ sub_080180B0: @ 0x080180B0
 	mov r5, r8
 	push {r5, r6, r7}
 	sub sp, #8
-	ldr r7, _080181AC @ =gUnk_0200283C
+	ldr r7, _080181AC @ =message_context
 	ldr r1, [r7]
 	ldr r2, _080181B0 @ =0x00000EEB
 	adds r0, r1, r2
@@ -787,7 +787,7 @@ _080180DC:
 	pop {r0}
 	bx r0
 	.align 2, 0
-_080181AC: .4byte gUnk_0200283C
+_080181AC: .4byte message_context
 _080181B0: .4byte 0x00000EEB
 _080181B4: .4byte 0x00001B94
 _080181B8: .4byte 0x00000ED8
@@ -831,7 +831,7 @@ sub_080181D4: @ 0x080181D4
 	lsrs r1, r1, #0x18
 	mov sb, r1
 	movs r7, #0
-	ldr r4, _080182FC @ =gUnk_0200283C
+	ldr r4, _080182FC @ =message_context
 	str r0, [r4]
 	ldr r1, _08018300 @ =0x00001C24
 	str r2, [sp]
@@ -949,7 +949,7 @@ _080182F2:
 	ldr r0, [r0]
 	mov pc, r0
 	.align 2, 0
-_080182FC: .4byte gUnk_0200283C
+_080182FC: .4byte message_context
 _08018300: .4byte 0x00001C24
 _08018304: .4byte 0x00000EE4
 _08018308: .4byte 0x00000EE8
@@ -978,7 +978,7 @@ _08018350: @ jump table
 	.4byte _08018384 @ case 4
 	.4byte _080183E0 @ case 5
 _08018368:
-	ldr r0, _0801837C @ =gUnk_0200283C
+	ldr r0, _0801837C @ =message_context
 	ldr r0, [r0]
 	ldr r2, _08018380 @ =0x00001BC6
 	adds r0, r0, r2
@@ -988,12 +988,12 @@ _08018368:
 	bl sub_081437AC
 	b _080183C6
 	.align 2, 0
-_0801837C: .4byte gUnk_0200283C
+_0801837C: .4byte message_context
 _08018380: .4byte 0x00001BC6
 _08018384:
 	ldr r2, _080183A0 @ =gUnk_08623678
 	ldr r1, _080183A4 @ =gUnk_0861A8F0
-	ldr r0, _080183A8 @ =gUnk_0200283C
+	ldr r0, _080183A8 @ =message_context
 	ldr r0, [r0]
 	ldr r3, _080183AC @ =0x00001BC6
 	adds r0, r0, r3
@@ -1007,11 +1007,11 @@ _08018384:
 	.align 2, 0
 _080183A0: .4byte gUnk_08623678
 _080183A4: .4byte gUnk_0861A8F0
-_080183A8: .4byte gUnk_0200283C
+_080183A8: .4byte message_context
 _080183AC: .4byte 0x00001BC6
 _080183B0:
 	ldr r1, _080183D0 @ =gUnk_08623678
-	ldr r0, _080183D4 @ =gUnk_0200283C
+	ldr r0, _080183D4 @ =message_context
 	ldr r0, [r0]
 	ldr r5, _080183D8 @ =0x00001BC6
 	adds r0, r0, r5
@@ -1029,11 +1029,11 @@ _080183C6:
 	b _080184A4
 	.align 2, 0
 _080183D0: .4byte gUnk_08623678
-_080183D4: .4byte gUnk_0200283C
+_080183D4: .4byte message_context
 _080183D8: .4byte 0x00001BC6
 _080183DC: .4byte 0x0000011B
 _080183E0:
-	ldr r0, _08018444 @ =gUnk_0200283C
+	ldr r0, _08018444 @ =message_context
 	ldr r0, [r0]
 	ldr r1, _08018448 @ =0x00001BC6
 	adds r0, r0, r1
@@ -1084,7 +1084,7 @@ _0801841C:
 	adds r0, r0, r1
 	b _08018476
 	.align 2, 0
-_08018444: .4byte gUnk_0200283C
+_08018444: .4byte message_context
 _08018448: .4byte 0x00001BC6
 _0801844C: .4byte gUnk_08623678
 _08018450: .4byte gUnk_02002800
@@ -1125,14 +1125,14 @@ _0801848E:
 	movs r1, #0
 	movs r2, #0
 	bl sub_080197D4
-	ldr r0, _08018538 @ =gUnk_0200283C
+	ldr r0, _08018538 @ =message_context
 	ldr r0, [r0]
 	ldr r3, _0801853C @ =0x00001BC6
 	adds r0, r0, r3
 	movs r1, #0xc0
 	strh r1, [r0]
 _080184A4:
-	ldr r4, _08018538 @ =gUnk_0200283C
+	ldr r4, _08018538 @ =message_context
 	ldr r3, [r4]
 	ldr r5, _08018540 @ =0x00001B74
 	adds r1, r3, r5
@@ -1204,7 +1204,7 @@ _080184A4:
 	pop {r0}
 	bx r0
 	.align 2, 0
-_08018538: .4byte gUnk_0200283C
+_08018538: .4byte message_context
 _0801853C: .4byte 0x00001BC6
 _08018540: .4byte 0x00001B74
 _08018544: .4byte gUnk_02002830
@@ -1227,7 +1227,7 @@ sub_08018568: @ 0x08018568
 	movs r0, #1
 	b _080187F4
 _08018578:
-	ldr r0, _080185A0 @ =gUnk_0200283C
+	ldr r0, _080185A0 @ =message_context
 	ldr r2, [r0]
 	ldr r3, _080185A4 @ =0x00001B98
 	adds r1, r2, r3
@@ -1247,7 +1247,7 @@ _0801859A:
 	movs r0, #2
 	b _080187F4
 	.align 2, 0
-_080185A0: .4byte gUnk_0200283C
+_080185A0: .4byte message_context
 _080185A4: .4byte 0x00001B98
 _080185A8:
 	ldr r5, _080185C4 @ =0x00001B91
@@ -1517,7 +1517,7 @@ _080187C8:
 	strb r0, [r2]
 	b _080187F2
 _080187CE:
-	ldr r0, _080187FC @ =gUnk_0200283C
+	ldr r0, _080187FC @ =message_context
 	ldr r0, [r0]
 	ldr r4, _08018800 @ =0x00001B99
 	adds r3, r0, r4
@@ -1543,7 +1543,7 @@ _080187F4:
 	pop {r1}
 	bx r1
 	.align 2, 0
-_080187FC: .4byte gUnk_0200283C
+_080187FC: .4byte message_context
 _08018800: .4byte 0x00001B99
 _08018804: .4byte 0x00001B84
 
@@ -1558,7 +1558,7 @@ sub_08018808: @ 0x08018808
 	beq _0801883C
 	movs r0, #0xb2
 	bl PlaySE
-	ldr r0, _08018834 @ =gUnk_0200283C
+	ldr r0, _08018834 @ =message_context
 	ldr r1, [r0]
 	ldr r0, _08018838 @ =0x00001BA6
 	adds r1, r1, r0
@@ -1570,10 +1570,10 @@ sub_08018808: @ 0x08018808
 	b _080188BC
 	.align 2, 0
 _08018830: .4byte gUnk_03000820
-_08018834: .4byte gUnk_0200283C
+_08018834: .4byte message_context
 _08018838: .4byte 0x00001BA6
 _0801883C:
-	ldr r4, _0801887C @ =gUnk_0200283C
+	ldr r4, _0801887C @ =message_context
 	ldr r0, [r4]
 	ldr r1, _08018880 @ =0x00001B74
 	adds r0, r0, r1
@@ -1605,7 +1605,7 @@ _0801883C:
 	ldr r0, [r4]
 	b _080188B2
 	.align 2, 0
-_0801887C: .4byte gUnk_0200283C
+_0801887C: .4byte message_context
 _08018880: .4byte 0x00001B74
 _08018884: .4byte 0x00001BA6
 _08018888: .4byte 0x00001B99
@@ -1620,7 +1620,7 @@ _0801888C:
 _0801889A:
 	movs r0, #0xad
 	bl PlaySE
-	ldr r3, _080188C4 @ =gUnk_0200283C
+	ldr r3, _080188C4 @ =message_context
 	ldr r1, [r3]
 	ldr r0, _080188C8 @ =0x00001B99
 	adds r1, r1, r0
@@ -1640,7 +1640,7 @@ _080188BC:
 	pop {r1}
 	bx r1
 	.align 2, 0
-_080188C4: .4byte gUnk_0200283C
+_080188C4: .4byte message_context
 _080188C8: .4byte 0x00001B99
 _080188CC: .4byte 0x00001BA4
 
@@ -1666,7 +1666,7 @@ sub_080188D0: @ 0x080188D0
 	adds r0, r4, #0
 	movs r2, #8
 	bl memcpy
-	ldr r0, _08018A60 @ =gUnk_0200283C
+	ldr r0, _08018A60 @ =message_context
 	ldr r6, [r0]
 	ldr r1, _08018A64 @ =0x00000EF8
 	adds r0, r6, r1
@@ -1708,7 +1708,7 @@ _08018912:
 	mov sl, r1
 	movs r7, #0
 _0801894E:
-	ldr r4, _08018A60 @ =gUnk_0200283C
+	ldr r4, _08018A60 @ =message_context
 	mov r8, r4
 	ldr r4, [r4]
 	ldr r5, _08018A78 @ =0x00001B99
@@ -1844,7 +1844,7 @@ _08018A10:
 _08018A54: .4byte gUnk_0815DE20
 _08018A58: .4byte gUnk_0815DE30
 _08018A5C: .4byte gUnk_0815DE40
-_08018A60: .4byte gUnk_0200283C
+_08018A60: .4byte message_context
 _08018A64: .4byte 0x00000EF8
 _08018A68: .4byte 0x00001B93
 _08018A6C: .4byte 0x00001B94
@@ -1869,7 +1869,7 @@ _08018A98:
 	adds r2, r5, #0
 	bl sub_080020C8
 _08018AA4:
-	ldr r2, _08018AFC @ =gUnk_0200283C
+	ldr r2, _08018AFC @ =message_context
 	ldr r4, [r2]
 	ldr r5, _08018B00 @ =0x00001B99
 	adds r0, r4, r5
@@ -1912,7 +1912,7 @@ _08018AE0:
 	b _08018B0E
 	.align 2, 0
 _08018AF8: .4byte gUnk_086D7BF0
-_08018AFC: .4byte gUnk_0200283C
+_08018AFC: .4byte message_context
 _08018B00: .4byte 0x00001B99
 _08018B04: .4byte 0x00001BA1
 _08018B08: .4byte 0x00001B74
@@ -2211,7 +2211,7 @@ sub_08018D58: @ 0x08018D58
 	adds r0, r4, #0
 	movs r2, #0x1a
 	bl memcpy
-	ldr r3, _08018DAC @ =gUnk_0200283C
+	ldr r3, _08018DAC @ =message_context
 	ldr r2, [r3]
 	ldr r1, _08018DB0 @ =0x00001BC1
 	adds r0, r2, r1
@@ -2237,7 +2237,7 @@ _08018D9A:
 	.align 2, 0
 _08018DA4: .4byte gUnk_0815DE48
 _08018DA8: .4byte gUnk_0815DE50
-_08018DAC: .4byte gUnk_0200283C
+_08018DAC: .4byte message_context
 _08018DB0: .4byte 0x00001BC1
 _08018DB4: .4byte 0x00001BC2
 _08018DB8: .4byte _08018DBC
@@ -2250,7 +2250,7 @@ _08018DBC: @ jump table
 	.4byte _08018DD4 @ case 5
 _08018DD4:
 	add r6, sp, #0x1c
-	ldr r0, _08018E28 @ =gUnk_0200283C
+	ldr r0, _08018E28 @ =message_context
 	ldr r2, [r0]
 	ldr r5, _08018E2C @ =0x00001B93
 	adds r0, r2, r5
@@ -2291,7 +2291,7 @@ _08018DD4:
 	adds r2, r4, #0
 	b _08018E88
 	.align 2, 0
-_08018E28: .4byte gUnk_0200283C
+_08018E28: .4byte message_context
 _08018E2C: .4byte 0x00001B93
 _08018E30: .4byte 0x00001B92
 _08018E34: .4byte 0x00001BAE
@@ -2299,7 +2299,7 @@ _08018E38: .4byte 0x00001BCF
 _08018E3C: .4byte 0x00001BC6
 _08018E40: .4byte gUnk_08724208
 _08018E44:
-	ldr r0, _08018E90 @ =gUnk_0200283C
+	ldr r0, _08018E90 @ =message_context
 	ldr r4, [r0]
 	ldr r1, _08018E94 @ =0x00001B93
 	adds r0, r4, r1
@@ -2338,7 +2338,7 @@ _08018E88:
 	bl sub_080020C8
 	b _08018F5A
 	.align 2, 0
-_08018E90: .4byte gUnk_0200283C
+_08018E90: .4byte message_context
 _08018E94: .4byte 0x00001B93
 _08018E98: .4byte 0x00001B92
 _08018E9C: .4byte 0x00001BAE
@@ -2369,7 +2369,7 @@ _08018ECA:
 	mov sb, r3
 	movs r5, #0
 _08018ED4:
-	ldr r0, _08018EF8 @ =gUnk_0200283C
+	ldr r0, _08018EF8 @ =message_context
 	ldr r2, [r0]
 	ldr r1, _08018EF0 @ =0x00001BAC
 	adds r0, r2, r1
@@ -2385,7 +2385,7 @@ _08018ED4:
 	.align 2, 0
 _08018EF0: .4byte 0x00001BAC
 _08018EF4: .4byte 0x00000EF8
-_08018EF8: .4byte gUnk_0200283C
+_08018EF8: .4byte message_context
 _08018EFC: .4byte 0x00001B93
 _08018F00:
 	ldr r1, _08018F6C @ =0x00001B93
@@ -2597,7 +2597,7 @@ sub_08019088: @ 0x08019088
 	push {r4, r5, r6, lr}
 	lsls r1, r1, #0x10
 	lsrs r5, r1, #0x10
-	ldr r3, _080190E0 @ =gUnk_0200283C
+	ldr r3, _080190E0 @ =message_context
 	ldr r1, [r3]
 	ldr r2, _080190E4 @ =0x00001BB9
 	adds r1, r1, r2
@@ -2638,7 +2638,7 @@ sub_08019088: @ 0x08019088
 	adds r1, #0x3f
 	b _08019128
 	.align 2, 0
-_080190E0: .4byte gUnk_0200283C
+_080190E0: .4byte message_context
 _080190E4: .4byte 0x00001BB9
 _080190E8: .4byte 0x00001BB8
 _080190EC: .4byte gUnk_03000DD0
@@ -2720,7 +2720,7 @@ sub_08019188: @ 0x08019188
 	mov r7, sb
 	mov r6, r8
 	push {r6, r7}
-	ldr r4, _080191B8 @ =gUnk_0200283C
+	ldr r4, _080191B8 @ =message_context
 	ldr r1, [r4]
 	movs r0, #0xef
 	lsls r0, r0, #4
@@ -2741,7 +2741,7 @@ sub_08019188: @ 0x08019188
 	strb r2, [r0]
 	b _0801924C
 	.align 2, 0
-_080191B8: .4byte gUnk_0200283C
+_080191B8: .4byte message_context
 _080191BC: .4byte 0x00000EF2
 _080191C0:
 	ldr r6, _080191FC @ =0x00001B84
@@ -2830,7 +2830,7 @@ _08019264: .4byte 0x00001BA4
 	thumb_func_start sub_08019268
 sub_08019268: @ 0x08019268
 	ldr r0, _08019294 @ =gUnk_02028E20
-	ldr r1, _08019298 @ =gUnk_0200283C
+	ldr r1, _08019298 @ =message_context
 	ldr r2, [r1]
 	ldr r3, _0801929C @ =0x00001B93
 	adds r1, r2, r3
@@ -2853,7 +2853,7 @@ sub_08019268: @ 0x08019268
 	bx lr
 	.align 2, 0
 _08019294: .4byte gUnk_02028E20
-_08019298: .4byte gUnk_0200283C
+_08019298: .4byte message_context
 _0801929C: .4byte 0x00001B93
 _080192A0: .4byte 0x00001B96
 
@@ -2887,7 +2887,7 @@ sub_080192A4: @ 0x080192A4
 	mov sb, r1
 	lsls r2, r2, #0x18
 	lsrs r2, r2, #0x18
-	ldr r7, _0801942C @ =gUnk_0200283C
+	ldr r7, _0801942C @ =message_context
 	str r0, [r7]
 	ldr r1, _08019430 @ =0x00001C24
 	str r2, [sp, #8]
@@ -3054,7 +3054,7 @@ _08019410:
 	pop {r0}
 	bx r0
 	.align 2, 0
-_0801942C: .4byte gUnk_0200283C
+_0801942C: .4byte message_context
 _08019430: .4byte 0x00001C24
 _08019434: .4byte 0x00000EE4
 _08019438: .4byte 0x00000ED4
@@ -3114,7 +3114,7 @@ sub_0801948C: @ 0x0801948C
 	lsls r1, r1, #0x10
 	lsrs r1, r1, #0x10
 	str r1, [sp, #4]
-	ldr r7, _0801956C @ =gUnk_0200283C
+	ldr r7, _0801956C @ =message_context
 	str r0, [r7]
 	ldr r1, _08019570 @ =0x00001C24
 	str r2, [sp, #8]
@@ -3192,7 +3192,7 @@ sub_0801948C: @ 0x0801948C
 	movs r2, #7
 	b _080195BC
 	.align 2, 0
-_0801956C: .4byte gUnk_0200283C
+_0801956C: .4byte message_context
 _08019570: .4byte 0x00001C24
 _08019574: .4byte 0x00000EE4
 _08019578: .4byte 0x00000ED4
@@ -3229,7 +3229,7 @@ _080195BC:
 _080195C2:
 	movs r0, #0xa5
 	bl sub_08142FAC
-	ldr r6, _08019670 @ =gUnk_0200283C
+	ldr r6, _08019670 @ =message_context
 	ldr r2, [r6]
 	lsls r0, r0, #0x18
 	lsrs r0, r0, #0x18
@@ -3311,7 +3311,7 @@ _080195C2:
 	b _080196C4
 	.align 2, 0
 _0801966C: .4byte 0x00001BCC
-_08019670: .4byte gUnk_0200283C
+_08019670: .4byte message_context
 _08019674: .4byte 0x00001BBE
 _08019678: .4byte 0x00000ED8
 _0801967C: .4byte gUnk_03000E20
@@ -3342,7 +3342,7 @@ _080196B8:
 	adds r0, r6, r4
 	strb r1, [r0]
 _080196C4:
-	ldr r3, _0801974C @ =gUnk_0200283C
+	ldr r3, _0801974C @ =message_context
 	ldr r0, [r3]
 	ldr r7, _08019750 @ =0x00000EEA
 	adds r0, r0, r7
@@ -3407,7 +3407,7 @@ _0801973C: .4byte gUnk_02000000
 _08019740: .4byte 0x0000132E
 _08019744: .4byte 0x00000EEE
 _08019748: .4byte 0x00000EEF
-_0801974C: .4byte gUnk_0200283C
+_0801974C: .4byte message_context
 _08019750: .4byte 0x00000EEA
 _08019754: .4byte 0x00000EEB
 _08019758: .4byte 0x00001BC6

@@ -5,7 +5,7 @@
 
 u8 sub_080197C0(void)
 {
-    return gUnk_0200283C->unk1BA6;
+    return message_context->unk1BA6;
 }
 
 void sub_080197D4(void *a, void *b, void *c)
@@ -17,35 +17,35 @@ void sub_080197D4(void *a, void *b, void *c)
 
 void sub_080197FC(void)
 {
-    gUnk_0200283C->unkEF1 = 1;
+    message_context->unkEF1 = 1;
 }
 
 u32 sub_08019814(void)
 {
     u32 ret = 0;
 
-    if (gUnk_0200283C->unkEF0 == 1)
+    if (message_context->unkEF0 == 1)
         ret = 1;
     return ret;
 }
 
 void sub_08019830(u16 arg)
 {
-    if (gUnk_0200283C->unkEF0 == 1) {
-        gUnk_0200283C->unkEF0 = arg != 1 ? 2 : 0;
-        gUnk_0200283C->unk1BA4 = 11;
+    if (message_context->unkEF0 == 1) {
+        message_context->unkEF0 = arg != 1 ? 2 : 0;
+        message_context->unk1BA4 = 11;
         sub_0801670C();
     }
 }
 
 void sub_08019870(u32 arg)
 {
-    gUnk_0200283C->unk1B7C = arg;
+    message_context->unk1B7C = arg;
 }
 
 void sub_08019884(void)
 {
-    gUnk_0200283C->unkEFC = 0xFF;
+    message_context->unkEFC = 0xFF;
 }
 
 // The width of a string in pixels, up to its end (0xFF) or a 0x81 glyph code.
